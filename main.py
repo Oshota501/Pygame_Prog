@@ -65,7 +65,7 @@ def main() -> None:
         deltatime = clock.tick(60) / 1000.0  # ミリ秒を秒に変換
 
         angle += 1
-        model_mat = matrix.rotation.create_x(angle)
+        model_mat = matrix.rotation.create(angle,angle,angle)
         my_cube.render(model_matrix=model_mat)
 
         pygame.display.flip()
