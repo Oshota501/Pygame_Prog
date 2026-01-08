@@ -16,7 +16,7 @@ def main() -> None:
 
     # ModernGLのコンテキストを作成
     ctx = moderngl.create_context()
-
+    ctx.enable(moderngl.DEPTH_TEST|moderngl.CULL_FACE)
     # シェーダーを読み込みます。
     _vertex_shader_folder = open("./main.vert","r")
     _fragment_shader_folder = open("./main.frag","r")
@@ -62,12 +62,13 @@ def main() -> None:
             print ("Shader error .\n Default vertex shader do not exist \"uniform view\" ")
             return
         
+        deltatime = clock.tick(60) / 1000.0  # ミリ秒を秒に変換
+
         angle += 1
         model_mat = matrix.rotation.create_x(angle)
         my_cube.render(model_matrix=model_mat)
 
         pygame.display.flip()
-        clock.tick(60)
 
     pygame.quit()
 
