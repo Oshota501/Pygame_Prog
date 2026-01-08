@@ -1,98 +1,76 @@
 import pygame
 import moderngl
 import numpy as np
-import math
+import matrix.rotation
+from Draw.mesh import Mesh
 from typing import cast
 
-# X軸周りの回転行列を作る関数
-def create_rotation_matrix_x(degrees):
-    rad = math.radians(degrees)
-    c = math.cos(rad)
-    s = math.sin(rad)
-    # 4x4行列 (列優先)
-    return np.array([
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0,   c,   s, 0.0],
-        [0.0,  -s,   c, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ], dtype='f4')
+def main() -> None:
+    # OpenGLのバージョンを330に合わせます。
+    pygame.init()
+    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 3)
+    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
+    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
+    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
+    pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
 
-# Y軸周りの回転行列を作る関数
-def create_rotation_matrix_y(degrees):
-    rad = math.radians(degrees)
-    c = math.cos(rad)
-    s = math.sin(rad)
-    return np.array([
-        [  c, 0.0,  -s, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [  s, 0.0,   c, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ], dtype='f4')
+    # ModernGLのコンテキストを作成
+    ctx = moderngl.create_context()
 
-# OpenGLのバージョンを330に合わせます。
-pygame.init()
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 3)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
-pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
+    # シェーダーを読み込みます。
+    _vertex_shader_folder = open("./main.vert","r")
+    _fragment_shader_folder = open("./main.frag","r")
+    vertex_shader = _vertex_shader_folder.read()
+    fragment_sahder = _fragment_shader_folder.read()
 
-# ModernGLのコンテキストを作成
-ctx = moderngl.create_context()
+    prog = ctx.program(
+        vertex_shader=vertex_shader,
+        fragment_shader=fragment_sahder,
+    )
 
-# シェーダーを読み込みます。
-_vertex_shader_folder = open("./main.vert","r")
-_fragment_shader_folder = open("./main.frag","r")
-vertex_shader = _vertex_shader_folder.read()
-fragment_sahder = _fragment_shader_folder.read()
+    clock = pygame.time.Clock()
+    angle = 0
 
-prog = ctx.program(
-    vertex_shader=vertex_shader,
-    fragment_shader=fragment_sahder,
-)
+    cube_data = Mesh.get_cube_data()
+    my_cube = Mesh(ctx, prog, cube_data)
 
-# ポリゴン
-# X, Y, Z, R, G, B の順でデータを並べる
-vertices = np.array([
-    # 頂点座標(x,y,z)   # 色(r,g,b)
-     0.0,  0.5, 0.0,    1.0, 0.0, 0.0, # 上 (赤)
-    -0.5, -0.5, 0.0,    0.0, 1.0, 0.0, # 左下 (緑)
-     0.5, -0.5, 0.0,    0.0, 0.0, 1.0, # 右下 (青)
-], dtype='f4')
+    # 視野角60度, アスペクト比800/600, 手前0.1～奥100.0まで見える
+    proj_mat = matrix.create_perspective(60.0, 800/600, 0.1, 100.0)
 
-# VBO (Vertex Buffer Object): GPUのメモリにデータを転送
-vbo = ctx.buffer(vertices.tobytes())
-
-# VAO (Vertex Array Object): シェーダーの変数とデータの対応付け
-vao = ctx.simple_vertex_array(prog, vbo, 'in_vert', 'in_color')
-
-clock = pygame.time.Clock()
-angle = 0
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # 画面を灰色でクリア
-    ctx.clear(0.1, 0.1, 0.1)
-
-    # 角度を更新
-    angle += 1
+    if 'proj' in prog:
+        # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
+        prog["proj"].write(proj_mat) # type: ignore
+        # proj_mat_uniform = cast(moderngl.Uniform,prog['proj'])
+        # proj_mat_uniform.write(proj_mat)
+    else :
+        print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
+        return
     
-    # 行列を作成してシェーダーに送信 (uniform変数 'rotation' に書き込む)
-    # ここでY軸回転行列を作っているので、くるくる回る
-    rot_mat = create_rotation_matrix_y(angle)
-    
-    u_rotation = cast(moderngl.Uniform, prog['rotation'])
-    u_rotation.write(rot_mat)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        ctx.clear(0.1, 0.1, 0.1)
+        view_mat = matrix.create_translation(0.0, 0.0, -3.0)
+        if 'view' in prog:
+            # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
+            prog['view'].write(view_mat) # type: ignore
+            # view_mat_uniform = cast(moderngl.Uniform,prog['view'])
+            # view_mat_uniform.write(view_mat)
+        else :
+            print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
+            return
+        
+        angle += 1
+        model_mat = matrix.rotation.create_x(angle)
+        my_cube.render(model_matrix=model_mat)
 
-    # 描画実行
-    vao.render()
+        pygame.display.flip()
+        clock.tick(60)
 
-    # 画面更新
-    pygame.display.flip()
-    clock.tick(60)
+    pygame.quit()
 
-pygame.quit()
+
+if __name__ == "__main__" :
+    main()
