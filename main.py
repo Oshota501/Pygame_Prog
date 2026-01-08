@@ -4,6 +4,7 @@ import numpy as np
 import matrix.rotation
 from Draw.mesh import Mesh
 from typing import cast
+import math
 
 def main() -> None:
     # OpenGLのバージョンを330に合わせます。
@@ -65,7 +66,8 @@ def main() -> None:
         deltatime = clock.tick(60) / 1000.0  # ミリ秒を秒に変換
 
         angle += 1
-        model_mat = matrix.rotation.create(angle,angle,angle)
+        
+        model_mat = matrix.rotation.create(angle,angle,angle) @ matrix.create_translation(math.sin(angle/100),math.cos(angle/100),0.0)
         my_cube.render(model_matrix=model_mat)
 
         pygame.display.flip()
