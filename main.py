@@ -59,7 +59,7 @@ def main() -> None:
             # view_mat_uniform = cast(moderngl.Uniform,prog['view'])
             # view_mat_uniform.write(view_mat)
         else :
-            print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
+            print ("Shader error .\n Default vertex shader do not exist \"uniform view\" ")
             return
         
         angle += 1

@@ -19,6 +19,10 @@ class Mesh :
             self.program["model"].write(model_matrix) # type: ignore 
             # write_prog = cast(moderngl.Uniform,self.program["model"])
             # write_prog.write(model_matrix)
+        else :
+            print ("Shader error .\n Default vertex shader do not exist \"uniform model\" ")
+            print ("Could not Registration Model from vert shader.")
+            return
         # 描画実行
         self.vao.render()
     def destroy (self) -> None:
