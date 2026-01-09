@@ -5,6 +5,7 @@ import matrix.rotation
 from Draw.mesh import Mesh
 from typing import cast
 import math
+import test
 
 def main() -> None:
     # OpenGLのバージョンを330に合わせます。
@@ -48,10 +49,14 @@ def main() -> None:
         return
     
     running = True
+    test.start()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+        test.updata()
+
         ctx.clear(0.1, 0.1, 0.1)
         view_mat = matrix.create_translation(0.0, 0.0, -3.0)
         if 'view' in prog:
