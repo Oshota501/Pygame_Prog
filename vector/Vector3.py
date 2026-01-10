@@ -1,13 +1,9 @@
+from typing import Union
 import vector
 import math
-from typing import Iterable, Tuple, Union
 
 
-Number = Union[int, float]
-VectorLike = Union["Vector3", Tuple[float, float, float], Iterable[float], vector.Vector3Like]
-
-
-class Vector3(vector.Vector3Like):
+class Vector3():
     x: float
     y: float
     z: float
@@ -25,8 +21,8 @@ class Vector3(vector.Vector3Like):
         yield self.y
         yield self.z
 
-    def get_tuple(self) -> tuple[float, float, float]:
-        return (self.x, self.y, self.z)
+    def set (self,vec:vector.VectorLike) -> None :
+        self.x ,self.y , self.z = vector.as_components(vec)
 
     def length(self) -> float:
         return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
@@ -41,12 +37,12 @@ class Vector3(vector.Vector3Like):
         inv = 1.0 / l
         return Vector3(self.x * inv, self.y * inv, self.z * inv)
 
-    def dot(self, other: VectorLike) -> float:
-        ox, oy, oz = _as_components(other)
+    def dot(self, other: vector.VectorLike) -> float:
+        ox, oy, oz = vector.as_components(other)
         return self.x * ox + self.y * oy + self.z * oz
 
-    def cross(self, other: VectorLike) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def cross(self, other: vector.VectorLike) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(
             self.y * oz - self.z * oy,
             self.z * ox - self.x * oz,
@@ -57,34 +53,34 @@ class Vector3(vector.Vector3Like):
         return [self.x, self.y, self.z]
 
     # glsl風のブロードキャスト演算（ベクトル/スカラー両対応）
-    def __add__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __add__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(self.x + ox, self.y + oy, self.z + oz)
 
-    def __radd__(self, other: Union[Number, VectorLike]) -> "Vector3":
+    def __radd__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
         return self.__add__(other)
 
-    def __sub__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __sub__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(self.x - ox, self.y - oy, self.z - oz)
 
-    def __rsub__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __rsub__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(ox - self.x, oy - self.y, oz - self.z)
 
-    def __mul__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __mul__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(self.x * ox, self.y * oy, self.z * oz)
 
-    def __rmul__(self, other: Union[Number, VectorLike]) -> "Vector3":
+    def __rmul__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
         return self.__mul__(other)
 
-    def __truediv__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __truediv__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(self.x / ox, self.y / oy, self.z / oz)
 
-    def __rtruediv__(self, other: Union[Number, VectorLike]) -> "Vector3":
-        ox, oy, oz = _as_components(other)
+    def __rtruediv__(self, other: Union[vector.Number, vector.VectorLike]) -> "Vector3":
+        ox, oy, oz = vector.as_components(other)
         return Vector3(ox / self.x, oy / self.y, oz / self.z)
 
     def __neg__(self) -> "Vector3":
@@ -96,22 +92,3 @@ class Vector3(vector.Vector3Like):
         return self.x == other.x and self.y == other.y and self.z == other.z
 
 
-def _as_components(value: Union[Number, VectorLike]) -> tuple[float, float, float]:
-    if isinstance(value, (int, float)):
-        f = float(value)
-        return (f, f, f)
-    if isinstance(value, Vector3):
-        return value.x, value.y, value.z
-    if isinstance(value, tuple) and len(value) == 3:
-        return float(value[0]), float(value[1]), float(value[2])
-    if isinstance(value, vector.Vector3Like):
-        x, y, z = value.get_tuple()
-        return float(x), float(y), float(z)
-    try:
-        it = iter(value)  # type: ignore[arg-type]
-        x = float(next(it))
-        y = float(next(it))
-        z = float(next(it))
-        return (x, y, z)
-    except Exception as e:
-        raise TypeError(f"Unsupported operand type: {type(value)}") from e

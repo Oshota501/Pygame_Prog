@@ -1,6 +1,6 @@
 import vector
 
-class Color (vector.Vector3Like):
+class Color ():
     r : float
     g : float
     b : float
@@ -8,8 +8,6 @@ class Color (vector.Vector3Like):
         self.r = r
         self.g = g
         self.b = b
-    def get_tuple (self) :
-        return (self.r,self.g,self.b)
 
 WHITE = Color(1.0,1.0,1.0)
 RED = Color(1.0,0.0,0.0)
