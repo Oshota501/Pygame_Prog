@@ -1,9 +1,16 @@
 # コードテスト用関数。
 def start () :
+    gameobjext_test()
     return
 def updata () :
     return
 
+def gameobjext_test () :
+    from PyGame3d import screen
+    from GameObject.gameobject import GameObject
+    GameObject(screen)
+    print(screen.node.get_child())
+    
 def performance_test () :
     import time 
     import vector.FragList as vec

@@ -15,7 +15,6 @@ class TransformLike(ABC) :
     @abstractmethod
     def change_parent (self,parent:TransformLike) -> None :
         pass
-
 class BaseTransform (TransformLike) :
     position : BaseHierarchicalVector3
     rotation : BaseHierarchicalVector3
@@ -39,10 +38,10 @@ class Transform (TransformLike) :
     rotation : HierarchicalVector3
     scale : HierarchicalVector3
     
-    def __init__(self,parent:Transform,position:Vector3,rotation:Vector3,scale:Vector3) -> None:
-        self.position = HierarchicalVector3(position,parent.position)
-        self.rotation = HierarchicalVector3(rotation,parent.rotation)
-        self.scale = HierarchicalVector3(scale,parent.scale)
+    def __init__(self,parent:TransformLike,position:Vector3,rotation:Vector3,scale:Vector3) -> None:
+        self.position = HierarchicalVector3(position,parent.get_position())
+        self.rotation = HierarchicalVector3(rotation,parent.get_rotation())
+        self.scale = HierarchicalVector3(scale,parent.get_scale())
 
     def change_parent (self,parent:TransformLike) -> None:
         self.position.change_parents(parent.get_position())
@@ -55,5 +54,13 @@ class Transform (TransformLike) :
         return self.rotation
     def get_scale(self) -> HierarchicalVector3Like:
         return self.scale
+    @staticmethod
+    def encopy (transformlike:TransformLike,parent:TransformLike) -> Transform :
+        return Transform(
+            parent,
+            transformlike.get_position().get(),
+            transformlike.get_rotation().get(),
+            transformlike.get_scale().get()
+        )
     
     
