@@ -1,4 +1,5 @@
 from abc import ABC,abstractmethod
+import vector.FragList as vf
 
 class NodeComponent(ABC) :
     @abstractmethod
@@ -11,7 +12,7 @@ class NodeComponent(ABC) :
     def remove_child (self,index:int) -> bool :
         pass
 
-class Node (NodeComponent):
+class NormalListNode (NodeComponent):
     children : list[NodeComponent]
 
     def __init__(self) -> None:
@@ -28,3 +29,16 @@ class Node (NodeComponent):
             return True
         else :
             return False
+class FragListNode (NodeComponent) :
+    children : vf.FragList[NodeComponent]
+
+    def __init__(self) -> None:
+        self.children = vf.FragList([])
+        return
+    def get_child(self) -> list[NodeComponent]:
+        return self.children.get_encode_list()
+    def add_child(self, node: NodeComponent) -> bool:
+        self.children.append(node)
+        return True
+    def remove_child(self, index: int) -> bool:
+        return self.children.remove(index)

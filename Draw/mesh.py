@@ -1,7 +1,18 @@
 import numpy as np
 import moderngl
 from typing import cast
-class Mesh :
+
+from abc import ABC , abstractmethod
+
+class MeshLike (ABC) :
+    @abstractmethod
+    def render (self, model_matrix=None) -> None:
+        pass
+    @abstractmethod
+    def destroy (self) -> None:
+        pass
+
+class Mesh (MeshLike):
     ctx : moderngl.Context
     program : moderngl.Program
     vbo : moderngl.Buffer
