@@ -15,6 +15,22 @@ class FragEntry(Generic[_Type]):
     value: _Type
 
 class FragList (Generic[_Type]):
+    """
+    このlistはremoveとappendについて O(1) で実行可能ですが\n
+    insert(index,value)とget(index) に計算量 O(n) を要します。\n
+    release_get(index) は初回計算量 O(n) で操作を加えない場合以降 O(1) で可能です\n
+    ### 注釈:\n
+    初期設定では無効な値が50%を超えたときにメモリー解放を行うようになっています。\n
+    - 解決策:\n
+    引数に次の文を追加するとプロセス終了までメモリ内に値を保持した状態になります。\n
+    ```
+    release_option=FragList.ReleaseOption(
+        release_ratio=0,
+    )
+    
+    ```
+    なおprivateメソットに触れると動作がバグるのでやめて下さい。
+    """
     _fraglist : list[FragEntry[_Type]]
     _current : int
     _all_length : int
@@ -30,15 +46,15 @@ class FragList (Generic[_Type]):
     def __iter__(self) -> FragList:
         self._current = 0
         return self 
-    def __next__(self) -> _Type :
-        while True :
-            if self._current >= self.length:
+    def __next__(self) -> _Type:
+        while True:
+            # 物理的なリスト長で終了判定することで、無効要素を含む場合も正しく終端します
+            if self._current >= self._all_length:
                 raise StopIteration
             entry = self._fraglist[self._current]
             self._current += 1
             if entry.is_valid:
-                result = entry.value
-                return result
+                return entry.value
     def __len__ (self) -> int :
         return self.length
     # 計算量nであることに注意して下さい。
@@ -51,6 +67,17 @@ class FragList (Generic[_Type]):
                         return entry.value
                     count += 1
         return None
+    def release_get(self, index: int) -> _Type | None:
+        # 有効要素としてのインデックス境界を先に確認
+        if not (0 <= index < self.length):
+            return None
+        if self._all_length == self.length:
+            # 無効要素が存在しない場合はそのまま O(1)
+            return self._fraglist[index].value
+        else:
+            # 初回のみ release により O(n)、以降は O(1)
+            self.release()
+            return self._fraglist[index].value
     def append (self,value:_Type) -> None:
         self._all_length += 1
         self.length += 1
@@ -74,3 +101,35 @@ class FragList (Generic[_Type]):
         self.length = len(new_list)
         self._all_length = len(new_list)
         return
+    def __str__ (self) -> str :
+        result = "["
+        for a in self :
+            result += str(a) + ","
+        result += "]"
+        return result
+    def insert(self, index: int, value: _Type) -> None:
+        if not (0 <= index <= self.length):
+            raise IndexError("index out of range")
+        
+        # 有効要素を数えながら、挿入位置を探す
+        count = 0
+        insert_pos = len(self._fraglist)  # デフォルトは末尾
+        
+        for i, entry in enumerate(self._fraglist):
+            if entry.is_valid:
+                if count == index:
+                    insert_pos = i
+                    break
+                count += 1
+        
+        self._fraglist.insert(insert_pos, FragEntry(True, value))
+        self.length += 1
+        self._all_length += 1
+        self.check_size_release()
+    def __getitem__ (self,key:int) -> _Type|None :
+        return self.get(key)
+    def __setitem__ (self,key:int,value:_Type) -> None :
+        self.insert(key,value)
+        return
+    def __delitem__ (self,key:int) -> None :
+        self.remove(key) 
