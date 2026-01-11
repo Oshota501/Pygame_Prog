@@ -38,7 +38,7 @@ def create_z(degrees):
         [0.0, 0.0, 0.0, 1.0],
     ], dtype='f4')
 
-def create (x:float=0.0,y:float=0.0,z:float=0.0) -> np.ndarray :
+def create (x:float=0.0,y:float=0.0,z:float=0.0) -> np.ndarray:
     # X, Y, Z軸の回転を組み合わせた行列を作成
     # 回転順序: Z -> Y -> X (一般的なオイラー角の順序)
     mat_x = create_x(x)
@@ -46,4 +46,4 @@ def create (x:float=0.0,y:float=0.0,z:float=0.0) -> np.ndarray :
     mat_z = create_z(z)
     
     # 行列の積を計算 (Z * Y * X)
-    return mat_x @ mat_y @ mat_z
+    return mat_x @ mat_y @ mat_z 

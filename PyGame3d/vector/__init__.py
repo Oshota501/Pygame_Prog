@@ -1,7 +1,6 @@
-from abc import ABC , abstractmethod
 from typing import Iterable, Tuple, Union
 
-from vector.Vector3 import Vector3
+from PyGame3d.vector.Vector3 import Vector3
 
 Number = Union[int, float]
 VectorLike = Union["Vector3", Tuple[float, float, float], Iterable[float]]
