@@ -1,5 +1,5 @@
 from typing import Union
-import vector
+import PyGame3d.vector as vector
 import math
 
 

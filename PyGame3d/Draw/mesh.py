@@ -1,18 +1,33 @@
 import numpy as np
 import moderngl
 from typing import cast
-
+from PyGame3d.vector.Vector3 import Vector3
 from abc import ABC , abstractmethod
+import PyGame3d.matrix as matrix
+import PyGame3d.matrix.rotation as rmatrix
+
+from dataclasses import dataclass
+
+@dataclass
+class Transform :
+    position: Vector3
+    rotation: Vector3
+    scale: Vector3
+
+class MeshRender (ABC) :
+    @abstractmethod
+    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
+        pass 
 
 class MeshLike (ABC) :
     @abstractmethod
-    def render (self, model_matrix=None) -> None:
+    def render (self,transform:Transform, model_matrix=None) -> None:
         pass
     @abstractmethod
     def destroy (self) -> None:
         pass
 
-class Mesh (MeshLike):
+class Mesh (MeshLike,MeshRender):
     ctx : moderngl.Context
     program : moderngl.Program
     vbo : moderngl.Buffer
@@ -23,24 +38,29 @@ class Mesh (MeshLike):
         self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
         content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
         self.vao = self.ctx.vertex_array(self.program, content)
-    def render (self, model_matrix=None) -> None:
+    def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program]:
+        return (self.ctx,self.program)
+    def render (self, transform:Transform,model_matrix:np.ndarray|None=None) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
-        if model_matrix is not None and 'model' in self.program:
+        self.program["position"].write(matrix.create_translation(transform.position.x,transform.position.y,transform.position.z)) # type: ignore
+        self.program["rotation"].write(rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z)) # type: ignore
+        self.program["scale"].write(matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z)) # type: ignore
+        if model_matrix is not None :
             # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-            self.program["model"].write(model_matrix) # type: ignore 
-            # write_prog = cast(moderngl.Uniform,self.program["model"])
+            self.program["model_opt"].write(model_matrix) # type: ignore 
+            # write_prog = cast(moderngl.Uniform,self.program["model_opt"])
             # write_prog.write(model_matrix)
+        
         else :
-            print ("Shader error .\n Default vertex shader do not exist \"uniform model\" ")
-            print ("Could not Registration Model from vert shader.")
-            return
+            self.program["model_opt"].write(matrix.get_i()) # type: ignore 
+
         # 描画実行
         self.vao.render()
     def destroy (self) -> None:
         self.vao.release()
         self.vbo.release()
     @staticmethod
-    def get_cube_data() -> np.ndarray:
+    def get_cube_data(app:MeshRender) -> Mesh|None:
         vertices = [
             # 前面 (z = 0.5) - 赤
             -0.5, -0.5,  0.5, 1.0, 0.0, 0.0,
@@ -90,4 +110,9 @@ class Mesh (MeshLike):
              0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
             -0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
         ]
-        return np.array(vertices, dtype='f4')
+        d = app.get_render_obj()
+        if d is not None :
+            ctx , prog = d 
+            return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
+        else : 
+            return None

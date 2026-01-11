@@ -1,5 +1,3 @@
-import vector
-
 class Color ():
     r : float
     g : float
