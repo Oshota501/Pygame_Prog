@@ -1,5 +1,6 @@
 import pygame
 import moderngl
+from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.Scene import SceneComponent,Scene
 import PyGame3d.matrix as matrix
 from PyGame3d.Draw.mesh import MeshRender
@@ -9,6 +10,9 @@ import PyGame3d.test as test
 class ApplicationComponent(ABC) :
     @abstractmethod
     def get_scene (self) -> SceneComponent :
+        pass
+    @abstractmethod
+    def stage_add_child(self) -> None :
         pass
 
 class Application (
@@ -39,6 +43,8 @@ class Application (
 
     def get_scene(self) -> SceneComponent:
         return self.scene
+    def stage_add_child(self,object:ContainerComponent) -> None :
+        self.scene.add_child(object)
     def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
         if self.is_init and not self.ctx == None and not self.shader_program == None:
             return (
