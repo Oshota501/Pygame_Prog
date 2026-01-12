@@ -14,65 +14,67 @@ python3.14 main.py
 # 実装したいことlist
 - [x] Mesh型作成
 - [ ] シングルトン
-- [ ] Cube型作成
+- [x] Cube型作成
 - [ ] GUI操作実装
 - [ ] カスタムシェーダー実装
 - [ ] 衝突判定実装
 - [ ] 物理演算実装
+- [ ] 2d ui を使えるGameContainer型の実装
+
+## よく使うclass一覧
+
+### class Application 
+  - scene
+  - shader_program
+  - context (ctx)
+
+pygameのセットアップとツリー構造の大元の生成を担うクラスです。
+
+最も最初に呼び出して下さい。
+
+- def init 
+ 
+最後にメインループを開始するときに呼び出して下さい。
+
+この関数の実行後は以降の処理が読み込まれないことに注意して下さい。
+
+- def start_rendering
+
+### class Scene
+
+  - execute_objects (exe)
+  - container 
+  - event
+  - camera
+
+containerの大元となるオブジェクトです。
+
+このオブジェクトをインスタンス化することで、全く別のゲーム画面を実装可能です。
+
+### class GameContainer 
+  - position
+  - rotation
+  - scale
   
-## 実装したい
+子要素の追加・削除
+
+  - def remove_child (ContainerComponent)
+    - 計算量O(n)で実装されているので覚悟して下さい。
+  - def add_child (Game)
+
+localな値を使用する場合に対応するため、全てのTransform系のComponentはGameContainerで実装されています。
+
+### class Sprite3D extends GameContainer
+  - mesh
+ 
+描画するためのポリゴンデータを持っています。
+
+### class Cube extends Sprite3D
+
+コンストラクタにてmeshに立方体のポリゴンを渡しています。
+
+### class Sprite3D_obj_format extends Sprite3D
+
+コンストラクタにて.obj形式で渡した値を読み込んで描画できるように実装されています。
 
 
-抽象class GameObjectRender
-
-- render()->None
-
-抽象class HierarchicalGameObject
-
-- get_position() -> vec3
-
-class GameManager 
-
-- update
-
-- start
-
-- これを継承しているclassは自動でupdateやstartが描画処理のwhile文の中で実行されるようにしたい。
-
-class GameObject implements GameObjectRender,HierarchicalGameObject
-
-- position (vec3)
-
-- scale (vec3)
-
-- translate (vec3)
-
-- Mesh
-
-- destroy
-
-- Meshを持っている。小要素を持てない。
-
-class GameObjectFolder implements GameObjectRender
-
-- list[GameObjectRender]
-
-- addChild
-
-- removeChild
-
-- clear
-
-- GameObjectの配列を持っている。
-
-class GameObjectContainer implements GameObjectRender,HierarchicalGameObject
-
-- position 
-
-- list[HierarchicalGameObject]
-
-- addChild
-
-- removeChild
-
-- 複数のゲームオブジェクトをまとめて動かしたいときにコンテナに梱包することで小要素のpositionを自動的にlocalpositionとする
