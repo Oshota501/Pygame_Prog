@@ -12,5 +12,5 @@ class UVMesh (MeshRender,MeshLike):
         self.ctx = ctx
         self.program = program
         self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
-        content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
+        content = [(self.vbo, '3f 2f', 'in_vert', 'in_uv')]
         self.vao = self.ctx.vertex_array(self.program, content)

@@ -3,41 +3,41 @@ import moderngl
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MeshLike,MeshRender,Transform
+from PyGame3d.Draw.shader_container import ShaderContainerComponent
 
 class VertColorMesh (MeshLike,MeshRender):
-    ctx : moderngl.Context
-    program : moderngl.Program
+    rend : ShaderContainerComponent
     vbo : moderngl.Buffer
     vao : moderngl.VertexArray
-    def __init__(self, ctx:moderngl.Context, program:moderngl.Program, vertices:np.ndarray) -> None:
-        self.ctx = ctx
-        self.program = program
-        self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
-        content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
-        self.vao = self.ctx.vertex_array(self.program, content)
-    def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program]:
-        return (self.ctx,self.program)
+    ctx : moderngl.Context
+
+    def __init__(self,context:moderngl.Context, shader:ShaderContainerComponent , vertices:np.ndarray) -> None:
+        self.ctx = context
+        self.rend = shader
+        program = shader.get_program()
+        if self.ctx is None or program is None :
+            print("error : Read shader has probrem .")
+            return
+        else :
+            self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
+            content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
+            self.vao = self.ctx.vertex_array(program, content)
+    def get_render_obj(self) -> ShaderContainerComponent:
+        return self.rend
     def render (self, transform:Transform,model_matrix:np.ndarray|None=None) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
-        self.program["position"].write(matrix.create_translation(transform.position.x,transform.position.y,transform.position.z)) # type: ignore
-        self.program["rotation"].write(rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z)) # type: ignore
-        self.program["scale"].write(matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z)) # type: ignore
-        if model_matrix is not None :
-            # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-            self.program["model_opt"].write(model_matrix) # type: ignore 
-            # write_prog = cast(moderngl.Uniform,self.program["model_opt"])
-            # write_prog.write(model_matrix)
-        
-        else :
-            self.program["model_opt"].write(matrix.get_i()) # type: ignore 
-
-        # 描画実行
+        self.rend.send_model(
+            position = matrix.create_translation(transform.position.x,transform.position.y,transform.position.z) ,
+            rotation = rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z) ,
+            scale = matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z) ,
+            model_opt = matrix.get_i()
+        )
         self.vao.render()
     def destroy (self) -> None:
         self.vao.release()
         self.vbo.release()
     @staticmethod
-    def get_cube_data(mesh_render:MeshRender) -> VertColorMesh|None:
+    def get_cube_data(ctx:moderngl.Context,shader:ShaderContainerComponent) -> VertColorMesh:
         vertices = [
             # 前面 (z = 0.5) - 赤
             -0.5, -0.5,  0.5, 1.0, 0.0, 0.0,
@@ -87,14 +87,11 @@ class VertColorMesh (MeshLike,MeshRender):
              0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
             -0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
         ]
-        d = mesh_render.get_render_obj()
-        if d is not None :
-            ctx , prog = d 
-            return VertColorMesh(ctx,prog,np.array(vertices, dtype='f4'))
-        else : 
-            return None
+
+        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))
+
     @staticmethod
-    def road_obj (filename:str,mesh_render:MeshRender,color=(1.0,1.0,1.0)) -> VertColorMesh|None :
+    def road_obj (ctx:moderngl.Context,shader:ShaderContainerComponent,filename:str,color=(1.0,1.0,1.0)) -> VertColorMesh|None:
         vertices : list[tuple[float,float,float]] = []
         tex_coords = [] # vt
         indices : list[int] = []
@@ -128,14 +125,8 @@ class VertColorMesh (MeshLike,MeshRender):
                 else:
                     raise IndexError(f"Index {index} out of bounds for vertices of length {len(vertices)}")
 
-            render = mesh_render.get_render_obj()
-            if render is not None:
-                ctx, prog = render
-                return VertColorMesh(ctx, prog, np.array(f_vertices, dtype="f4"))
-            else:
-                print(f"\033[31mReading is faild : filename = {filename}")
-                print("\033[31mPlease execute Application.init()")
-                return None
+
+            return VertColorMesh(ctx, shader, np.array(f_vertices, dtype="f4"))
         except Exception as e:
             print(f"\033[31mReading is faild : filename = {filename}")
             print(f"\033[31mError: {e}")
@@ -144,7 +135,8 @@ class VertColorMesh (MeshLike,MeshRender):
 
     @staticmethod
     def get_checkerboad_mesh(
-                mesh_render:MeshRender,
+                ctx:moderngl.Context,
+                shader:ShaderContainerComponent,
                 grid_size = 40 ,
                 tile_size = 0.4 ,
                 color1 = (1.0,1.0,1.0) ,
@@ -186,9 +178,5 @@ class VertColorMesh (MeshLike,MeshRender):
                     x1, 0.0, z0, color[0], color[1], color[2],
                 ])
         
-        d = mesh_render.get_render_obj()
-        if d is not None :
-            ctx , prog = d 
-            return VertColorMesh(ctx,prog,np.array(vertices, dtype='f4'))
-        else : 
-            return None
+
+        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))

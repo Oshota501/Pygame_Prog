@@ -1,6 +1,5 @@
 import PyGame3d
-from PyGame3d.GameObject.Cube import Cube,Sprite3D_obj_format
-from PyGame3d.GameObject import Sprite3D
+from PyGame3d.GameObject.Cube import Cube, Floor,Sprite3D_obj_format
 from PyGame3d.Scene import Scene,GameScript
 from PyGame3d.vector import Vector3
 import math
@@ -13,14 +12,14 @@ class GameObject (GameScript) :
     cube :Cube
     angle :float
     obj :Sprite3D_obj_format
-    floor :Sprite3D
+    floor :Floor
     def __init__(self) -> None:
-        self.cube = Cube(game)
+        self.cube = Cube()
         self.angle = 0.0
-        self.obj = Sprite3D_obj_format(game,"./Assets/test.obj")
-        self.floor = Sprite3D()
-        from PyGame3d.Draw.vcolormesh import VertColorMesh
-        self.floor.mesh = VertColorMesh.get_checkerboad_mesh(game,color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
+        self.obj = Sprite3D_obj_format("./Assets/test.obj")
+        self.floor = Floor()
+
+        
     def start(self) -> None:
         game.stage_add_child(self.cube)
         self.obj.scale *= 0.2
