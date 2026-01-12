@@ -1,33 +1,10 @@
 import numpy as np
 import moderngl
-from typing import cast
-from PyGame3d.vector.Vector3 import Vector3
-from abc import ABC , abstractmethod
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
+from PyGame3d.Draw import MeshLike,MeshRender,Transform
 
-from dataclasses import dataclass
-
-@dataclass
-class Transform :
-    position: Vector3
-    rotation: Vector3
-    scale: Vector3
-
-class MeshRender (ABC) :
-    @abstractmethod
-    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
-        pass 
-
-class MeshLike (ABC) :
-    @abstractmethod
-    def render (self,transform:Transform, model_matrix=None) -> None:
-        pass
-    @abstractmethod
-    def destroy (self) -> None:
-        pass
-
-class Mesh (MeshLike,MeshRender):
+class VertColorMesh (MeshLike,MeshRender):
     ctx : moderngl.Context
     program : moderngl.Program
     vbo : moderngl.Buffer
@@ -60,7 +37,7 @@ class Mesh (MeshLike,MeshRender):
         self.vao.release()
         self.vbo.release()
     @staticmethod
-    def get_cube_data(mesh_render:MeshRender) -> Mesh|None:
+    def get_cube_data(mesh_render:MeshRender) -> VertColorMesh|None:
         vertices = [
             # 前面 (z = 0.5) - 赤
             -0.5, -0.5,  0.5, 1.0, 0.0, 0.0,
@@ -113,12 +90,13 @@ class Mesh (MeshLike,MeshRender):
         d = mesh_render.get_render_obj()
         if d is not None :
             ctx , prog = d 
-            return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
+            return VertColorMesh(ctx,prog,np.array(vertices, dtype='f4'))
         else : 
             return None
     @staticmethod
-    def road_obj (filename:str,mesh_render:MeshRender,color=(1.0,1.0,1.0)) -> Mesh|None :
+    def road_obj (filename:str,mesh_render:MeshRender,color=(1.0,1.0,1.0)) -> VertColorMesh|None :
         vertices : list[tuple[float,float,float]] = []
+        tex_coords = [] # vt
         indices : list[int] = []
         try:
             with open(filename, 'r') as file:
@@ -129,6 +107,8 @@ class Mesh (MeshLike,MeshRender):
                         continue
                     if parts[0] == 'v':
                         vertices.append((float(parts[1]), float(parts[2]), float(parts[3])))
+                    elif parts[0] == 'vt' :
+                        tex_coords.append([float(parts[1]), float(parts[2])])
                     elif parts[0] == 'f':
                         # OBJは1始まりかつ四角面があるので、三角形ファンで分割しつつ0始まりに補正
                         face_idx: list[int] = []
@@ -151,7 +131,7 @@ class Mesh (MeshLike,MeshRender):
             render = mesh_render.get_render_obj()
             if render is not None:
                 ctx, prog = render
-                return Mesh(ctx, prog, np.array(f_vertices, dtype="f4"))
+                return VertColorMesh(ctx, prog, np.array(f_vertices, dtype="f4"))
             else:
                 print(f"\033[31mReading is faild : filename = {filename}")
                 print("\033[31mPlease execute Application.init()")
@@ -169,7 +149,7 @@ class Mesh (MeshLike,MeshRender):
                 tile_size = 0.4 ,
                 color1 = (1.0,1.0,1.0) ,
                 color2 = (0.0,0.0,0.0) ,
-    ) -> Mesh|None:
+    ) -> VertColorMesh|None:
         vertices = []
         
         start_x = -grid_size * tile_size *0.5
@@ -209,6 +189,6 @@ class Mesh (MeshLike,MeshRender):
         d = mesh_render.get_render_obj()
         if d is not None :
             ctx , prog = d 
-            return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
+            return VertColorMesh(ctx,prog,np.array(vertices, dtype='f4'))
         else : 
             return None

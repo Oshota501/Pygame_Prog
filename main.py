@@ -19,8 +19,8 @@ class GameObject (GameScript) :
         self.angle = 0.0
         self.obj = Sprite3D_obj_format(game,"./Assets/test.obj")
         self.floor = Sprite3D()
-        from PyGame3d.Draw.mesh import Mesh
-        self.floor.mesh = Mesh.get_checkerboad_mesh(game,color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
+        from PyGame3d.Draw.vcolormesh import VertColorMesh
+        self.floor.mesh = VertColorMesh.get_checkerboad_mesh(game,color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
     def start(self) -> None:
         game.stage_add_child(self.cube)
         self.obj.scale *= 0.2

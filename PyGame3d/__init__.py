@@ -5,7 +5,7 @@ from PyGame3d.Scene import SceneComponent,Scene
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.matrix.lookat import create_lookAt
-from PyGame3d.Draw.mesh import MeshRender
+from PyGame3d.Draw import MeshRender
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
 import numpy as np
