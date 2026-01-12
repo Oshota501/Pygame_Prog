@@ -7,6 +7,7 @@ import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw.mesh import MeshRender
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
+from PyGame3d.vector.Vector2 import Vector2
 
 class ApplicationComponent(ABC) :
     @abstractmethod
@@ -32,7 +33,7 @@ class Application (
 
     scene : Scene
 
-    def __init__(self,scene:Scene) -> None:
+    def __init__(self,scene:Scene|None=None) -> None:
         self.screen_size = (800,600)
         self.viewing_angle = 100.0 
         self.ctx = None
@@ -44,7 +45,10 @@ class Application (
         self.shader_program = None
         self.is_init = False
 
-        self.scene = scene
+        if scene == None :
+            self.scene = Scene()
+        else :
+            self.scene = scene
 
     def get_scene(self) -> SceneComponent:
         return self.scene
@@ -107,9 +111,15 @@ class Application (
         self.get_scene().start()
 
         while running:
+            evs = self.scene.get_event_listener()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                for ev in evs :
+                    if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
+                        ev.event_happen(Vector2(event.pos))
+                    elif event.type == ev.event_type :
+                        ev.event_happen(Vector2())
 
             test.update()
 
@@ -119,7 +129,7 @@ class Application (
             pitch,yaw,roll = self.get_scene().get_camera().get_rotation()
             trans_mat = matrix.create_translation(-cx,-cy,-cz)
             rot_mat = rmatrix.create(-pitch,-yaw,-roll)
-            view_mat = rot_mat @ trans_mat
+            view_mat = ( rot_mat @ trans_mat )
 
             if 'view' in self.shader_program:
                 # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。

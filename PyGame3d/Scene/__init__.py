@@ -2,6 +2,9 @@ from abc import ABC,abstractmethod
 
 from PyGame3d.GameObject import GameContainer,ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
+from PyGame3d.Scene.Event import EventListener
+
+from pygame.event import Event
 
 # Spriteの移動など外部的な処理に使うUpdataとStart
 # PyGame3d.GameObject.SimpleGameObjectと役割が明確に異なっているので注意
@@ -32,15 +35,19 @@ class SceneComponent (ABC) :
     @abstractmethod
     def script_add (self,game_script:GameScript) -> None :
         pass
+    @abstractmethod
+    def get_event_listener (self) -> list[EventListener] :
+        pass
 class Scene (SceneComponent) :
     camera : Camera
     container : GameContainer 
     exe : list[GameScript]
-    
+    ev : list[EventListener]
     def __init__(self) -> None:
         self.container = GameContainer()
         self.camera = Camera ()
         self.exe = []
+        self.ev = []
         self.start()
     def script_add(self,game_script:GameScript) -> None:
         self.exe.append(game_script)
@@ -60,3 +67,5 @@ class Scene (SceneComponent) :
             c.update(delta_MS)
     def get_camera(self) -> Camera:
         return self.camera
+    def get_event_listener(self) -> list[EventListener]:
+        return self.ev

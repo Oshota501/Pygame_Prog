@@ -1,6 +1,7 @@
 from abc import ABC , abstractmethod
 from PyGame3d.vector.Vector3 import Vector3
 from PyGame3d.Draw.mesh import MeshLike,Transform
+import math
 
 # 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
@@ -44,6 +45,9 @@ class RotationComponent (ABC) :
         pass
     @abstractmethod
     def set_localrotation (self ,local_rotation:Vector3) -> None :
+        pass
+    @abstractmethod
+    def look_at (self,target_position:Vector3) -> None :
         pass
 class ScaleComponent (ABC) :
     # Scale
@@ -169,6 +173,13 @@ class GameContainer (ContainerComponent) :
         else :
             self.set_rotation(self.parent.get_rotation() + local_rotation)
         return
+    def look_at(self, target_position: Vector3) -> None:
+        dx,dy,dz = target_position - self.position
+        distance_xz = math.sqrt(dx**2 + dz**2)
+        # 注意: 座標系によっては dy の符号を変える必要があります
+        pitch = math.degrees(math.atan2(dy, distance_xz))
+        yaw = math.degrees(math.atan2(dx, -dz))
+        self.set_rotation(Vector3(pitch, yaw, 0.0))
 
     # Scale
     def add_scale(self, delta_scale: Vector3) -> None:

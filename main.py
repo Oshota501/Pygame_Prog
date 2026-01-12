@@ -10,12 +10,15 @@ game.init()
 class GameObject (GameScript) :
     def __init__(self) -> None:
         self.cube = Cube(game)
+        self.angle = 0.0
     def start(self) -> None:
         game.stage_add_child(self.cube)
     def update(self, delta_MS: float) -> None:
-        self.cube.rotation.x += 60 * delta_MS/1000
-        c = scene.get_camera()
-        c.add_rotation(Vector3(0.5,0.0,0.0))
+        rotation = self.cube.get_rotation()
+        rotation.x = self.angle
+        rotation.y = self.angle
+        rotation.z = self.angle
+        self.angle += 0.01*delta_MS
 
 scene.script_add(GameObject())
 game.start_rendering()

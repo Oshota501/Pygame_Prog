@@ -1,5 +1,7 @@
 from PyGame3d.GameObject import ContainerComponent,GameContainer
 from PyGame3d.vector.Vector3 import Vector3
+import math
+
 class Camera (ContainerComponent):
     position : Vector3
     rotation : Vector3
@@ -76,7 +78,13 @@ class Camera (ContainerComponent):
         else :
             self.set_rotation(self.parent.get_rotation() + local_rotation)
         return
-
+    def look_at(self,target_position: Vector3) -> None:
+        dx,dy,dz = target_position - self.position
+        distance_xz = math.sqrt(dx**2 + dz**2)
+        # 注意: 座標系によっては dy の符号を変える必要があります
+        pitch = math.degrees(math.atan2(dy, distance_xz))
+        yaw = math.degrees(math.atan2(dx, -dz))
+        self.set_rotation(Vector3(pitch, yaw, 0.0))
     # Scale
     def add_scale(self, delta_scale: Vector3) -> None:
         return
