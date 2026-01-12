@@ -163,10 +163,49 @@ class Mesh (MeshLike,MeshRender):
             return None
 
     @staticmethod
-    def get_floor_mesh(mesh_render:MeshRender) -> Mesh|None:
-        vertices = [
-
-        ]
+    def get_checkerboad_mesh(
+                mesh_render:MeshRender,
+                grid_size = 40 ,
+                tile_size = 0.4 ,
+                color1 = (1.0,1.0,1.0) ,
+                color2 = (0.0,0.0,0.0) ,
+    ) -> Mesh|None:
+        vertices = []
+        
+        start_x = -grid_size * tile_size *0.5
+        start_z = -grid_size * tile_size *0.5
+        
+        # グリッドを生成
+        for i in range(grid_size):
+            for j in range(grid_size):
+                # タイルの左下コーナー位置
+                x0 = start_x + i * tile_size
+                z0 = start_z + j * tile_size
+                x1 = x0 + tile_size
+                z1 = z0 + tile_size
+                
+                # チェッカーボード模様：色を決定
+                # (i + j) % 2 で白黒を交互に配置
+                if (i + j) % 2 == 0:
+                    color = color1  # default 白
+                else:
+                    color = color2  # default 黒
+                
+                # タイルを2つの三角形で構成（反時計回り）
+                # 1つ目の三角形（左下→左上→右上）
+                vertices.extend([
+                    x0, 0.0, z0, color[0], color[1], color[2],
+                    x0, 0.0, z1, color[0], color[1], color[2],
+                    x1, 0.0, z1, color[0], color[1], color[2],
+                ])
+                
+                # 2つ目の三角形（左下→右上→右下）
+                vertices.extend([
+                    x0, 0.0, z0, color[0], color[1], color[2],
+                    x1, 0.0, z1, color[0], color[1], color[2],
+                    x1, 0.0, z0, color[0], color[1], color[2],
+                ])
+        
         d = mesh_render.get_render_obj()
         if d is not None :
             ctx , prog = d 
