@@ -60,7 +60,7 @@ class Mesh (MeshLike,MeshRender):
         self.vao.release()
         self.vbo.release()
     @staticmethod
-    def get_cube_data(app:MeshRender) -> Mesh|None:
+    def get_cube_data(mesh_render:MeshRender) -> Mesh|None:
         vertices = [
             # 前面 (z = 0.5) - 赤
             -0.5, -0.5,  0.5, 1.0, 0.0, 0.0,
@@ -110,9 +110,54 @@ class Mesh (MeshLike,MeshRender):
              0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
             -0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
         ]
-        d = app.get_render_obj()
+        d = mesh_render.get_render_obj()
         if d is not None :
             ctx , prog = d 
             return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
         else : 
+            return None
+    @staticmethod
+    def road_obj (filename:str,mesh_render:MeshRender,color=(1.0,1.0,1.0)) -> Mesh|None :
+        vertices : list[tuple[float,float,float]] = []
+        indices : list[int] = []
+        try:
+            with open(filename, 'r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    parts = line.split()
+                    if not parts:
+                        continue
+                    if parts[0] == 'v':
+                        vertices.append((float(parts[1]), float(parts[2]), float(parts[3])))
+                    elif parts[0] == 'f':
+                        # OBJは1始まりかつ四角面があるので、三角形ファンで分割しつつ0始まりに補正
+                        face_idx: list[int] = []
+                        for token in parts[1:]:
+                            index_str = token.split('/')[0]
+                            if index_str:
+                                face_idx.append(int(index_str) - 1)
+                        if len(face_idx) >= 3:
+                            for i in range(1, len(face_idx) - 1):
+                                indices.extend([face_idx[0], face_idx[i], face_idx[i + 1]])
+
+            f_vertices: list[float] = []
+            for index in indices:
+                if 0 <= index < len(vertices):
+                    f_vertices.extend(vertices[index])
+                    f_vertices.extend([color[0], color[1], color[2]])
+                else:
+                    raise IndexError(f"Index {index} out of bounds for vertices of length {len(vertices)}")
+
+            render = mesh_render.get_render_obj()
+            if render is not None:
+                ctx, prog = render
+                return Mesh(ctx, prog, np.array(f_vertices, dtype="f4"))
+            else:
+                print(f"\033[31mReading is faild : filename = {filename}")
+                print("\033[31mPlease execute Application.init()")
+                return None
+        except Exception as e:
+            print(f"\033[31mReading is faild : filename = {filename}")
+            print(f"\033[31mError: {e}")
+            print("\033[31mPlease check your assets name.")
             return None

@@ -6,5 +6,8 @@ class Cube (Sprite3D) :
     def __init__(self,app:Application) -> None:
         super().__init__()
         self.mesh = Mesh.get_cube_data(app)
-    def update(self, delta_MS: float):
-        super().update(delta_MS)
+
+class Sprite3D_obj_format (Sprite3D) :
+    def __init__(self,app:Application,filename:str) -> None:
+        super().__init__()
+        self.mesh = Mesh.road_obj(filename,app)
