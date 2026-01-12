@@ -2,6 +2,7 @@ from abc import ABC , abstractmethod
 from PyGame3d.vector.Vector3 import Vector3
 from PyGame3d.Draw.mesh import MeshLike,Transform
 
+# 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
     @abstractmethod
     def update (self,delta_MS:float) -> None :
@@ -10,20 +11,7 @@ class SimpleGameObject (ABC) :
     def start (self) -> None :
         return
 
-class ContainerComponent (SimpleGameObject,ABC) :
-    @abstractmethod
-    def add_child (self,object:ContainerComponent) -> None :
-        pass
-    @abstractmethod
-    def remove_child(self,index:int) -> None :
-        pass
-    @abstractmethod
-    def get_child (self) -> list[ContainerComponent] :
-        pass
-    @abstractmethod
-    def get_parent (self) -> ContainerComponent | None :
-        pass
-
+class PositionComponent (ABC) :
     # position
     @abstractmethod
     def get_position (self) -> Vector3 :
@@ -40,6 +28,7 @@ class ContainerComponent (SimpleGameObject,ABC) :
     @abstractmethod
     def set_localposition (self ,local_position:Vector3) -> None :
         pass
+class RotationComponent (ABC) :
     # rotation
     @abstractmethod
     def get_rotation (self) -> Vector3 :
@@ -56,6 +45,7 @@ class ContainerComponent (SimpleGameObject,ABC) :
     @abstractmethod
     def set_localrotation (self ,local_rotation:Vector3) -> None :
         pass
+class ScaleComponent (ABC) :
     # Scale
     @abstractmethod
     def get_scale (self) -> Vector3 :
@@ -72,6 +62,27 @@ class ContainerComponent (SimpleGameObject,ABC) :
     @abstractmethod
     def set_localscale (self ,local_position:Vector3) -> None :
         pass
+
+class ContainerComponent (
+            SimpleGameObject,
+            PositionComponent,
+            RotationComponent,
+            ScaleComponent,
+            ABC
+    ) :
+    @abstractmethod
+    def add_child (self,object:ContainerComponent) -> None :
+        pass
+    @abstractmethod
+    def remove_child(self,index:int) -> None :
+        pass
+    @abstractmethod
+    def get_child (self) -> list[ContainerComponent] :
+        pass
+    @abstractmethod
+    def get_parent (self) -> ContainerComponent | None :
+        pass
+
 
 class Sprite3DComponent (ContainerComponent,ABC) :
     @abstractmethod
@@ -164,8 +175,11 @@ class GameContainer (ContainerComponent) :
         self.scale += delta_scale
     def get_scale(self) -> Vector3:
         return self.scale
-    def set_scale(self, absolute_scale: Vector3) -> None:
-        self.scale = absolute_scale
+    def set_scale(self, absolute_scale: Vector3|int|float) -> None:
+        if isinstance(absolute_scale,Vector3) :
+            self.scale = absolute_scale
+        else :
+            self.scale *= absolute_scale
         return
     def get_localscale(self) -> Vector3:
         if self.parent == None :
@@ -198,3 +212,5 @@ class Sprite3D (
             ))
     def get_mesh(self) -> MeshLike|None:
         return self.mesh
+
+

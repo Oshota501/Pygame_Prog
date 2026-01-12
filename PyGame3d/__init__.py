@@ -3,6 +3,7 @@ import moderngl
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.Scene import SceneComponent,Scene
 import PyGame3d.matrix as matrix
+import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw.mesh import MeshRender
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
@@ -20,6 +21,8 @@ class Application (
     MeshRender,
 ) :
     screen_size : tuple[int,int]
+    viewing_angle : float
+
     ctx : moderngl.Context | None
     vertex_shader :str
     fragment_sahder :str
@@ -28,8 +31,10 @@ class Application (
     is_init : bool
 
     scene : Scene
-    def __init__(self) -> None:
+
+    def __init__(self,scene:Scene) -> None:
         self.screen_size = (800,600)
+        self.viewing_angle = 100.0 
         self.ctx = None
         _vertex_shader_folder = open("./PyGame3d/main.vert","r")
         _fragment_shader_folder = open("./PyGame3d/main.frag","r")
@@ -39,7 +44,7 @@ class Application (
         self.shader_program = None
         self.is_init = False
 
-        self.scene = Scene()
+        self.scene = scene
 
     def get_scene(self) -> SceneComponent:
         return self.scene
@@ -52,7 +57,7 @@ class Application (
                 self.shader_program
             )
         else :
-            print ("Please excuse Application.init()")
+            print ("\033[31mPlease execute Application.init()")
             return
     def setup_glversion (self) :
         # OpenGLのバージョンを330に合わせます。
@@ -69,7 +74,7 @@ class Application (
         self.ctx = moderngl.create_context()
         self.ctx.enable(moderngl.DEPTH_TEST|moderngl.CULL_FACE)
         if self.ctx is None:
-            raise RuntimeError("ModernGL context is not initialized")
+            raise RuntimeError("\033[31mModernGL context is not initialized")
         self.shader_program = self.ctx.program(
             vertex_shader=self.vertex_shader,
             fragment_shader=self.fragment_sahder,
@@ -77,29 +82,30 @@ class Application (
 
         self.is_init = True
 
-        # 視野角60度, アスペクト比800/600, 手前0.1～奥100.0まで見える
-        proj_mat = matrix.create_perspective(60.0, self.screen_size[0]/self.screen_size[1], 0.1, 100.0)
+        # 視野角, アスペクト比800/600, 手前0.1～奥100.0まで見える
+        proj_mat = matrix.create_perspective(self.viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, 100.0)
         if 'proj' in self.shader_program:
             # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
             self.shader_program["proj"].write(proj_mat) # type: ignore
             # proj_mat_uniform = cast(moderngl.Uniform,prog['proj'])
             # proj_mat_uniform.write(proj_mat)
         else :
-            print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
+            print ("\033[31mShader error .\n Default vertex shader do not exist \"uniform proj\" ")
             return
-        
-        test.start()
-        self.get_scene().start()
 
         return
     
     def start_rendering (self) :
         running = True
         if self.ctx is None or self.shader_program is None:
-            print("Please excuse init() faster than start_rendering() ")
+            print("\033[31mPlease execute init() faster than start_rendering() ")
             self.init()
             self.start_rendering()
             return
+        
+        test.start()
+        self.get_scene().start()
+
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -108,14 +114,20 @@ class Application (
             test.update()
 
             self.ctx.clear(0.1, 0.1, 0.1)
-            view_mat = matrix.create_translation(0.0, 0.0, -3.0)
+            # 注意 カメラ行列はマイナスをかける。
+            cx,cy,cz = self.get_scene().get_camera().get_position()
+            pitch,yaw,roll = self.get_scene().get_camera().get_rotation()
+            trans_mat = matrix.create_translation(-cx,-cy,-cz)
+            rot_mat = rmatrix.create(-pitch,-yaw,-roll)
+            view_mat = rot_mat @ trans_mat
+
             if 'view' in self.shader_program:
                 # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
                 self.shader_program['view'].write(view_mat) # type: ignore
                 # view_mat_uniform = cast(moderngl.Uniform,prog['view'])
                 # view_mat_uniform.write(view_mat)
             else :
-                print ("Shader error .\n Default vertex shader do not exist \"uniform view\" ")
+                print ("\033[31mShader error .\n Default vertex shader do not exist \"uniform view\" ")
                 return
             
             deltatime = self.clock.tick(60)  # ミリ秒
