@@ -161,3 +161,15 @@ class Mesh (MeshLike,MeshRender):
             print(f"\033[31mError: {e}")
             print("\033[31mPlease check your assets name.")
             return None
+
+    @staticmethod
+    def get_floor_mesh(mesh_render:MeshRender) -> Mesh|None:
+        vertices = [
+
+        ]
+        d = mesh_render.get_render_obj()
+        if d is not None :
+            ctx , prog = d 
+            return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
+        else : 
+            return None

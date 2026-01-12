@@ -9,8 +9,8 @@ def create_x(degrees:float):
     # 4x4行列 (列優先)
     return np.array([
         [1.0, 0.0, 0.0, 0.0],
-        [0.0,   c,   s, 0.0],
-        [0.0,  -s,   c, 0.0],
+        [0.0,   c,  -s, 0.0],
+        [0.0,   s,   c, 0.0],
         [0.0, 0.0, 0.0, 1.0],
     ], dtype='f4')
 
@@ -20,9 +20,9 @@ def create_y(degrees:float):
     c = math.cos(rad)
     s = math.sin(rad)
     return np.array([
-        [  c, 0.0,  -s, 0.0],
+        [  c, 0.0,   s, 0.0],
         [0.0, 1.0, 0.0, 0.0],
-        [  s, 0.0,   c, 0.0],
+        [ -s, 0.0,   c, 0.0],
         [0.0, 0.0, 0.0, 1.0],
     ], dtype='f4')
 

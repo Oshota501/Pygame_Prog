@@ -4,9 +4,11 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.Scene import SceneComponent,Scene
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
+from PyGame3d.matrix.lookat import create_lookAt
 from PyGame3d.Draw.mesh import MeshRender
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
+import numpy as np
 from PyGame3d.vector.Vector2 import Vector2
 
 class ApplicationComponent(ABC) :
@@ -124,12 +126,15 @@ class Application (
             test.update()
 
             self.ctx.clear(0.1, 0.1, 0.1)
+            
+            camera = self.get_scene().get_camera()
+            view_mat:np.ndarray
             # 注意 カメラ行列はマイナスをかける。
-            cx,cy,cz = self.get_scene().get_camera().get_position()
-            pitch,yaw,roll = self.get_scene().get_camera().get_rotation()
+            cx,cy,cz = camera.get_position()
+            pitch,yaw,roll = camera.get_rotation()
             trans_mat = matrix.create_translation(-cx,-cy,-cz)
             rot_mat = rmatrix.create(-pitch,-yaw,-roll)
-            view_mat = ( rot_mat @ trans_mat )
+            view_mat = ( trans_mat @ rot_mat )
 
             if 'view' in self.shader_program:
                 # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
@@ -146,17 +151,3 @@ class Application (
             pygame.display.flip()
 
         pygame.quit()       
-    
-
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
