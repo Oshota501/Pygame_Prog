@@ -1,66 +1,43 @@
 import numpy as np
 import moderngl
-from typing import cast
-from PyGame3d.vector.Vector3 import Vector3
-from abc import ABC , abstractmethod
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
+from PyGame3d.Draw import MeshLike,MeshRender,Transform
+from PyGame3d.Draw.shader_container import ShaderContainerComponent
 
-from dataclasses import dataclass
-
-@dataclass
-class Transform :
-    position: Vector3
-    rotation: Vector3
-    scale: Vector3
-
-class MeshRender (ABC) :
-    @abstractmethod
-    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
-        pass 
-
-class MeshLike (ABC) :
-    @abstractmethod
-    def render (self,transform:Transform, model_matrix=None) -> None:
-        pass
-    @abstractmethod
-    def destroy (self) -> None:
-        pass
-
-class Mesh (MeshLike,MeshRender):
-    ctx : moderngl.Context
-    program : moderngl.Program
+class VertColorMesh (MeshLike,MeshRender):
+    rend : ShaderContainerComponent
     vbo : moderngl.Buffer
     vao : moderngl.VertexArray
-    def __init__(self, ctx:moderngl.Context, program:moderngl.Program, vertices:np.ndarray) -> None:
-        self.ctx = ctx
-        self.program = program
-        self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
-        content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
-        self.vao = self.ctx.vertex_array(self.program, content)
-    def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program]:
-        return (self.ctx,self.program)
+    ctx : moderngl.Context
+
+    def __init__(self,context:moderngl.Context, shader:ShaderContainerComponent , vertices:np.ndarray) -> None:
+        self.ctx = context
+        self.rend = shader
+        program = shader.get_program()
+        if self.ctx is None or program is None :
+            print("error : Read shader has probrem .")
+            return
+        else :
+            self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
+            content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
+            self.vao = self.ctx.vertex_array(program, content)
+    def get_render_obj(self) -> ShaderContainerComponent:
+        return self.rend
     def render (self, transform:Transform,model_matrix:np.ndarray|None=None) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
-        self.program["position"].write(matrix.create_translation(transform.position.x,transform.position.y,transform.position.z)) # type: ignore
-        self.program["rotation"].write(rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z)) # type: ignore
-        self.program["scale"].write(matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z)) # type: ignore
-        if model_matrix is not None :
-            # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-            self.program["model_opt"].write(model_matrix) # type: ignore 
-            # write_prog = cast(moderngl.Uniform,self.program["model_opt"])
-            # write_prog.write(model_matrix)
-        
-        else :
-            self.program["model_opt"].write(matrix.get_i()) # type: ignore 
-
-        # 描画実行
+        self.rend.send_model(
+            position = matrix.create_translation(transform.position.x,transform.position.y,transform.position.z) ,
+            rotation = rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z) ,
+            scale = matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z) ,
+            model_opt = matrix.get_i()
+        )
         self.vao.render()
     def destroy (self) -> None:
         self.vao.release()
         self.vbo.release()
     @staticmethod
-    def get_cube_data(mesh_render:MeshRender) -> Mesh|None:
+    def get_cube_data(ctx:moderngl.Context,shader:ShaderContainerComponent) -> VertColorMesh:
         vertices = [
             # 前面 (z = 0.5) - 赤
             -0.5, -0.5,  0.5, 1.0, 0.0, 0.0,
@@ -110,15 +87,13 @@ class Mesh (MeshLike,MeshRender):
              0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
             -0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
         ]
-        d = mesh_render.get_render_obj()
-        if d is not None :
-            ctx , prog = d 
-            return Mesh(ctx,prog,np.array(vertices, dtype='f4'))
-        else : 
-            return None
+
+        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))
+
     @staticmethod
-    def road_obj (filename:str,mesh_render:MeshRender,color=(1.0,1.0,1.0)) -> Mesh|None :
+    def road_obj (ctx:moderngl.Context,shader:ShaderContainerComponent,filename:str,color=(1.0,1.0,1.0)) -> VertColorMesh|None:
         vertices : list[tuple[float,float,float]] = []
+        tex_coords = [] # vt
         indices : list[int] = []
         try:
             with open(filename, 'r') as file:
@@ -129,6 +104,8 @@ class Mesh (MeshLike,MeshRender):
                         continue
                     if parts[0] == 'v':
                         vertices.append((float(parts[1]), float(parts[2]), float(parts[3])))
+                    elif parts[0] == 'vt' :
+                        tex_coords.append([float(parts[1]), float(parts[2])])
                     elif parts[0] == 'f':
                         # OBJは1始まりかつ四角面があるので、三角形ファンで分割しつつ0始まりに補正
                         face_idx: list[int] = []
@@ -148,16 +125,58 @@ class Mesh (MeshLike,MeshRender):
                 else:
                     raise IndexError(f"Index {index} out of bounds for vertices of length {len(vertices)}")
 
-            render = mesh_render.get_render_obj()
-            if render is not None:
-                ctx, prog = render
-                return Mesh(ctx, prog, np.array(f_vertices, dtype="f4"))
-            else:
-                print(f"\033[31mReading is faild : filename = {filename}")
-                print("\033[31mPlease execute Application.init()")
-                return None
+
+            return VertColorMesh(ctx, shader, np.array(f_vertices, dtype="f4"))
         except Exception as e:
             print(f"\033[31mReading is faild : filename = {filename}")
             print(f"\033[31mError: {e}")
             print("\033[31mPlease check your assets name.")
             return None
+
+    @staticmethod
+    def get_checkerboad_mesh(
+                ctx:moderngl.Context,
+                shader:ShaderContainerComponent,
+                grid_size = 40 ,
+                tile_size = 0.4 ,
+                color1 = (1.0,1.0,1.0) ,
+                color2 = (0.0,0.0,0.0) ,
+    ) -> VertColorMesh|None:
+        vertices = []
+        
+        start_x = -grid_size * tile_size *0.5
+        start_z = -grid_size * tile_size *0.5
+        
+        # グリッドを生成
+        for i in range(grid_size):
+            for j in range(grid_size):
+                # タイルの左下コーナー位置
+                x0 = start_x + i * tile_size
+                z0 = start_z + j * tile_size
+                x1 = x0 + tile_size
+                z1 = z0 + tile_size
+                
+                # チェッカーボード模様：色を決定
+                # (i + j) % 2 で白黒を交互に配置
+                if (i + j) % 2 == 0:
+                    color = color1  # default 白
+                else:
+                    color = color2  # default 黒
+                
+                # タイルを2つの三角形で構成（反時計回り）
+                # 1つ目の三角形（左下→左上→右上）
+                vertices.extend([
+                    x0, 0.0, z0, color[0], color[1], color[2],
+                    x0, 0.0, z1, color[0], color[1], color[2],
+                    x1, 0.0, z1, color[0], color[1], color[2],
+                ])
+                
+                # 2つ目の三角形（左下→右上→右下）
+                vertices.extend([
+                    x0, 0.0, z0, color[0], color[1], color[2],
+                    x1, 0.0, z1, color[0], color[1], color[2],
+                    x1, 0.0, z0, color[0], color[1], color[2],
+                ])
+        
+
+        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))
