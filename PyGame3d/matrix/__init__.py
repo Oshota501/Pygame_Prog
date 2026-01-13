@@ -2,7 +2,13 @@ import math
 import numpy as np
 # 転置済み(Transposed)の配列定義
 # 数学的な行列の「行」と「列」を入れ替えて定義しています
-
+def get_i () -> np.ndarray :
+    return np.array([
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ],dtype="f4")
 # 移動行列
 def create_translation (x:float,y:float,z:float) -> np.ndarray:
     return np.array([
@@ -23,3 +29,10 @@ def create_perspective(fov_degrees:float, aspect_ratio:float, near:float, far:fl
         [0.0,                 0.0,  (far + near) / (near - far),          -1.0],
         [0.0,                 0.0,  (2.0 * far * near) / (near - far),     0.0],
     ], dtype='f4')
+def create_scale(x:float,y:float,z:float) -> np.ndarray :
+    return np.array([
+        [x,0.0, 0.0, 0.0],
+        [0.0,y, 0.0, 0.0],
+        [0.0,0.0, z, 0.0],
+        [0.0,0.0, 0.0, 1.0]
+    ],dtype="f4")

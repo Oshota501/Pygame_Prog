@@ -1,76 +1,35 @@
-import pygame
-import moderngl
-import numpy as np
-import matrix.rotation
-from Draw.mesh import Mesh
-from typing import cast
+import PyGame3d
+from PyGame3d.GameObject.Cube import Cube, Floor,Sprite3D_obj_format
+from PyGame3d.Scene import Scene,GameScript
+from PyGame3d.vector import Vector3
+import math
 
-def main() -> None:
-    # OpenGLのバージョンを330に合わせます。
-    pygame.init()
-    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 3)
-    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
-    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
-    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
-    pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
+scene = Scene()
+game = PyGame3d.Application(scene)
+game.init() 
 
-    # ModernGLのコンテキストを作成
-    ctx = moderngl.create_context()
+class GameObject (GameScript) :
+    cube :Cube
+    angle :float
+    obj :Sprite3D_obj_format
+    floor :Floor
+    def __init__(self) -> None:
+        self.cube = Cube()
+        self.angle = 0.0
+        self.obj = Sprite3D_obj_format("./Assets/test.obj")
+        self.floor = Floor()
 
-    # シェーダーを読み込みます。
-    _vertex_shader_folder = open("./main.vert","r")
-    _fragment_shader_folder = open("./main.frag","r")
-    vertex_shader = _vertex_shader_folder.read()
-    fragment_sahder = _fragment_shader_folder.read()
+    def start(self) -> None:
+        game.stage_add_child(self.cube)
+        self.obj.scale *= 0.2
+        game.stage_add_child(self.obj)
+        self.floor.position.y = -3 
+        game.stage_add_child(self.floor)
+    def update(self, delta_MS: float) -> None :
+        self.angle += 0.001*delta_MS
+        self.cube.add_rotation(Vector3(math.sin(self.angle),math.cos(self.angle),math.sin(self.angle)))
+        game.scene.camera.position = Vector3(math.cos(self.angle)*5,0.0,math.sin(self.angle)*5)
+        game.scene.camera.look_at(self.cube.position-Vector3(0,0,0))
 
-    prog = ctx.program(
-        vertex_shader=vertex_shader,
-        fragment_shader=fragment_sahder,
-    )
-
-    clock = pygame.time.Clock()
-    angle = 0
-
-    cube_data = Mesh.get_cube_data()
-    my_cube = Mesh(ctx, prog, cube_data)
-
-    # 視野角60度, アスペクト比800/600, 手前0.1～奥100.0まで見える
-    proj_mat = matrix.create_perspective(60.0, 800/600, 0.1, 100.0)
-
-    if 'proj' in prog:
-        # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-        prog["proj"].write(proj_mat) # type: ignore
-        # proj_mat_uniform = cast(moderngl.Uniform,prog['proj'])
-        # proj_mat_uniform.write(proj_mat)
-    else :
-        print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
-        return
-    
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        ctx.clear(0.1, 0.1, 0.1)
-        view_mat = matrix.create_translation(0.0, 0.0, -3.0)
-        if 'view' in prog:
-            # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-            prog['view'].write(view_mat) # type: ignore
-            # view_mat_uniform = cast(moderngl.Uniform,prog['view'])
-            # view_mat_uniform.write(view_mat)
-        else :
-            print ("Shader error .\n Default vertex shader do not exist \"uniform proj\" ")
-            return
-        
-        angle += 1
-        model_mat = matrix.rotation.create_x(angle)
-        my_cube.render(model_matrix=model_mat)
-
-        pygame.display.flip()
-        clock.tick(60)
-
-    pygame.quit()
-
-
-if __name__ == "__main__" :
-    main()
+scene.script_add(GameObject())
+game.start_rendering()
