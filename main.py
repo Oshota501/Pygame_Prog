@@ -19,7 +19,6 @@ class GameObject (GameScript) :
         self.obj = Sprite3D_obj_format("./Assets/test.obj")
         self.floor = Floor()
 
-        
     def start(self) -> None:
         game.stage_add_child(self.cube)
         self.obj.scale *= 0.2
@@ -30,7 +29,7 @@ class GameObject (GameScript) :
         self.angle += 0.001*delta_MS
         self.cube.add_rotation(Vector3(math.sin(self.angle),math.cos(self.angle),math.sin(self.angle)))
         game.scene.camera.position = Vector3(math.cos(self.angle)*5,0.0,math.sin(self.angle)*5)
-        game.scene.camera.look_at(self.cube.position)
+        game.scene.camera.look_at(self.cube.position-Vector3(0,0,0))
 
 scene.script_add(GameObject())
 game.start_rendering()
