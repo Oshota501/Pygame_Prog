@@ -163,5 +163,21 @@ class UVMesh(MeshRender, MeshLike):
         return self.material
     
     @staticmethod
-    def load_obj (material:UVMaterial,filename:str) -> UVMesh :
-        return UVMesh(material,load_obj(filename))
+    def load_obj (material:UVMaterial,obj_filename:str) -> UVMesh :
+        return UVMesh(material,load_obj(obj_filename))
+    @staticmethod
+    def cutting_boad (texture_name:str) -> UVMesh :
+        tex = UVTexture(texture_name)
+        material = UVMaterial()
+        material.add_texture(tex,31)
+        return UVMesh(material,np.array(
+            [
+                0.5,0.5,0.0,1.0,1.0,
+                -0.5,0.5,0.0,0.0,1.0,
+                -0.5,-0.5,0.0,0.0,0.0,
+
+                0.5,0.5,0.0,1.0,1.0,
+                -0.5,-0.5,0.0,0.0,0.0,
+                0.5,-0.5,0.0,1.0,0.0
+            ]
+        ,dtype="f4"))
