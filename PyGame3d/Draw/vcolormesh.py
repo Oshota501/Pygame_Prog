@@ -4,6 +4,7 @@ import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
+import PyGame3d.static as static
 
 class VertColorMesh (MeshLike,MeshRender):
     rend : ShaderContainerComponent
@@ -11,13 +12,15 @@ class VertColorMesh (MeshLike,MeshRender):
     vao : moderngl.VertexArray
     ctx : moderngl.Context
 
-    def __init__(self,context:moderngl.Context, shader:ShaderContainerComponent , vertices:np.ndarray) -> None:
-        self.ctx = context
-        self.rend = shader
-        program = shader.get_program()
+    def __init__(self, vertices:np.ndarray) -> None:
+        if static.context is None or static.vert_color_mesh is None :
+            raise
+        self.ctx = static.context
+        self.rend = static.vert_color_mesh
+        program = self.rend.get_program()
         if self.ctx is None or program is None :
             print("error : Read shader has probrem .")
-            return
+            raise 
         else :
             self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
             content = [(self.vbo, '3f 3f', 'in_vert', 'in_color')]
@@ -88,7 +91,7 @@ class VertColorMesh (MeshLike,MeshRender):
             -0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
         ]
 
-        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))
+        return VertColorMesh(np.array(vertices, dtype='f4'))
 
     @staticmethod
     def road_obj (ctx:moderngl.Context,shader:ShaderContainerComponent,filename:str,color=(1.0,1.0,1.0)) -> VertColorMesh|None:
@@ -126,7 +129,7 @@ class VertColorMesh (MeshLike,MeshRender):
                     raise IndexError(f"Index {index} out of bounds for vertices of length {len(vertices)}")
 
 
-            return VertColorMesh(ctx, shader, np.array(f_vertices, dtype="f4"))
+            return VertColorMesh(np.array(f_vertices, dtype="f4"))
         except Exception as e:
             print(f"\033[31mReading is faild : filename = {filename}")
             print(f"\033[31mError: {e}")
@@ -179,4 +182,4 @@ class VertColorMesh (MeshLike,MeshRender):
                 ])
         
 
-        return VertColorMesh(ctx,shader,np.array(vertices, dtype='f4'))
+        return VertColorMesh(np.array(vertices, dtype='f4'))
