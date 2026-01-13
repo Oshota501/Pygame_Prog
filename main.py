@@ -1,5 +1,5 @@
 import PyGame3d
-from PyGame3d.GameObject.Cube import Cube, Floor,Sprite3D_obj_format
+from PyGame3d.GameObject.Cube import Cube, Floor
 from PyGame3d.Scene import Scene,GameScript
 from PyGame3d.vector import Vector3
 import math
@@ -11,18 +11,14 @@ game.init()
 class GameObject (GameScript) :
     cube :Cube
     angle :float
-    obj :Sprite3D_obj_format
     floor :Floor
     def __init__(self) -> None:
         self.cube = Cube()
         self.angle = 0.0
-        self.obj = Sprite3D_obj_format("./Assets/test.obj")
         self.floor = Floor()
 
     def start(self) -> None:
         game.stage_add_child(self.cube)
-        self.obj.scale *= 0.2
-        game.stage_add_child(self.obj)
         self.floor.position.y = -3 
         game.stage_add_child(self.floor)
     def update(self, delta_MS: float) -> None :

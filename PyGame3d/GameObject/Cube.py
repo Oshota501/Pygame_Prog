@@ -11,14 +11,6 @@ class Cube (Sprite3D) :
             raise ValueError("まだinitされていないようです")
             
 
-class Sprite3D_obj_format (Sprite3D) :
-    def __init__(self,filename:str) -> None:
-        super().__init__()
-        if static.vert_color_mesh is not None and static.context is not None:
-            self.mesh = VertColorMesh.road_obj(static.context,static.vert_color_mesh,filename)
-        else :
-            raise ValueError("まだinitされていないようです")
-
 class Floor (Sprite3D) :
     mesh : MeshLike | None
     def __init__(self) -> None:
