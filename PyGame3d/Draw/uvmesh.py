@@ -36,7 +36,9 @@ def load_obj(filename:str) -> np.ndarray:
 
             # 面情報 (f v1/vt1/vn1 ...)
             elif parts[0] == 'f':
-                for i in range(1, 4):
+                # [x, y, z, u, v]
+                vert : list[list[float]] = []
+                for i in range(1, len(parts)):
                     vals = parts[i].split('/')
                     v_idx = int(vals[0]) - 1
                     xyz = vertices[v_idx]
@@ -45,9 +47,14 @@ def load_obj(filename:str) -> np.ndarray:
                         uv = tex_coords[vt_idx]
                     else:
                         uv = [0.0, 0.0] # ダミー
-                    # 配列に追加 [x, y, z, u, v]
-                    final_data.extend(xyz)
-                    final_data.extend(uv)
+                    # 頂点データ追加
+                    vert.append([xyz[0],xyz[1],xyz[2],uv[0],uv[1]])
+                if len(vert) >= 3 :
+                    # print(len(vert))
+                    for i in range(1, len(vert)-1):
+                        final_data.extend(vert[0])
+                        final_data.extend(vert[i])
+                        final_data.extend(vert[i+1])
 
     return np.array(final_data, dtype='f4')
 
@@ -154,3 +161,7 @@ class UVMesh(MeshRender, MeshLike):
 
     def get_material(self) -> MaterialLike | None:
         return self.material
+    
+    @staticmethod
+    def load_obj (material:UVMaterial,filename:str) -> UVMesh :
+        return UVMesh(material,load_obj(filename))

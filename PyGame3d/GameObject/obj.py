@@ -23,4 +23,4 @@ class UVColorMesh_Sprite3D (Sprite3D) :
         mat_wall.add_texture(tex_wall,0)
         if not os.path.exists(obj_filename):
             raise FileNotFoundError(f"Object file not found: {obj_filename}")
-        self.mesh = UVMesh(mat_wall,load_obj(obj_filename))
+        self.mesh = UVMesh.load_obj(mat_wall,"./Assets/test.obj")

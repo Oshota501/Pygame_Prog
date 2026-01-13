@@ -25,7 +25,7 @@ class GameObject (GameScript) :
         game.stage_add_child(self.cube)
         self.floor.position.y = -3 
         game.stage_add_child(self.floor)
-        self.useTextureObj.scale += Vector3(4,4,4)
+        self.useTextureObj.position -= Vector3(0,3,0)
         game.stage_add_child(self.useTextureObj)
     def update(self, delta_MS: float) -> None :
         self.angle += 0.001*delta_MS
