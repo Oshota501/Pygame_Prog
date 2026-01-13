@@ -1,10 +1,10 @@
 import moderngl
 import pygame
 import numpy as np
+import os
 
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
-from PyGame3d.Draw.vcolormesh import MeshLike , MeshRender
-from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender, Transform,TextureLike
+from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, Transform, TextureLike
 
 import PyGame3d.static as static
 import PyGame3d.matrix as matrix
@@ -57,13 +57,15 @@ class UVTexture (TextureLike):
     def __init__(self, filepath:str) -> None:
         if static.context is None :
             raise ValueError("please execute Application.init()")
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Texture file not found: {filepath}")
         self.ctx = static.context
-        surface = pygame.image.load(filepath).convert()
+        surface = pygame.image.load(filepath).convert_alpha()
         surface = pygame.transform.flip(surface, False, True)
         self.texture = self.ctx.texture(
             size=surface.get_size(),
-            components=3, # RGBなら3, RGBAなら4
-            data=pygame.image.tobytes(surface, 'RGB')
+            components=4, # RGBなら3, RGBAなら4
+            data=pygame.image.tobytes(surface, 'RGBA')
         )
         self.texture.filter = (moderngl.LINEAR, moderngl.LINEAR)
         self.texture.build_mipmaps()
@@ -103,37 +105,52 @@ class UVMaterial (MaterialLike):
     def get_textures(self) -> dict[int, TextureLike]:
         return self.textures
         
-class UVMesh (MeshRender,MeshLike):
-    ctx : moderngl.Context
-    shader : ShaderContainerComponent
-    material : UVMaterial
-    vbo : moderngl.Buffer
-    vao : moderngl.VertexArray
-    def __init__(self ,material:UVMaterial, mesh_data:np.ndarray=matrix.get_i()) -> None:
-        if static.context is None or static.uv_mesh is None :
-            raise
+class UVMesh(MeshRender, MeshLike):
+    ctx: moderngl.Context
+    shader: ShaderContainerComponent
+    material: UVMaterial
+    vbo: moderngl.Buffer
+    vao: moderngl.VertexArray
+
+    def __init__(self, material: UVMaterial, mesh_data: np.ndarray) -> None:
+        if static.context is None or static.uv_mesh is None:
+            raise ValueError("Please execute Application.init() before creating UVMesh")
+
         self.ctx = static.context
-        self.prog = material.program
-        self.vbo = self.ctx.buffer(mesh_data.astype('f4').tobytes())
-        content = [(self.vbo, '3f 2f', 'in_vert', 'in_uv')]
-        self.vao = self.ctx.vertex_array(self.shader, content)
+        self.shader = static.uv_mesh
+        self.material = material
 
-    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
-        pass 
+        program = material.program
+        self.vbo = self.ctx.buffer(mesh_data.astype("f4").tobytes())
+        content = [(self.vbo, "3f 2f", "in_vert", "in_uv")]
+        self.vao = self.ctx.vertex_array(program, content)
 
-    def render (self, transform:Transform,model_matrix:np.ndarray) -> None:
+    def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program] | None:
+        program = self.material.program
+        return (self.ctx, program)
+
+    def render(self, transform: Transform, model_matrix: np.ndarray | None = None) -> None:
+        if model_matrix is None:
+            model_matrix = matrix.get_i()
+
         self.material.use()
         self.shader.send_model(
-            position = matrix.create_translation(transform.position.x,transform.position.y,transform.position.z) ,
-            rotation = rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z) ,
-            scale = matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z) ,
-            model_opt = model_matrix
+            position=matrix.create_translation(
+                transform.position.x, transform.position.y, transform.position.z
+            ),
+            rotation=rmatrix.create(
+                transform.rotation.x, transform.rotation.y, transform.rotation.z
+            ),
+            scale=matrix.create_scale(
+                transform.scale.x, transform.scale.y, transform.scale.z
+            ),
+            model_opt=model_matrix,
         )
         self.vao.render()
-        return 
 
-    def destroy (self) -> None:
+    def destroy(self) -> None:
         self.vao.release()
         self.vbo.release()
+
     def get_material(self) -> MaterialLike | None:
         return self.material
