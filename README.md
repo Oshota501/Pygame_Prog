@@ -77,4 +77,19 @@ localな値を使用する場合に対応するため、全てのTransform系の
 
 コンストラクタにて.obj形式で渡した値を読み込んで描画できるように実装されています。
 
+## 内部的な処理として使いたい Class
 
+- class VertColorMesh
+  - 保持する行列が [x,y,z,r,g,b] の行列
+  - .objファイルの形のデータにだけ対応
+- class ShaderContainer 
+  - moderngl の Context と Program を保持
+  - 使用するメッシュによって使い分けるための class
+
+## 開発中
+
+class UVMesh
+  - 保持する行列が [x,y,z,u,v] の行列
+  - .objのTextureに対応
+
+## 未開発
