@@ -1,5 +1,6 @@
 import PyGame3d
-from PyGame3d.GameObject.Cube import Cube, Floor,Sprite3D_obj_format
+from PyGame3d.GameObject.Cube import Cube, Floor
+from PyGame3d.GameObject.obj import UVColorMesh_Sprite3D
 from PyGame3d.Scene import Scene,GameScript
 from PyGame3d.vector import Vector3
 import math
@@ -9,22 +10,23 @@ game = PyGame3d.Application(scene)
 game.init() 
 
 class GameObject (GameScript) :
-    cube :Cube
-    angle :float
-    obj :Sprite3D_obj_format
-    floor :Floor
+    # cube :Cube
+    # angle :float
+    # floor :Floor
+    useTextureObj :UVColorMesh_Sprite3D
+
     def __init__(self) -> None:
         self.cube = Cube()
         self.angle = 0.0
-        self.obj = Sprite3D_obj_format("./Assets/test.obj")
         self.floor = Floor()
+        self.useTextureObj = UVColorMesh_Sprite3D("./Assets/tex.png","./Assets/test.obj")
 
     def start(self) -> None:
         game.stage_add_child(self.cube)
-        self.obj.scale *= 0.2
-        game.stage_add_child(self.obj)
         self.floor.position.y = -3 
         game.stage_add_child(self.floor)
+        self.useTextureObj.position -= Vector3(0,3,0)
+        game.stage_add_child(self.useTextureObj)
     def update(self, delta_MS: float) -> None :
         self.angle += 0.001*delta_MS
         self.cube.add_rotation(Vector3(math.sin(self.angle),math.cos(self.angle),math.sin(self.angle)))

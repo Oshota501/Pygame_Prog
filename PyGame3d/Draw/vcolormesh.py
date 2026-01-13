@@ -2,7 +2,7 @@ import numpy as np
 import moderngl
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
-from PyGame3d.Draw import MeshLike,MeshRender,Transform
+from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 import PyGame3d.static as static
 
@@ -27,18 +27,20 @@ class VertColorMesh (MeshLike,MeshRender):
             self.vao = self.ctx.vertex_array(program, content)
     def get_render_obj(self) -> ShaderContainerComponent:
         return self.rend
-    def render (self, transform:Transform,model_matrix:np.ndarray|None=None) -> None:
+    def render (self, transform:Transform,model_matrix:np.ndarray=matrix.get_i()) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
         self.rend.send_model(
             position = matrix.create_translation(transform.position.x,transform.position.y,transform.position.z) ,
             rotation = rmatrix.create(transform.rotation.x,transform.rotation.y,transform.rotation.z) ,
             scale = matrix.create_scale(transform.scale.x,transform.scale.y,transform.scale.z) ,
-            model_opt = matrix.get_i()
+            model_opt = model_matrix
         )
         self.vao.render()
     def destroy (self) -> None:
         self.vao.release()
         self.vbo.release()
+    def get_material(self) -> MaterialLike | None:
+        return None
     @staticmethod
     def get_cube_data(ctx:moderngl.Context,shader:ShaderContainerComponent) -> VertColorMesh:
         vertices = [
