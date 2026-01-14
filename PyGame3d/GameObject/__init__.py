@@ -117,6 +117,9 @@ class GameContainer (ContainerComponent) :
             print(f"Already registered with other container :{pr_pointer}")
             print("Registered faild.")
             return
+    def add_children(self,children:list[ContainerComponent]) -> None :
+        for child in children :
+            self.add_child(child)
     def get_child(self) -> list[ContainerComponent]:
         return self.child
     def remove_child(self, index: int) -> None:
@@ -177,7 +180,7 @@ class GameContainer (ContainerComponent) :
         dx,dy,dz = target_position - self.position
         distance_xz = math.sqrt(dx**2 + dz**2)
         # 注意: 座標系によっては dy の符号を変える必要があります
-        pitch = math.degrees(math.atan2(dy, distance_xz))
+        pitch = -math.degrees(math.atan2(dy, distance_xz))
         yaw = math.degrees(math.atan2(dx, -dz))
         self.set_rotation(Vector3(pitch, yaw, 0.0))
 

@@ -61,12 +61,51 @@ def load_obj(filename:str) -> np.ndarray:
 class UVTexture (TextureLike):
     ctx : moderngl.Context
     texture : moderngl.Texture
-    def __init__(self, filepath:str) -> None:
+    def __init__(self, context:moderngl.Context,texture:moderngl.Texture) -> None:
+        self.ctx = context  
+        self.texture = texture
+    @staticmethod
+    def get_context () -> moderngl.Context :
         if static.context is None :
             raise ValueError("please execute Application.init()")
+        return static.context
+    def use(self, location):
+        self.texture.use(location=location)
+    def get(self) -> moderngl.Texture:
+        return self.texture
+    @classmethod
+    def from_color(cls, color: tuple[float, float, float] | tuple[float, float, float, float], size: tuple[int, int] = (1, 1)) -> "UVTexture":
+        """指定色から単色テクスチャを生成する。colorは0.0～1.0のRGBA/ RGBタプル。"""
+        if static.context is None:
+            raise ValueError("please execute Application.init()")
+        ctx = static.context
+        a = color[3] if len(color) == 4 else 1.0
+        rgba8 = (
+            int(max(0.0, min(1.0, color[0])) * 255),
+            int(max(0.0, min(1.0, color[1])) * 255),
+            int(max(0.0, min(1.0, color[2])) * 255),
+            int(max(0.0, min(1.0, a)) * 255),
+        )
+        surface = pygame.Surface(size, flags=pygame.SRCALPHA)
+        surface.fill(rgba8)
+        surface = pygame.transform.flip(surface, False, True)
+        tex = ctx.texture(
+            size=size,
+            components=4,
+            data=pygame.image.tobytes(surface, "RGBA"),
+        )
+        tex.filter = (moderngl.LINEAR, moderngl.LINEAR)
+        tex.build_mipmaps()
+        inst = cls.__new__(cls)
+        inst.ctx = ctx
+        inst.texture = tex
+        return inst
+class UVTextureImage (UVTexture,TextureLike) :
+    # override
+    def __init__(self, filepath: str) -> None:   
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Texture file not found: {filepath}")
-        self.ctx = static.context
+        self.ctx = UVTexture.get_context()
         surface = pygame.image.load(filepath).convert_alpha()
         surface = pygame.transform.flip(surface, False, True)
         self.texture = self.ctx.texture(
@@ -76,14 +115,11 @@ class UVTexture (TextureLike):
         )
         self.texture.filter = (moderngl.LINEAR, moderngl.LINEAR)
         self.texture.build_mipmaps()
-    def use(self, location):
-        self.texture.use(location=location)
-    def get(self) -> moderngl.Texture:
-        return self.texture
-    
+
 class UVMaterial (MaterialLike):
     program : moderngl.Program
     textures : dict[int,TextureLike]
+    uniform_name : str
     def __init__(self):
         if static.uv_mesh is None :
             raise ValueError("Please execute Application.init ()")
@@ -92,6 +128,7 @@ class UVMaterial (MaterialLike):
             raise ValueError("Please execute Application.init ()")
         self.program = program
         self.textures = {} # { location_index: TextureObject } の辞書
+        self.uniform_name = "u_texture"  # デフォルト値
 
     def add_texture(self, texture:UVTexture, location:int, uniform_name:str="u_texture"):
         """
@@ -101,14 +138,19 @@ class UVMaterial (MaterialLike):
         uniform_name: シェーダー内の変数名 ("u_texture" など)
         """
         self.textures[location] = texture
-
-        if uniform_name in self.program:
-            self.program[uniform_name] = location
+        self.uniform_name = uniform_name
+    def add_color_texture(self, color: tuple[float, float, float] | tuple[float, float, float, float], location:int=0, uniform_name:str="u_texture"):
+        """単色テクスチャを登録するヘルパー。"""
+        tex = UVTexture.from_color(color)
+        self.add_texture(tex, location, uniform_name)
 
     def use(self):
         """描画直前に呼ぶ：登録された全テクスチャをバインドする"""
         for loc, tex in self.textures.items():
             tex.use(location=loc)
+            # Ensure the uniform is set to the correct texture unit
+            if hasattr(self, 'uniform_name') and self.uniform_name in self.program:
+                self.program[self.uniform_name].value = loc # type:ignore
     def get_textures(self) -> dict[int, TextureLike]:
         return self.textures
         
@@ -128,6 +170,9 @@ class UVMesh(MeshRender, MeshLike):
         self.material = material
 
         program = material.program
+        if len(mesh_data) == 0 :
+            print("Matrix cannot empty")
+        mesh_data = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],dtype="4f")
         self.vbo = self.ctx.buffer(mesh_data.astype("f4").tobytes())
         content = [(self.vbo, "3f 2f", "in_vert", "in_uv")]
         self.vao = self.ctx.vertex_array(program, content)
@@ -163,5 +208,21 @@ class UVMesh(MeshRender, MeshLike):
         return self.material
     
     @staticmethod
-    def load_obj (material:UVMaterial,filename:str) -> UVMesh :
-        return UVMesh(material,load_obj(filename))
+    def load_obj (material:UVMaterial,obj_filename:str) -> UVMesh :
+        return UVMesh(material,load_obj(obj_filename))
+    @staticmethod
+    def cutting_boad (texture_name:str) -> UVMesh :
+        tex = UVTextureImage(texture_name)
+        material = UVMaterial()
+        material.add_texture(tex,0)
+        return UVMesh(material,np.array(
+            [
+                0.5,0.5,0.0,1.0,1.0,
+                -0.5,0.5,0.0,0.0,1.0,
+                -0.5,-0.5,0.0,0.0,0.0,
+
+                0.5,0.5,0.0,1.0,1.0,
+                -0.5,-0.5,0.0,0.0,0.0,
+                0.5,-0.5,0.0,1.0,0.0
+            ]
+        ,dtype="f4"))

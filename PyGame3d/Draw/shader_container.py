@@ -84,7 +84,7 @@ class ShaderContainer (
         cx,cy,cz = camera.get_position()
         pitch,yaw,roll = camera.get_rotation()
         trans_mat = matrix.create_translation(-cx,-cy,-cz)
-        rot_mat = rmatrix.create(-pitch,-yaw,-roll)
+        rot_mat = rmatrix.create_camera(-pitch,-yaw,-roll)
         view_mat = ( trans_mat @ rot_mat )
         self.send_uniform("view",view_mat)
         return

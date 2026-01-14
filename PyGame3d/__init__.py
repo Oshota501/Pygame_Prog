@@ -13,48 +13,47 @@ class ApplicationComponent(ABC) :
     @abstractmethod
     def get_scene (self) -> SceneComponent :
         pass
-    @abstractmethod
-    def stage_add_child(self) -> None :
-        pass
+
     
 
 class Application (
     ApplicationComponent
 ) :
     screen_size : tuple[int,int]
-    viewing_angle : float
+    _viewing_angle : float
 
     ctx : moderngl.Context | None
-    clock : pygame.time.Clock
+    _clock : pygame.time.Clock
     is_init : bool
-    shader_program : list[ShaderContainerComponent]
-    scene : Scene
+    _shader_program : list[ShaderContainerComponent]
+    stage : Scene
+    perspective : float
 
     def __init__(self,scene:Scene|None=None) -> None:
+        self.perspective = 85
         self.screen_size = (800,600)
-        self.viewing_angle = 100.0 
+        self._viewing_angle = 100.0 
         self.ctx = None
-        self.clock = pygame.time.Clock()
+        self._clock = pygame.time.Clock()
         self.is_init = False
         static.uv_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
         static.vert_color_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
         if static.uv_mesh is None or static.vert_color_mesh is None :
             raise ValueError("Shader program is not found.")
-        self.shader_program = [
+        self._shader_program = [
             static.uv_mesh,
             static.vert_color_mesh,
         ]
 
         if scene == None :
-            self.scene = Scene()
+            self.stage = Scene()
+            static.scene = self.stage
         else :
-            self.scene = scene
+            self.stage = scene
 
     def get_scene(self) -> SceneComponent:
-        return self.scene
-    def stage_add_child(self,object:ContainerComponent) -> None :
-        self.scene.add_child(object)
-    def setup_glversion (self) :
+        return self.stage
+    def _setup_glversion (self) :
         # OpenGLのバージョンを330に合わせます。
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 3)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
@@ -64,7 +63,7 @@ class Application (
         
     def init (self) -> None :
         pygame.init()
-        self.setup_glversion()
+        self._setup_glversion()
         # OpenGLコンテキストはウィンドウ作成後に生成する必要がある
         self.ctx = moderngl.create_context()
         static.context = self.ctx
@@ -72,8 +71,8 @@ class Application (
         if self.ctx is None:
             raise RuntimeError("\033[31mModernGL context is not initialized")
 
-        proj_mat = matrix.create_perspective(self.viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, 100.0)
-        for prog in self.shader_program :
+        proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
+        for prog in self._shader_program :
             prog.compile(self.ctx)
             prog.send_perspective(proj_mat)
         self.is_init = True
@@ -82,7 +81,7 @@ class Application (
     
     def start_rendering (self) :
         running = True
-        if self.ctx is None or self.shader_program is None:
+        if self.ctx is None or self._shader_program is None:
             print("\033[31mPlease execute init() faster than start_rendering() ")
             self.init()
             self.start_rendering()
@@ -92,7 +91,7 @@ class Application (
         self.get_scene().start()
 
         while running:
-            evs = self.scene.get_event_listener()
+            evs = self.stage.get_event_listener()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -107,11 +106,11 @@ class Application (
             self.ctx.clear(0.1, 0.1, 0.1)
             
             camera = self.get_scene().get_camera()
-            for prog in self.shader_program :
+            for prog in self._shader_program :
                 prog.send_view_by_camera(camera)
             
-            deltatime = self.clock.tick(60)  # ミリ秒
-            self.scene.update(deltatime)
+            deltatime = self._clock.tick(60)  # ミリ秒
+            self.stage.update(deltatime)
 
             pygame.display.flip()
 
