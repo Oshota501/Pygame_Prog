@@ -57,6 +57,7 @@ class Scene (SceneComponent) :
         self.camera = Camera ()
         self.exe = []
         self.ev = []
+        self.ticker = {}
         self.start()
         self._interval_id_top = 0 
     def script_add(self,game_script:GameScript) -> None:
@@ -76,7 +77,7 @@ class Scene (SceneComponent) :
         for c in self.container.get_child() :
             c.update(delta_MS)
         for t in self.ticker.items() :
-            t.index(delta_MS)
+            t[1](delta_MS)
     def get_camera(self) -> Camera:
         return self.camera
     def get_event_listener(self) -> list[EventListener]:
