@@ -25,7 +25,7 @@ class GameObject (GameScript) :
         game.stage.add_child(self.cube)
         self.floor.position.y = -3 
         game.stage.add_child(self.floor)
-        self.useTextureObj.position += Vector3(0,3,0)
+        self.useTextureObj.position += Vector3(0,-2,0)
         self.useTextureObj.scale *= Vector3(0.2,0.2,0.2)
         game.stage.add_child(self.useTextureObj)
         self.cutting.position -= Vector3(0,0,6)
@@ -34,9 +34,10 @@ class GameObject (GameScript) :
     def update(self, delta_MS: float) -> None :
         self.angle += 0.001*delta_MS
         self.cutting.rotation.z += self.angle
+        self.useTextureObj.look_at(game.stage.camera.position)
         self.cube.add_rotation(Vector3(math.sin(self.angle),math.cos(self.angle),math.sin(self.angle)))
         game.stage.camera.position = Vector3(math.cos(self.angle)*5,0.0,math.sin(self.angle)*5)
-        game.stage.camera.look_at(self.cube.position-Vector3(0,0,0))
+        game.stage.camera.look_at(self.cube.position-Vector3(0,5,0))
 
 scene.script_add(GameObject())
 game.start_rendering()

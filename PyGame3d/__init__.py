@@ -27,8 +27,10 @@ class Application (
     is_init : bool
     _shader_program : list[ShaderContainerComponent]
     stage : Scene
+    perspective : float
 
     def __init__(self,scene:Scene|None=None) -> None:
+        self.perspective = 85
         self.screen_size = (800,600)
         self._viewing_angle = 100.0 
         self.ctx = None
@@ -69,7 +71,7 @@ class Application (
         if self.ctx is None:
             raise RuntimeError("\033[31mModernGL context is not initialized")
 
-        proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, 100.0)
+        proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
         for prog in self._shader_program :
             prog.compile(self.ctx)
             prog.send_perspective(proj_mat)

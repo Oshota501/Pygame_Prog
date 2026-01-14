@@ -79,21 +79,27 @@ class Camera (ContainerComponent):
             self.set_rotation(self.parent.get_rotation() + local_rotation)
         return
     def look_at(self,target_position: Vector3) -> None:
-        dx,dy,dz = target_position - self.position
-        distance_xz = math.sqrt(dx**2 + dz**2)
-        # 注意: 座標系によっては dy の符号を変える必要があります
-        pitch = math.degrees(math.atan2(dy, distance_xz))
+        dx, dy, dz = target_position - self.position
+        distance_xz = math.sqrt(dx**2 + dz**2 + dy**2)
+
+        # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
+        pitch = -math.degrees(math.atan2(dy, distance_xz))
+        
         yaw = math.degrees(math.atan2(dx, -dz))
         self.set_rotation(Vector3(pitch, yaw, 0.0))
+
     # Scale
     def add_scale(self, delta_scale: Vector3) -> None:
+        print("\033[33mWarning : Camera doesn't have scale .")
         return
     def get_scale(self) -> Vector3:
+        print("\033[33mWarning : Camera doesn't have scale .")
         return Vector3(1.0,1.0,1.0)
     def set_scale(self, absolute_scale: Vector3|int|float) -> None:
         print("\033[33mWarning : Camera doesn't have scale .")
         return
     def get_localscale(self) -> Vector3:
+        print("\033[33mWarning : Camera doesn't have scale .")
         return Vector3(1.0,1.0,1.0)
     def set_localscale(self, local_scale: Vector3) -> None:
         print("\033[33mWarning : Camera doesn't have scale .")
