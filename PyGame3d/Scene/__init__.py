@@ -1,4 +1,5 @@
 from abc import ABC,abstractmethod
+from typing import Callable, Mapping
 
 from PyGame3d.GameObject import GameContainer,ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
@@ -36,6 +37,12 @@ class SceneComponent (ABC) :
     def script_add (self,game_script:GameScript) -> None :
         pass
     @abstractmethod
+    def ticker_add (self,func:Callable[[float],None]) -> int :
+        pass
+    @abstractmethod
+    def ticker_remove (self,func_id:int) -> None :
+        pass
+    @abstractmethod
     def get_event_listener (self) -> list[EventListener] :
         pass
 class Scene (SceneComponent) :
@@ -43,12 +50,15 @@ class Scene (SceneComponent) :
     container : GameContainer 
     exe : list[GameScript]
     ev : list[EventListener]
+    ticker : dict[int,Callable[[float],None]]
+    _interval_id_top : int
     def __init__(self) -> None:
         self.container = GameContainer()
         self.camera = Camera ()
         self.exe = []
         self.ev = []
         self.start()
+        self._interval_id_top = 0 
     def script_add(self,game_script:GameScript) -> None:
         self.exe.append(game_script)
     def start(self) :
@@ -65,7 +75,15 @@ class Scene (SceneComponent) :
             e.update(delta_MS)
         for c in self.container.get_child() :
             c.update(delta_MS)
+        for t in self.ticker.items() :
+            t.index(delta_MS)
     def get_camera(self) -> Camera:
         return self.camera
     def get_event_listener(self) -> list[EventListener]:
         return self.ev
+    def ticker_add(self, func: Callable[[float], None]) -> int:
+        self.ticker[self._interval_id_top] = func
+        self._interval_id_top += 1
+        return self._interval_id_top - 1 
+    def ticker_remove(self, func_id: int) -> None:
+        del self.ticker[func_id]

@@ -6,11 +6,16 @@ pip install -r requirements.txt
 python3.14 main.py
 ```   
 # 起動
+python3.14を指定していますが、python3コマンドでもversionが最新であれば動きます（多分）
 ```sh
 source ./.venv/bin/activate
 python3.14 main.py
 ```
+# 使い方
+main.py
+```py
 
+```
 # 実装したいことlist
 - [x] Mesh型作成
 - [ ] シングルトン
