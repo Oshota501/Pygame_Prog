@@ -51,9 +51,9 @@ def update (delta_MS:float) -> None :
 func_id = game.stage.ticker_add(update)
 # おまじない（while文スタート ）
 game.start_rendering()
-
-
 ```
+
+なお`GameScript`を継承した関数をstageに追加することでもupdateとstart関数を使うことができます。
 # 実装したいことlist
 - [x] Mesh型作成
 - [ ] シングルトン

@@ -170,6 +170,9 @@ class UVMesh(MeshRender, MeshLike):
         self.material = material
 
         program = material.program
+        if len(mesh_data) == 0 :
+            print("Matrix cannot empty")
+        mesh_data = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],dtype="4f")
         self.vbo = self.ctx.buffer(mesh_data.astype("f4").tobytes())
         content = [(self.vbo, "3f 2f", "in_vert", "in_uv")]
         self.vao = self.ctx.vertex_array(program, content)
