@@ -1,7 +1,7 @@
 import os
 from PyGame3d import static
 from PyGame3d.Draw.vcolormesh import VertColorMesh
-from PyGame3d.Draw.uvmesh import UVMesh,UVMaterial,UVTexture,load_obj
+from PyGame3d.Draw.uvmesh import UVMesh,UVMaterial,UVTextureImage,load_obj
 from PyGame3d.GameObject import Sprite3D
 
 
@@ -18,9 +18,9 @@ class UVColorMesh_Sprite3D (Sprite3D) :
         super().__init__()
         if not os.path.exists(texture_filename):
             raise FileNotFoundError(f"Texture file not found: {texture_filename}")
-        tex_wall = UVTexture(filepath=texture_filename)
+        tex_wall = UVTextureImage(filepath=texture_filename)
         mat_wall = UVMaterial()
         mat_wall.add_texture(tex_wall,0)
         if not os.path.exists(obj_filename):
             raise FileNotFoundError(f"Object file not found: {obj_filename}")
-        self.mesh = UVMesh.load_obj(mat_wall,"./Assets/test.obj")
+        self.mesh = UVMesh.load_obj(mat_wall,obj_filename=obj_filename)
