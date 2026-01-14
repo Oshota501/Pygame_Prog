@@ -14,8 +14,6 @@ class ApplicationComponent(ABC) :
     def get_scene (self) -> SceneComponent :
         pass
 
-    
-
 class Application (
     ApplicationComponent
 ) :
@@ -28,6 +26,7 @@ class Application (
     _shader_program : list[ShaderContainerComponent]
     stage : Scene
     perspective : float
+    _screen : pygame.Surface | None
 
     def __init__(self,scene:Scene|None=None) -> None:
         self.perspective = 85
@@ -36,6 +35,7 @@ class Application (
         self.ctx = None
         self._clock = pygame.time.Clock()
         self.is_init = False
+        self._screen = None
         static.uv_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
         static.vert_color_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
         if static.uv_mesh is None or static.vert_color_mesh is None :
@@ -59,7 +59,7 @@ class Application (
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
-        pygame.display.set_mode(self.screen_size, pygame.OPENGL | pygame.DOUBLEBUF)
+        self._screen = pygame.display.set_mode(self.screen_size, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
         
     def init (self) -> None :
         pygame.init()
@@ -78,7 +78,14 @@ class Application (
         self.is_init = True
 
         return
-    
+    def set_resolution (self,resolution:tuple[int,int]) -> None :
+        if self._screen is None :
+            return
+        print(resolution)
+        self.screen_size = resolution
+        proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
+        for prog in self._shader_program :
+            prog.send_perspective(proj_mat)
     def start_rendering (self) :
         running = True
         if self.ctx is None or self._shader_program is None:
@@ -91,15 +98,15 @@ class Application (
         self.get_scene().start()
 
         while running:
-            evs = self.stage.get_event_listener()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                for ev in evs :
-                    if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
-                        ev.event_happen(Vector2(event.pos))
-                    elif event.type == ev.event_type :
-                        ev.event_happen(Vector2())
+                if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
+                    pass
+                elif event.type == pygame.VIDEORESIZE :
+                    print("Update perspective matrix")
+                    # 型安全が実装されていないようです。
+                    self.set_resolution((event.w,event.h))
 
             test.update()
 
