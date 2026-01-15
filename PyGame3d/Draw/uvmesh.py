@@ -153,7 +153,13 @@ class UVMaterial (MaterialLike):
                 self.program[self.uniform_name].value = loc # type:ignore
     def get_textures(self) -> dict[int, TextureLike]:
         return self.textures
-        
+    @staticmethod
+    def include_texture(texs:list[UVTexture]) -> UVMaterial:
+        m = UVMaterial()
+        for i,t in enumerate(texs) :
+            m.add_texture(t,i)
+        return m
+
 class UVMesh(MeshRender, MeshLike):
     ctx: moderngl.Context
     shader: ShaderContainerComponent

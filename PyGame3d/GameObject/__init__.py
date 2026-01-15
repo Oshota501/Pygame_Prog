@@ -206,6 +206,17 @@ class GameContainer (ContainerComponent) :
         else :
             self.set_scale(self.parent.get_scale() + local_scale)
         return
+    @staticmethod
+    def include_transform (
+            position=Vector3(0,0,0),
+            rotation=Vector3(0,0,1),
+            scale=Vector3(1,1,1)
+    ) -> GameContainer :
+        g = GameContainer()
+        g.set_position(position)
+        g.set_rotation(rotation)
+        g.set_scale(scale)
+        return g
 
 class Sprite3D (
     GameContainer,
@@ -226,5 +237,14 @@ class Sprite3D (
             ))
     def get_mesh(self) -> MeshLike|None:
         return self.mesh
-
-
+    @staticmethod
+    def include_transform (
+            position=Vector3(0,0,0),
+            rotation=Vector3(0,0,1),
+            scale=Vector3(1,1,1)
+    ) -> Sprite3D :
+        g = Sprite3D()
+        g.set_position(position)
+        g.set_rotation(rotation)
+        g.set_scale(scale)
+        return g
