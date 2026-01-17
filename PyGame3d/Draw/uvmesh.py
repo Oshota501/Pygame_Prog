@@ -163,11 +163,13 @@ class UVMaterial (MaterialLike):
 
     def use(self):
         """描画直前に呼ぶ：登録された全テクスチャをバインドする"""
+        # テクスチャをバインド
         for loc, tex in self.textures.items():
             tex.use(location=loc)
-            # Ensure the uniform is set to the correct texture unit
-            if hasattr(self, 'uniform_name') and self.uniform_name in self.program:
-                self.program[self.uniform_name].value = loc # type:ignore
+        # uniformにテクスチャユニットのインデックスを設定（最初のテクスチャを使用）
+        if self.textures and self.uniform_name in self.program:
+            first_location = min(self.textures.keys())
+            self.program[self.uniform_name].value = first_location # type:ignore
     def get_textures(self) -> dict[int, TextureLike]:
         return self.textures
     @staticmethod
@@ -195,7 +197,7 @@ class UVMesh(MeshRender, MeshLike):
         program = material.program
         if len(mesh_data) == 0 :
             print("Matrix cannot empty")
-        mesh_data = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],dtype="4f")
+            mesh_data = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],dtype="f4")
         self.vbo = self.ctx.buffer(mesh_data.astype("f4").tobytes())
         content = [(self.vbo, "3f 2f", "in_vert", "in_uv")]
         self.vao = self.ctx.vertex_array(program, content)

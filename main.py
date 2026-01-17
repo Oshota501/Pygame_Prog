@@ -2,7 +2,7 @@
 import PyGame3d
 import math
 from PyGame3d import Scene
-from PyGame3d.GameObject.Cube import Cube, Floor
+from PyGame3d.GameObject.Cube import Cube, Floor,CuttingBoad
 from PyGame3d.GameObject import GameContainer
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.vector import Vector3
@@ -16,6 +16,7 @@ class StartScene (Scene) :
     sprite : Sprite3D
     floor : Floor
     cube : Cube
+    sign : CuttingBoad
     angle : float
 
     def __init__(self) -> None:
@@ -24,10 +25,14 @@ class StartScene (Scene) :
         self.sprite.position = Vector3(0,0,0)
         self.floor = Floor.transform(position=Vector3(0,-3,0))
         self.cube = Cube()
+        self.sign = CuttingBoad("./Assets/py.png")
         container = GameContainer()
-        container.add_children([self.sprite,self.floor,self.cube])
+        container.add_children([self.sprite,self.floor,self.cube,self.sign])
         self.add_child(container)
         self.camera.set_position(Vector3(0,0,10))
+        self.sign.position = Vector3(0,5,-10)
+        self.sign.scale.x = 2.6
+        self.sign.scale *= 5
         self.angle = 0
     def update(self, delta_MS: float):
         super().update(delta_MS)
