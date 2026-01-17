@@ -1,5 +1,5 @@
 from PyGame3d.Draw import MeshLike
-from PyGame3d.GameObject import Sprite3D
+from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VertColorMesh
 from PyGame3d.Draw.uvmesh import UVMesh
 import PyGame3d.static as static
@@ -12,8 +12,9 @@ class Cube (Sprite3D) :
             self.mesh = VertColorMesh.get_cube_data(static.context,static.vert_color_mesh)
         else :
             raise ValueError("まだinitされていないようです")
+        
     @staticmethod
-    def include_transform (
+    def transform (
             position=Vector3(0,0,0),
             rotation=Vector3(0,0,1),
             scale=Vector3(1,1,1)
@@ -34,7 +35,7 @@ class Floor (Sprite3D) :
         else :
             raise ValueError("まだinitされていないようです")
     @staticmethod
-    def include_transform (
+    def transform (
             position=Vector3(0,0,0),
             rotation=Vector3(0,0,1),
             scale=Vector3(1,1,1)
@@ -50,7 +51,7 @@ class CuttingBoad (Sprite3D) :
         super().__init__()
         self.mesh = UVMesh.cutting_boad(tex_filepath)
     @staticmethod
-    def include_transform (
+    def transform (
             tex_filepath:str,
             position=Vector3(0,0,0),
             rotation=Vector3(0,0,1),

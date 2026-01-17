@@ -13,6 +13,9 @@ class ApplicationComponent(ABC) :
     @abstractmethod
     def get_scene (self) -> SceneComponent :
         pass
+    @abstractmethod
+    def set_scene (self,scene:SceneComponent) -> None :
+        pass
 
 class Application (
     ApplicationComponent
@@ -24,13 +27,13 @@ class Application (
     _clock : pygame.time.Clock
     is_init : bool
     _shader_program : list[ShaderContainerComponent]
-    stage : Scene
+    stage : SceneComponent
     perspective : float
     _screen : pygame.Surface | None
 
     def __init__(self,scene:Scene|None=None) -> None:
         self.perspective = 85
-        self.screen_size = (800,600)
+        self.screen_size = (1000,680)
         self._viewing_angle = 100.0 
         self.ctx = None
         self._clock = pygame.time.Clock()
@@ -53,6 +56,9 @@ class Application (
 
     def get_scene(self) -> SceneComponent:
         return self.stage
+    def set_scene(self,scene:SceneComponent) -> None :
+        scene.start()
+        self.stage = scene
     def _setup_glversion (self) :
         # OpenGLのバージョンを330に合わせます。
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 3)

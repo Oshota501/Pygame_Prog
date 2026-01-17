@@ -55,8 +55,13 @@ def load_obj(filename:str) -> np.ndarray:
                         final_data.extend(vert[0])
                         final_data.extend(vert[i])
                         final_data.extend(vert[i+1])
-
-    return np.array(final_data, dtype='f4')
+    
+    if len(final_data) % 5 == 0 :
+        # for i in range(int(float(len(final_data)*0.2))) :
+        #     print(final_data[i:i+4])
+        return np.array(final_data, dtype='f4')
+    else :
+        raise ValueError(f"Can not read .obj file : {filename}.")
 
 class UVTexture (TextureLike):
     ctx : moderngl.Context
@@ -73,8 +78,9 @@ class UVTexture (TextureLike):
         self.texture.use(location=location)
     def get(self) -> moderngl.Texture:
         return self.texture
+
     @classmethod
-    def from_color(cls, color: tuple[float, float, float] | tuple[float, float, float, float], size: tuple[int, int] = (1, 1)) -> "UVTexture":
+    def color(cls, color: tuple[float, float, float] | tuple[float, float, float, float], size: tuple[int, int] = (1, 1)) -> "UVTexture":
         """指定色から単色テクスチャを生成する。colorは0.0～1.0のRGBA/ RGBタプル。"""
         if static.context is None:
             raise ValueError("please execute Application.init()")
@@ -100,6 +106,17 @@ class UVTexture (TextureLike):
         inst.ctx = ctx
         inst.texture = tex
         return inst
+    
+    @staticmethod
+    def empty () -> UVTexture:
+        ctx = UVTexture.get_context()
+        return UVTexture(
+            ctx ,
+            ctx.texture(
+                size=(0,0),
+                components=4
+            )
+        )
 class UVTextureImage (UVTexture,TextureLike) :
     # override
     def __init__(self, filepath: str) -> None:   

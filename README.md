@@ -12,6 +12,7 @@ source ./.venv/bin/activate
 python3.14 main.py
 ```
 # 使い方
+## 簡単な使い方
 main.py
 ```py
 # include<>
@@ -54,6 +55,13 @@ game.start_rendering()
 ```
 
 なお`GameScript`を継承した関数をstageに追加することでもupdateとstart関数を使うことができます。
+
+## ゲームの画面を使い分けたい場合
+
+```
+
+```
+
 # 実装したいことlist
 - [x] Mesh型作成
 - [ ] シングルトン

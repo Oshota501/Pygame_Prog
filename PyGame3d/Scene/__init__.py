@@ -88,3 +88,15 @@ class Scene (SceneComponent) :
         return self._interval_id_top - 1 
     def ticker_remove(self, func_id: int) -> None:
         del self.ticker[func_id]
+    
+    @staticmethod
+    def default () -> Scene :
+        from PyGame3d.GameObject.Cube import Floor
+        from PyGame3d.vector import Vector3
+        s = Scene()
+        floor = Floor.include_transform(position=Vector3(0,0,0))
+        background = GameContainer()
+        background.add_child(floor)
+        s.camera.position = Vector3(0,1,0)
+        s.add_child(background)
+        return s
