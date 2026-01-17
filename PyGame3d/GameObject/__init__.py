@@ -206,25 +206,14 @@ class GameContainer (ContainerComponent) :
         else :
             self.set_scale(self.parent.get_scale() + local_scale)
         return
-
-class Sprite3D (
-    GameContainer,
-    Sprite3DComponent
-) :
-    mesh : MeshLike | None
-    def __init__(self) -> None:
-        super().__init__()
-        self.mesh = None
-    # @override
-    def update(self,delta_MS:float):
-        super().update(delta_MS)
-        if self.mesh is not None :
-            self.mesh.render(Transform(
-                self.get_position(),
-                self.get_rotation(),
-                self.get_scale()
-            ))
-    def get_mesh(self) -> MeshLike|None:
-        return self.mesh
-
-
+    @staticmethod
+    def include_transform (
+            position=Vector3(0,0,0),
+            rotation=Vector3(0,0,1),
+            scale=Vector3(1,1,1)
+    ) -> GameContainer :
+        g = GameContainer()
+        g.set_position(position)
+        g.set_rotation(rotation)
+        g.set_scale(scale)
+        return g

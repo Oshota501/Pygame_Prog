@@ -1,5 +1,4 @@
 #version 330
-uniform sampler2D u_texture;
 
 uniform mat4 model_opt;
 uniform mat4 position;
