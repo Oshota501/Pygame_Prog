@@ -78,6 +78,9 @@ class ContainerComponent (
             ABC
     ) :
     @abstractmethod
+    def get_name (self) -> str :
+        pass
+    @abstractmethod
     def add_child (self,object:ContainerComponent) -> None :
         pass
     @abstractmethod
@@ -102,12 +105,16 @@ class GameContainer (ContainerComponent) :
     scale : Vector3
     child : list[ContainerComponent]
     parent : ContainerComponent | None
-    def __init__(self) -> None:
+    name : str
+    def __init__(self,name="GameContainerName") -> None:
         self.position = Vector3(0,0,0)
         self.scale = Vector3(1,1,1)
         self.rotation = Vector3(0,0,1)
         self.child = []
         self.parent = None
+        self.name = name
+    def get_name (self) -> str :
+        return self.name
     def add_child (self,object:ContainerComponent) -> None :
         pr_pointer = object.get_parent()
         if pr_pointer == None :
@@ -222,8 +229,9 @@ class GameContainer (ContainerComponent) :
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
 # collide
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
-# signature : Cursor AI
+# signature : Cursor AI,Oshota
 # date : 2026/1/18
+
 class BoundingShape (ABC) :
     """バウンディング形状の基底クラス（AABB、Sphere等）"""
     @abstractmethod
@@ -285,7 +293,114 @@ class BoundingObject (ABC) :
     def intersects(self, other: "BoundingObject") -> bool:
         """他のバウンディングオブジェクトと衝突しているかどうかを判定する。"""
         return self.bounding().intersects_with(other.bounding())
+
+class SimpleBoundingObject(BoundingObject):
+    """BoundingShapeを直接保持するBoundingObjectの実装"""
+    _shape: BoundingShape
+    _position: "Vector3 | None"
+    _scale: "Vector3 | None"
+    
+    def __init__(self, shape: BoundingShape, position: "Vector3 | None" = None, scale: "Vector3 | None" = None) -> None:
+        self._shape = shape
+        self._position = position
+        self._scale = scale
+    
+    def set_position(self, position: "Vector3") -> None:
+        """位置を設定する"""
+        self._position = position
+    
+    def set_scale(self, scale: "Vector3") -> None:
+        """スケールを設定する"""
+        self._scale = scale
+    
+    def bounding(self) -> BoundingShape:
+        # 位置とスケールを考慮したAABBを返す
+        if isinstance(self._shape, AxisAlignedBoundingBox):
+            if self._position is not None or self._scale is not None:
+                # 元のAABBの中心とサイズを計算
+                center = Vector3(
+                    (self._shape.min_point.x + self._shape.max_point.x) / 2.0,
+                    (self._shape.min_point.y + self._shape.max_point.y) / 2.0,
+                    (self._shape.min_point.z + self._shape.max_point.z) / 2.0
+                )
+                size = Vector3(
+                    self._shape.max_point.x - self._shape.min_point.x,
+                    self._shape.max_point.y - self._shape.min_point.y,
+                    self._shape.max_point.z - self._shape.min_point.z
+                )
+                
+                # 位置とスケールを適用
+                if self._scale is not None:
+                    size = Vector3(size.x * self._scale.x, size.y * self._scale.y, size.z * self._scale.z)
+                
+                if self._position is not None:
+                    center = center + self._position
+                
+                half_size = Vector3(size.x / 2.0, size.y / 2.0, size.z / 2.0)
+                return AxisAlignedBoundingBox(center - half_size, center + half_size)
+        
+        return self._shape
+
+# シングルトンクラス
+class CollisionManager:
+    """衝突検出を管理するシングルトンクラス"""
+    _instance: CollisionManager | None = None
+    collisions: list["CollisionDetectionContainer"]
+    
+    def __new__(cls) -> "CollisionManager":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.collisions = []
+        return cls._instance
+    
+    def register(self, obj: "CollisionDetectionContainer") -> None:
+        """衝突検出対象を登録する"""
+        # print ( "登録")
+        if obj not in self.collisions:
+            self.collisions.append(obj)
+    
+    def unregister(self, obj: "CollisionDetectionContainer") -> None:
+        """衝突検出対象を登録解除する"""
+        if obj in self.collisions:
+            self.collisions.remove(obj)
+    
+    def check_all_collisions(self) -> list[tuple["CollisionDetectionContainer", "CollisionDetectionContainer"]]:
+        """登録されている全オブジェクト間の衝突をチェックし、衝突しているペアのリストを返す"""
+        collided_pairs: list[tuple["CollisionDetectionContainer", "CollisionDetectionContainer"]] = []
+        n = len(self.collisions)
+        
+        for i in range(n):
+            obj1 = self.collisions[i]
+            if not obj1.is_collide_valid():
+                continue
+            
+            for j in range(i + 1, n):
+                obj2 = self.collisions[j]
+                if not obj2.is_collide_valid():
+                    continue
+                # 衝突判定
+                if obj1.check_collision_with(obj2):
+                    collided_pairs.append((obj1, obj2))
+                    obj1.collide(obj2)
+                    obj2.collide(obj1)
+        
+        return collided_pairs
+
 class CollisionDetectionContainer (ContainerComponent,ABC):
+    """衝突検出コンテナ。シングルトンのCollisionManagerに自動登録される"""
+    _collision_manager: CollisionManager
+    
+    def __init__(self) -> None:
+        """コンストラクタでCollisionManagerに登録"""
+        super().__init__()
+        self._collision_manager = CollisionManager()
+        self._collision_manager.register(self)
+    
+    def __del__(self) -> None:
+        """デストラクタでCollisionManagerから登録解除"""
+        if hasattr(self, '_collision_manager'):
+            self._collision_manager.unregister(self)
+    
     @abstractmethod
     def is_collide_valid (self) -> bool :
         # 衝突判定が有効かどうか
@@ -294,8 +409,11 @@ class CollisionDetectionContainer (ContainerComponent,ABC):
     def get_bounding_obj (self) -> list[BoundingObject] :
         """このコンテナが持つバウンディングオブジェクトのリストを返す。"""
         pass
-    
-    def check_collision(self, other: "CollisionDetectionContainer") -> bool:
+    @abstractmethod
+    def set_bounding_obj (self,obj:BoundingObject) -> None :
+        pass
+
+    def check_collision_with(self, other: "CollisionDetectionContainer") -> bool:
         """他のCollisionDetectionContainerとの衝突を判定する。"""
         if not self.is_collide_valid() or not other.is_collide_valid():
             return False
@@ -310,7 +428,19 @@ class CollisionDetectionContainer (ContainerComponent,ABC):
                     return True
         return False
     
+    def check_collision(self) -> list["CollisionDetectionContainer"]:
+        """collisionsリストにある全オブジェクトを探索し、衝突しているオブジェクトのリストを返す"""
+        collided: list["CollisionDetectionContainer"] = []
+        
+        for other in self._collision_manager.collisions:
+            if other is self:
+                continue
+            if self.check_collision_with(other):
+                collided.append(other)
+        
+        return collided
+    
     @abstractmethod 
-    def hit (self) -> None :
+    def collide (self,other:CollisionDetectionContainer) -> None :
         # 衝突後に呼び出される関数
         pass

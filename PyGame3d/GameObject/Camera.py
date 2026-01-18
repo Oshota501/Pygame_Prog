@@ -12,6 +12,8 @@ class Camera (ContainerComponent):
         self.rotation = Vector3(0,0,0)
         self.child = []
         self.parent = None
+    def get_name (self) -> str :
+        return "Camera"
     def add_child (self,object:ContainerComponent) -> None :
         pr_pointer = object.get_parent()
         if pr_pointer == None :
