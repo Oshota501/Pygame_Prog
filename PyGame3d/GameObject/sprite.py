@@ -1,4 +1,4 @@
-from PyGame3d.Draw import MeshLike, Transform
+from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import GameContainer, Sprite3DComponent
 from PyGame3d.vector import Vector3
 
@@ -42,7 +42,7 @@ class Sprite3D (
         from PyGame3d.Draw.uvmesh import UVTextureImage,UVMaterial,UVMesh,UVTexture
         import os
         result = Sprite3D()
-        tex_wall = None
+        tex_wall : TextureLike
         if texture_filename is None :
             tex_wall = UVTexture.color((0,1,0))
         else :

@@ -11,7 +11,10 @@ class SimpleGameObject (ABC) :
     @abstractmethod
     def start (self) -> None :
         return
-
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# Container
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# signature : Oshota
 class PositionComponent (ABC) :
     # position
     @abstractmethod
@@ -92,8 +95,6 @@ class Sprite3DComponent (ContainerComponent,ABC) :
     @abstractmethod
     def get_mesh (self) -> MeshLike|None :
         pass
-
-
 
 class GameContainer (ContainerComponent) :
     position : Vector3
@@ -217,3 +218,99 @@ class GameContainer (ContainerComponent) :
         g.set_rotation(rotation)
         g.set_scale(scale)
         return g
+
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# collide
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# signature : Cursor AI
+# date : 2026/1/18
+class BoundingShape (ABC) :
+    """バウンディング形状の基底クラス（AABB、Sphere等）"""
+    @abstractmethod
+    def intersects_with(self, other: "BoundingShape") -> bool:
+        """他の形状と衝突しているかどうかを判定する。"""
+        pass
+
+class AxisAlignedBoundingBox (BoundingShape) :
+    """Axis-Aligned Bounding Box（軸並行バウンディングボックス）"""
+    min_point : Vector3  # 最小点
+    max_point : Vector3  # 最大点
+    
+    def __init__(self, min_point: Vector3, max_point: Vector3) -> None:
+        self.min_point = min_point
+        self.max_point = max_point
+    
+    def intersects_with(self, other: "BoundingShape") -> bool:
+        """AABB同士の衝突判定"""
+        if isinstance(other, AxisAlignedBoundingBox):
+            return (self.min_point.x <= other.max_point.x and self.max_point.x >= other.min_point.x and
+                    self.min_point.y <= other.max_point.y and self.max_point.y >= other.min_point.y and
+                    self.min_point.z <= other.max_point.z and self.max_point.z >= other.min_point.z)
+        elif isinstance(other, BoundingSphere):
+            # AABBとSphereの衝突判定
+            closest_x = max(self.min_point.x, min(other.center.x, self.max_point.x))
+            closest_y = max(self.min_point.y, min(other.center.y, self.max_point.y))
+            closest_z = max(self.min_point.z, min(other.center.z, self.max_point.z))
+            closest_point = Vector3(closest_x, closest_y, closest_z)
+            distance_squared = (other.center - closest_point).length_squared()
+            return distance_squared <= other.radius * other.radius
+        return False
+
+class BoundingSphere (BoundingShape) :
+    """バウンディング球体"""
+    center : Vector3  # 中心点
+    radius : float    # 半径
+    
+    def __init__(self, center: Vector3, radius: float) -> None:
+        self.center = center
+        self.radius = radius
+    
+    def intersects_with(self, other: "BoundingShape") -> bool:
+        """Sphere同士、またはSphereとAABBの衝突判定"""
+        if isinstance(other, BoundingSphere):
+            distance = (self.center - other.center).length()
+            return distance <= (self.radius + other.radius)
+        elif isinstance(other, AxisAlignedBoundingBox):
+            # AABBとSphereの衝突判定（AABB側の実装を利用）
+            return other.intersects_with(self)
+        return False
+
+class BoundingObject (ABC) :
+    """バウンディング形状を表す基底クラス。衝突検出に使用される。"""
+    @abstractmethod
+    def bounding (self) -> BoundingShape :
+        """バウンディング形状を返す。"""
+        pass
+    
+    def intersects(self, other: "BoundingObject") -> bool:
+        """他のバウンディングオブジェクトと衝突しているかどうかを判定する。"""
+        return self.bounding().intersects_with(other.bounding())
+class CollisionDetectionContainer (ContainerComponent,ABC):
+    @abstractmethod
+    def is_collide_valid (self) -> bool :
+        # 衝突判定が有効かどうか
+        pass
+    @abstractmethod
+    def get_bounding_obj (self) -> list[BoundingObject] :
+        """このコンテナが持つバウンディングオブジェクトのリストを返す。"""
+        pass
+    
+    def check_collision(self, other: "CollisionDetectionContainer") -> bool:
+        """他のCollisionDetectionContainerとの衝突を判定する。"""
+        if not self.is_collide_valid() or not other.is_collide_valid():
+            return False
+        
+        self_bounds = self.get_bounding_obj()
+        other_bounds = other.get_bounding_obj()
+        
+        # 各バウンディングオブジェクトの組み合わせで衝突をチェック
+        for self_bound in self_bounds:
+            for other_bound in other_bounds:
+                if self_bound.intersects(other_bound):
+                    return True
+        return False
+    
+    @abstractmethod 
+    def hit (self) -> None :
+        # 衝突後に呼び出される関数
+        pass
