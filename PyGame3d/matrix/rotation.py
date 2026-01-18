@@ -1,6 +1,7 @@
 import math
 import numpy as np
 
+# signature : gemini
 # X軸周りの回転行列を作る関数
 def create_x(degrees:float):
     rad = math.radians(degrees)

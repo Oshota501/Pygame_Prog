@@ -10,7 +10,7 @@ import PyGame3d.static as static
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 
-
+# signature : Gemini AI
 def load_obj(filename:str) -> np.ndarray:
     vertices:list[list[float]] = [] # v
     tex_coords:list[list[float]] = [] # vt

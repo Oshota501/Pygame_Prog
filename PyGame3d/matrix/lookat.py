@@ -1,6 +1,7 @@
 import numpy as np
 from PyGame3d.vector import Vector3
 
+# signature : Gemini AI
 def create_lookAt (eye:Vector3,target:Vector3,up=Vector3(0,1,0)) -> np.ndarray :
 
     z_axis = (eye-target).normalized()

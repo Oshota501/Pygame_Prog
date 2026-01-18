@@ -5,6 +5,7 @@ from PyGame3d.vector.Vector3 import Vector3
 Number = Union[int, float]
 VectorLike = Union["Vector3", Tuple[float, float, float], Iterable[float]]
 
+# signature : gemini AI
 def as_components(value: Union[Number, VectorLike]) -> tuple[float, float, float]:
     """
     入力値を (x, y, z) の3要素に正規化します。

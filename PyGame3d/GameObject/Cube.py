@@ -4,7 +4,7 @@ from PyGame3d.Draw.vcolormesh import VertColorMesh
 from PyGame3d.Draw.uvmesh import UVMesh
 import PyGame3d.static as static
 from PyGame3d.vector import Vector3
-
+# signature : oshota
 class Cube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()

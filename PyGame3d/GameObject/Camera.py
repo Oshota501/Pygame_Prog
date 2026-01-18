@@ -1,7 +1,7 @@
 from PyGame3d.GameObject import ContainerComponent,GameContainer
 from PyGame3d.vector.Vector3 import Vector3
 import math
-
+# signature : Oshota
 class Camera (ContainerComponent):
     position : Vector3
     rotation : Vector3

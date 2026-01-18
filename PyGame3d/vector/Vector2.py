@@ -2,7 +2,7 @@ from typing import Union
 import PyGame3d.vector as vector
 import math
 
-
+# signature : Claude AI
 class Vector2:
 	x: float
 	y: float

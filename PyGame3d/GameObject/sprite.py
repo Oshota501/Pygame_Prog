@@ -2,7 +2,7 @@ from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import GameContainer, Sprite3DComponent
 from PyGame3d.vector import Vector3
 
-
+# signature : oshota
 class Sprite3D (
     GameContainer,
     Sprite3DComponent

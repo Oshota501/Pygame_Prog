@@ -2,6 +2,7 @@ import numpy as np
 from PyGame3d.Draw.uvmesh import UVMaterial, UVMesh
 from PyGame3d.vector import Vector3
 
+# signature : oshota
 class CreativeUVMesh (UVMesh) :
     vert : list[Vector3]
     uv : list[tuple[float,float]]

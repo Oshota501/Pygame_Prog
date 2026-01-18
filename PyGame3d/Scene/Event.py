@@ -1,6 +1,7 @@
 from PyGame3d.vector.Vector2 import Vector2
 from abc import ABC,abstractmethod
 
+# signature : oshota
 class EventListener :
     event_type : int
     event : function

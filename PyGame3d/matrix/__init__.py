@@ -1,5 +1,7 @@
 import math
 import numpy as np
+
+# signature : oshota , gemini ai
 # 転置済み(Transposed)の配列定義
 # 数学的な行列の「行」と「列」を入れ替えて定義しています
 def get_i () -> np.ndarray :

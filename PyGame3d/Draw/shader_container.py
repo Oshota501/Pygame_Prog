@@ -6,6 +6,7 @@ from PyGame3d.matrix.lookat import create_lookAt
 from PyGame3d.GameObject.Camera import Camera
 from abc import ABC,abstractmethod
 
+# signature : oshota
 class ShaderContainerComponent (ABC) :
     @abstractmethod
     def compile (self,context:Context) -> Program :
