@@ -14,6 +14,7 @@ class FragEntry(Generic[_Type]):
     is_valid: bool
     value: _Type
 
+# signature : Oshota
 class FragList (Generic[_Type]):
     """
     ### 重要

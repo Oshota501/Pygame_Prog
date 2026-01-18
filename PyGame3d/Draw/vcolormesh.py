@@ -6,6 +6,7 @@ from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 import PyGame3d.static as static
 
+# signature : Gemini AI
 class VertColorMesh (MeshLike,MeshRender):
     rend : ShaderContainerComponent
     vbo : moderngl.Buffer

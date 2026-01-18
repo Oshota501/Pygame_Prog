@@ -9,6 +9,8 @@ from PyGame3d.vector.Vector2 import Vector2
 from PyGame3d.Draw.shader_container import ShaderContainer, ShaderContainerComponent
 import PyGame3d.static  as static 
 
+# signature : oshota , gemini AI
+
 class ApplicationComponent(ABC) :
     @abstractmethod
     def get_scene (self) -> SceneComponent :

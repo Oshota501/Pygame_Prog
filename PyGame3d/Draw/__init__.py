@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import moderngl
 from PyGame3d.vector import Vector3
 
+# signature : oshota
 @dataclass
 class Transform :
     position: Vector3

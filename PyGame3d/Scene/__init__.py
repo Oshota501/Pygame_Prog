@@ -7,6 +7,7 @@ from PyGame3d.Scene.Event import EventListener
 
 from pygame.event import Event
 
+# signature : oshota
 # Spriteの移動など外部的な処理に使うUpdataとStart
 # PyGame3d.GameObject.SimpleGameObjectと役割が明確に異なっているので注意
 class GameScript (ABC) :

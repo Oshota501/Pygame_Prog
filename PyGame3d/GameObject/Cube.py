@@ -1,10 +1,12 @@
 from PyGame3d.Draw import MeshLike
+from PyGame3d.GameObject import AxisAlignedBoundingBox, SimpleBoundingObject
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VertColorMesh
 from PyGame3d.Draw.uvmesh import UVMesh
 import PyGame3d.static as static
 from PyGame3d.vector import Vector3
 
+# signature : oshota
 class Cube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
@@ -12,7 +14,7 @@ class Cube (Sprite3D) :
             self.mesh = VertColorMesh.get_cube_data(static.context,static.vert_color_mesh)
         else :
             raise ValueError("まだinitされていないようです")
-        
+        self.set_bounding_obj(SimpleBoundingObject(AxisAlignedBoundingBox(Vector3(-0.5,-0.5,-0.5),Vector3(0.5,0.5,0.5))))
     @staticmethod
     def transform (
             position=Vector3(0,0,0),
@@ -34,6 +36,7 @@ class Floor (Sprite3D) :
             self.mesh = VertColorMesh.get_checkerboad_mesh(static.context,static.vert_color_mesh,color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
         else :
             raise ValueError("まだinitされていないようです")
+        self.set_bounding_obj(SimpleBoundingObject(AxisAlignedBoundingBox(Vector3(-20,-5,-20),Vector3(20,0,20))))
     @staticmethod
     def transform (
             position=Vector3(0,0,0),
@@ -50,6 +53,7 @@ class CuttingBoad (Sprite3D) :
     def __init__(self,tex_filepath:str) -> None:
         super().__init__()
         self.mesh = UVMesh.cutting_boad(tex_filepath)
+        self.set_bounding_obj(SimpleBoundingObject(AxisAlignedBoundingBox(Vector3(-0.5,-0.5,0),Vector3(0.5,0.5,0))))
     @staticmethod
     def transform (
             tex_filepath:str,
