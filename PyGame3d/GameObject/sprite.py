@@ -41,15 +41,18 @@ class Sprite3DPhysicsComponent (ABC) :
     mass : float
     velocity : Vector3
     gravity : bool
+    elastic_module : float
     def __init__(self,
             velocity:Vector3,
             mass:float,
-            use_gravity:bool = False
+            use_velocity:bool = False,
+            elastic_module:float=0.3
     ) -> None:
         super().__init__()
-        self.gravity = use_gravity
+        self.use_velocity = use_velocity
         self.mass = mass
         self.velocity = velocity
+        self.elastic_module = elastic_module
     @abstractmethod
     def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
         pass
@@ -61,11 +64,11 @@ class Sprite3DSimplePhysics (
     def __init__(self,
             velocity:Vector3=Vector3(0,0,0),
             mass:float=1,
-            use_gravity:bool = False
+            use_velocity:bool = False
     ) -> None:
-        super().__init__(velocity,mass,use_gravity=use_gravity)
+        super().__init__(velocity,mass,use_velocity=use_velocity)
     def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
-        if self.gravity :
+        if self.use_velocity :
             deltaS = deltaMS*0.001
             position = position + self.velocity*deltaS
         return position
@@ -77,16 +80,34 @@ class Sprite3DGravityPhysics (
     def __init__(self,
             velocity:Vector3=Vector3(0,0,0),
             mass:float=1,
-            use_gravity:bool = False
+            use_velocity:bool = False,
     ) -> None:
-        super().__init__(velocity,mass,use_gravity=use_gravity)
+        super().__init__(velocity,mass,use_velocity=use_velocity)
     def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
-        if self.gravity :
+        if self.use_velocity :
             deltaS = deltaMS*0.001
             g = static.gravity_asseleration
             self.velocity += g*deltaS
             position = position + self.velocity*deltaS
         return position
+
+class PhysicsObject (ABC) :
+    @abstractmethod
+    def get_physics (self) -> Sprite3DPhysicsComponent :
+        pass
+
+    def set_velocity (self,v:Vector3) -> None :
+        physics = self.get_physics()
+        physics.velocity = v
+    def set_mass (self,mass:float) -> None :
+        physics = self.get_physics()
+        physics.mass = mass
+    def set_velocity_enabled (self,enabled:bool) -> None :
+        physics = self.get_physics()
+        physics.use_velocity = enabled
+    def set_elastic_module (self,m:float) -> None :
+        physics = self.get_physics()
+        physics.elastic_module = m
 
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
 # Sprite
@@ -94,7 +115,8 @@ class Sprite3DGravityPhysics (
 class Sprite3D (
     GameContainer,
     Sprite3DComponent,
-    CollisionDetectionContainer
+    CollisionDetectionContainer,
+    PhysicsObject
 ) :
     mesh : MeshLike | None
     _collide_enabled : bool
@@ -106,7 +128,7 @@ class Sprite3D (
             collision:bool=False,
             mesh:MeshLike|None=None,
             bounding:list[Sprite3DBoundingObject]=[],
-            physics:Sprite3DPhysicsComponent|None=None
+            physics:Sprite3DPhysicsComponent|None=None,
     ) -> None:
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
@@ -125,7 +147,7 @@ class Sprite3D (
         super().update(delta_MS)
         # 物理演算で位置を更新
         if self.physics is not None:
-            self.set_position(self.physics.cal_position(delta_MS, self.get_position()))
+            self.position = self.physics.cal_position(delta_MS, self.position)
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),
@@ -136,6 +158,32 @@ class Sprite3D (
         #     print("not set mesh")
     def get_mesh(self) -> MeshLike|None:
         return self.mesh 
+    def set_transform (self,
+            position : Vector3 | None = None,
+            rotation : Vector3 | None = None,
+            scale : Vector3 | None = None,
+            velocity : Vector3 | None = None,
+            mass : float | None = None,
+            is_collide : bool | None = None,
+            use_velocity : bool | None = None
+    ) -> None :
+        if position is not None :
+            self.set_position (position)
+        if rotation is not None :
+            self.set_rotation (rotation)
+        if scale is not None :
+            self.set_scale (scale)
+        if velocity is not None :
+            self.set_velocity (velocity)
+        if mass is not None :
+            self.set_mass (mass)
+        if is_collide is not None :
+            self.set_collide_enabled (is_collide)
+        if use_velocity is not None :
+            self.physics.use_velocity = use_velocity
+    # physics
+    def get_physics(self) -> Sprite3DPhysicsComponent:
+        return self.physics
     # CollisionDetectionContainer の実装
     def is_collide_valid(self) -> bool:
         return self._collide_enabled
@@ -162,8 +210,15 @@ class Sprite3D (
 
     def collide(self,other:CollisionDetectionContainer) -> None:
         """you can use function when collided .please over ride."""
+        self.physics.velocity *= -self.physics.elastic_module
+        if self.physics.velocity.normalized().length_squared() <= 0.04 :
+            self.set_velocity = Vector3(0,0,0)
         return
-    
+    # override
+    # spriteオブジェクトはset命令でvelocityをリセットする仕様にします。
+    def set_position(self, absolute_position: Vector3) -> None:
+        super().set_position(absolute_position)
+        self.set_velocity(Vector3(0,0,0))
     
     # static method
     @staticmethod
