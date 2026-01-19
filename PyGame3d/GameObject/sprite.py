@@ -1,4 +1,5 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from PyGame3d import static
 from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import (
     CollisionDetectionContainer, 
@@ -33,6 +34,63 @@ class Sprite3DBoundingObject(BoundingObject):
         
         return AxisAlignedBoundingBox(min_point, max_point)
 
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# 物理演算 phisics caluclation
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+class Sprite3DPhysicsComponent (ABC) :
+    mass : float
+    velocity : Vector3
+    gravity : bool
+    def __init__(self,
+            velocity:Vector3,
+            mass:float,
+            use_gravity:bool = False
+    ) -> None:
+        super().__init__()
+        self.gravity = use_gravity
+        self.mass = mass
+        self.velocity = velocity
+    @abstractmethod
+    def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
+        pass
+
+
+class Sprite3DSimplePhysics (
+    Sprite3DPhysicsComponent
+) :
+    def __init__(self,
+            velocity:Vector3=Vector3(0,0,0),
+            mass:float=1,
+            use_gravity:bool = False
+    ) -> None:
+        super().__init__(velocity,mass,use_gravity=use_gravity)
+    def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
+        if self.gravity :
+            deltaS = deltaMS*0.001
+            position = position + self.velocity*deltaS
+        return position
+
+
+class Sprite3DGravityPhysics (
+    Sprite3DPhysicsComponent
+) :
+    def __init__(self,
+            velocity:Vector3=Vector3(0,0,0),
+            mass:float=1,
+            use_gravity:bool = False
+    ) -> None:
+        super().__init__(velocity,mass,use_gravity=use_gravity)
+    def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
+        if self.gravity :
+            deltaS = deltaMS*0.001
+            g = static.gravity_asseleration
+            self.velocity += g*deltaS
+            position = position + self.velocity*deltaS
+        return position
+
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# Sprite
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
 class Sprite3D (
     GameContainer,
     Sprite3DComponent,
@@ -41,18 +99,33 @@ class Sprite3D (
     mesh : MeshLike | None
     _collide_enabled : bool
     _bounding_obj : list[Sprite3DBoundingObject]
+    physics : Sprite3DPhysicsComponent
     
-    def __init__(self,name="Sprite") -> None:
+    def __init__(self,
+            name="Sprite",
+            collision:bool=False,
+            mesh:MeshLike|None=None,
+            bounding:list[Sprite3DBoundingObject]=[],
+            physics:Sprite3DPhysicsComponent|None=None
+    ) -> None:
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
         # CollisionDetectionContainerの__init__を明示的に呼ぶ（CollisionManagerへの登録）
         CollisionDetectionContainer.__init__(self)
-        self.mesh = None
-        self._collide_enabled = False  # デフォルトで衝突判定を無効にする
-        self._bounding_obj = []
+        self.mesh = mesh
+        self._collide_enabled = collision
+        self._bounding_obj = bounding
+        # デフォルト引数の問題を回避：Noneの場合は新しいインスタンスを作成
+        if physics is None:
+            self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
+        else:
+            self.physics = physics
     # @override
     def update(self,delta_MS:float):
         super().update(delta_MS)
+        # 物理演算で位置を更新
+        if self.physics is not None:
+            self.set_position(self.physics.cal_position(delta_MS, self.get_position()))
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),
@@ -90,7 +163,8 @@ class Sprite3D (
     def collide(self,other:CollisionDetectionContainer) -> None:
         """you can use function when collided .please over ride."""
         return
-
+    
+    
     # static method
     @staticmethod
     def transform (
@@ -121,3 +195,4 @@ class Sprite3D (
             raise FileNotFoundError(f"Object file not found: {obj_filename}")
         result.mesh = UVMesh.load_obj(mat_wall,obj_filename=obj_filename)
         return result
+

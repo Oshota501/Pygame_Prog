@@ -27,6 +27,7 @@ cutting.scale = Vector3(5,5,5)
 manager = CollisionManager()
 floor.set_collide_enabled(True)
 cube.set_collide_enabled(True)
+cube.physics.gravity = True
 # コンテナ定義
 container = GameContainer()
 # コンテナに追加
@@ -40,7 +41,6 @@ def update (delta_MS:float) -> None :
     game.stage.camera.position = Vector3(math.sin(angle),0,math.cos(angle))*10
     game.stage.camera.look_at(Vector3(0,0,0))
     # 位置を更新してから衝突判定を行う
-    cube.position -= Vector3(0,angle*0.1,0)
     # 衝突判定は位置更新の後に行う
     collide_list = manager.check_all_collisions()
     for obj0,obj1 in collide_list :
