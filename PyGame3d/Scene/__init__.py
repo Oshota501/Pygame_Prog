@@ -1,7 +1,7 @@
 from abc import ABC,abstractmethod
 from typing import Callable, Mapping
 
-from PyGame3d.GameObject import GameContainer,ContainerComponent
+from PyGame3d.GameObject import CollisionManager, GameContainer,ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.Scene.Event import EventListener
 
@@ -19,12 +19,14 @@ class GameScript (ABC) :
         return
     
 class SceneComponent (ABC) :
-    @abstractmethod
-    def get_container (self) -> ContainerComponent :
-        pass
-    @abstractmethod
-    def add_child (self,object:ContainerComponent) -> None :
-        pass
+    container : GameContainer 
+    def __init__(self) -> None:
+        super().__init__()
+        self.container = GameContainer()
+    def get_container(self) -> ContainerComponent:
+        return self.container
+    def add_child(self,object:ContainerComponent) -> None :
+        self.container.add_child(object)
     @abstractmethod
     def start (self) -> None :
         pass
@@ -48,19 +50,20 @@ class SceneComponent (ABC) :
         pass
 class Scene (SceneComponent) :
     camera : Camera
-    container : GameContainer 
     exe : list[GameScript]
     ev : list[EventListener]
     ticker : dict[int,Callable[[float],None]]
     _interval_id_top : int
+    _manager : CollisionManager
     def __init__(self) -> None:
-        self.container = GameContainer()
+        super().__init__()
         self.camera = Camera ()
         self.exe = []
         self.ev = []
         self.ticker = {}
         self.start()
         self._interval_id_top = 0 
+        self._manager = CollisionManager()
     def script_add(self,game_script:GameScript) -> None:
         self.exe.append(game_script)
     def start(self) :
@@ -68,10 +71,6 @@ class Scene (SceneComponent) :
             e.start()
         for c in self.container.get_child() :
             c.start()
-    def get_container(self) -> ContainerComponent:
-        return self.container
-    def add_child(self,object:ContainerComponent) -> None :
-        self.container.add_child(object)
     def update (self,delta_MS:float):
         for e in self.exe :
             e.update(delta_MS)
@@ -79,6 +78,8 @@ class Scene (SceneComponent) :
             c.update(delta_MS)
         for t in self.ticker.items() :
             t[1](delta_MS)
+        # CollideManager
+        self._manager.check_all_collisions()
     def get_camera(self) -> Camera:
         return self.camera
     def get_event_listener(self) -> list[EventListener]:
