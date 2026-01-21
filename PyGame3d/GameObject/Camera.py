@@ -36,9 +36,9 @@ class Camera (ContainerComponent):
         for c in self.child :
             c.start()
         return
-    def update (self,delta_MS:float) :
+    def update (self,delta_time:float) :
         for c in self.child :
-            c.update(delta_MS)
+            c.update(delta_time)
         return
     
     # Position

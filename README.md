@@ -59,9 +59,9 @@ container.add_children([useTextureObj,cube,floor,cutting])
 # stageに追加
 game.stage.add_child(container)
 # update関数定義
-def update (delta_MS:float) -> None :
+def update (delta_time:float) -> None :
     global angle
-    angle += delta_MS * 0.001
+    angle += delta_time
     game.stage.camera.position = Vector3(math.sin(angle),0,math.cos(angle))*10
     game.stage.camera.look_at(Vector3(0,0,0))
 # tickerに追加
@@ -112,9 +112,9 @@ class StartScene (Scene) :
         self.sign.scale.x = 2.6
         self.sign.scale *= 5
         self.angle = 0
-    def update(self, delta_MS: float):
-        super().update(delta_MS)
-        self.angle += delta_MS*0.001
+    def update(self, delta_time: float):
+        super().update(delta_time)
+        self.angle += delta_time
         self.camera.position = Vector3(math.sin(self.angle),0.5,math.cos(self.angle))*10
         self.camera.look_at (Vector3(0,0,0))
         

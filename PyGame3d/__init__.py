@@ -8,6 +8,7 @@ import PyGame3d.test as test
 from PyGame3d.vector.Vector2 import Vector2
 from PyGame3d.Draw.shader_container import ShaderContainer, ShaderContainerComponent
 import PyGame3d.static  as static 
+import time
 
 # signature : oshota , gemini AI
 
@@ -32,12 +33,13 @@ class Application (
     stage : SceneComponent
     perspective : float
     _screen : pygame.Surface | None
-    fps : int
+    fps : int|None
+    _updata_time : float|None
     check_performance : bool
 
     def __init__(self,
             scene:Scene|None=None,
-            fps:int=60,
+            fps:int|None=None,
             perspective:float=90,
             screen_size:tuple[int,int]=(1000,680),
             viewing_angle:float=100,
@@ -60,6 +62,10 @@ class Application (
             static.vert_color_mesh,
         ]
         self.fps = fps
+        if fps is not None :
+            self._updata_time = 1/fps
+        else :
+            self._updata_time = None
 
         if scene == None :
             self.stage = Scene()
@@ -115,8 +121,9 @@ class Application (
         
         test.start()
         self.get_scene().start()
-
+        a_time = time.time()
         while running:
+            no_process = time.time()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -135,10 +142,15 @@ class Application (
             for prog in self._shader_program :
                 prog.send_view_by_camera(camera)
             
-            deltatime = self._clock.tick(self.fps)  # ミリ秒
-            if self.check_performance :
-                if 1000/deltatime <= self.fps-10 :
-                    print("Warning : fps is not stabilized:", 1000/deltatime)
+            now = time.time()
+            deltatime = now-a_time 
+            a_time = now
+            if self.fps is not None :
+                self._clock.tick(self.fps)
+            
+            if self.check_performance and self.fps is not None:
+                if 1/deltatime <= self.fps*0.75 :
+                    print("Warning : fps is not stabilized:", 1/deltatime)
             self.stage.update(deltatime)
 
             pygame.display.flip()

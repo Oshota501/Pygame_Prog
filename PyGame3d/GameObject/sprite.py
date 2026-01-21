@@ -85,9 +85,9 @@ class Sprite3DGravityPhysics (
     ) -> None:
         super().__init__(velocity,mass,use_velocity=use_velocity)
         self._delta_position = Vector3()
-    def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
+    def cal_position (self,delta_time:float,position:Vector3) -> Vector3 :
         if self.use_velocity :
-            deltaS = deltaMS*0.001
+            deltaS = delta_time
             g = static.gravity_asseleration
             self.velocity += g*deltaS
             self._delta_position = self.velocity*deltaS
@@ -152,15 +152,15 @@ class Sprite3D (
         else:
             self.physics = physics
     # @override
-    def update(self,delta_MS:float):
-        super().update(delta_MS)
+    def update(self,delta_time:float):
+        super().update(delta_time)
         # 物理演算で位置を更新
         if self.is_collide :
             self._double_collide += 1
         else : 
             self._double_collide = 0 
-        if self.physics is not None and self._double_collide <= 3:
-            self.position += self.physics.cal_position(delta_MS, self.position)
+        if self.physics is not None and self._double_collide <= 4:
+            self.position += self.physics.cal_position(delta_time, self.position)
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),

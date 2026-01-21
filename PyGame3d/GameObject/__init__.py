@@ -6,7 +6,7 @@ import math
 # 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
     @abstractmethod
-    def update (self,delta_MS:float) -> None :
+    def update (self,delta_time:float) -> None :
         return
     @abstractmethod
     def start (self) -> None :
@@ -140,9 +140,9 @@ class GameContainer (ContainerComponent) :
         for c in self.child :
             c.start()
         return
-    def update (self,delta_MS:float) :
+    def update (self,delta_time:float) :
         for c in self.child :
-            c.update(delta_MS)
+            c.update(delta_time)
         return
     
     # Position
