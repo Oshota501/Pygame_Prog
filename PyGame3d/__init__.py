@@ -32,15 +32,25 @@ class Application (
     stage : SceneComponent
     perspective : float
     _screen : pygame.Surface | None
+    fps : int
+    check_performance : bool
 
-    def __init__(self,scene:Scene|None=None) -> None:
-        self.perspective = 85
-        self.screen_size = (1000,680)
-        self._viewing_angle = 100.0 
+    def __init__(self,
+            scene:Scene|None=None,
+            fps:int=60,
+            perspective:float=90,
+            screen_size:tuple[int,int]=(1000,680),
+            viewing_angle:float=100,
+            check_performance:bool = False
+    ) -> None:
+        self.perspective = perspective
+        self.screen_size = screen_size
+        self._viewing_angle = viewing_angle
         self.ctx = None
         self._clock = pygame.time.Clock()
         self.is_init = False
         self._screen = None
+        self.check_performance = check_performance
         static.uv_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
         static.vert_color_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
         if static.uv_mesh is None or static.vert_color_mesh is None :
@@ -49,6 +59,7 @@ class Application (
             static.uv_mesh,
             static.vert_color_mesh,
         ]
+        self.fps = fps
 
         if scene == None :
             self.stage = Scene()
@@ -124,7 +135,10 @@ class Application (
             for prog in self._shader_program :
                 prog.send_view_by_camera(camera)
             
-            deltatime = self._clock.tick(60)  # ミリ秒
+            deltatime = self._clock.tick(self.fps)  # ミリ秒
+            if self.check_performance :
+                if 1000/deltatime <= self.fps-10 :
+                    print("Warning : fps is not stabilized:", 1000/deltatime)
             self.stage.update(deltatime)
 
             pygame.display.flip()

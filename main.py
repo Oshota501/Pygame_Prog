@@ -7,7 +7,7 @@ from PyGame3d.GameObject import CollisionManager, GameContainer
 from PyGame3d.vector import Vector3
 
 # おまじない
-game = PyGame3d.Application()
+game = PyGame3d.Application(fps=60,check_performance=True)
 game.init() 
 
 # 変数定義
