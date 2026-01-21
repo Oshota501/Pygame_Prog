@@ -41,18 +41,18 @@ class Sprite3DPhysicsComponent (ABC) :
     mass : float
     velocity : Vector3
     gravity : bool
-    elastic_module : float
+    coefficient : float
     def __init__(self,
             velocity:Vector3,
             mass:float,
             use_velocity:bool = False,
-            elastic_module:float=0.3
+            coefficient:float=0.5
     ) -> None:
         super().__init__()
         self.use_velocity = use_velocity
         self.mass = mass
         self.velocity = velocity
-        self.elastic_module = elastic_module
+        self.coefficient = coefficient
     @abstractmethod
     def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
         pass
@@ -210,7 +210,7 @@ class Sprite3D (
 
     def collide(self,other:CollisionDetectionContainer) -> None:
         """you can use function when collided .please over ride."""
-        self.physics.velocity *= -self.physics.elastic_module
+        self.physics.velocity *= -self.physics.coefficient
         if self.physics.velocity.normalized().length_squared() <= 0.04 :
             self.set_velocity = Vector3(0,0,0)
         return

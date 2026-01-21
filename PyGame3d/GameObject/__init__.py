@@ -364,9 +364,8 @@ class CollisionManager:
         if obj in self.collisions:
             self.collisions.remove(obj)
     
-    def check_all_collisions(self) -> list[tuple["CollisionDetectionContainer", "CollisionDetectionContainer"]]:
+    def check_all_collisions(self) -> None:
         """登録されている全オブジェクト間の衝突をチェックし、衝突しているペアのリストを返す"""
-        collided_pairs: list[tuple["CollisionDetectionContainer", "CollisionDetectionContainer"]] = []
         n = len(self.collisions)
         
         for i in range(n):
@@ -380,11 +379,10 @@ class CollisionManager:
                     continue
                 # 衝突判定
                 if obj1.check_collision_with(obj2):
-                    collided_pairs.append((obj1, obj2))
                     obj1.collide(obj2)
                     obj2.collide(obj1)
         
-        return collided_pairs
+        return 
 
 class CollisionDetectionContainer (ContainerComponent,ABC):
     """衝突検出コンテナ。シングルトンのCollisionManagerに自動登録される"""
