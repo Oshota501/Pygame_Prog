@@ -77,19 +77,24 @@ class Sprite3DSimplePhysics (
 class Sprite3DGravityPhysics (
     Sprite3DPhysicsComponent
 ) :
+    _delta_position : Vector3
     def __init__(self,
             velocity:Vector3=Vector3(0,0,0),
             mass:float=1,
             use_velocity:bool = False,
     ) -> None:
         super().__init__(velocity,mass,use_velocity=use_velocity)
+        self._delta_position = Vector3()
     def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
         if self.use_velocity :
             deltaS = deltaMS*0.001
             g = static.gravity_asseleration
             self.velocity += g*deltaS
-            position = position + self.velocity*deltaS
-        return position
+            self._delta_position = self.velocity*deltaS
+        else : 
+            self._delta_position = Vector3(0,0,0)
+            
+        return self._delta_position
 
 class PhysicsObject (ABC) :
     @abstractmethod
@@ -122,6 +127,8 @@ class Sprite3D (
     _collide_enabled : bool
     _bounding_obj : list[Sprite3DBoundingObject]
     physics : Sprite3DPhysicsComponent
+    is_collide : bool
+    _double_collide : int
     
     def __init__(self,
             name="Sprite",
@@ -137,6 +144,8 @@ class Sprite3D (
         self.mesh = mesh
         self._collide_enabled = collision
         self._bounding_obj = bounding
+        self.is_collide = False
+        self._double_collide = 0
         # デフォルト引数の問題を回避：Noneの場合は新しいインスタンスを作成
         if physics is None:
             self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
@@ -146,14 +155,19 @@ class Sprite3D (
     def update(self,delta_MS:float):
         super().update(delta_MS)
         # 物理演算で位置を更新
-        if self.physics is not None:
-            self.position = self.physics.cal_position(delta_MS, self.position)
+        if self.is_collide :
+            self._double_collide += 1
+        else : 
+            self._double_collide = 0 
+        if self.physics is not None and self._double_collide <= 3:
+            self.position += self.physics.cal_position(delta_MS, self.position)
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),
                 self.get_rotation(),
                 self.get_scale()
             ))
+        self.is_collide = False
         # else :
         #     print("not set mesh")
     def get_mesh(self) -> MeshLike|None:
@@ -211,8 +225,9 @@ class Sprite3D (
     def collide(self,other:CollisionDetectionContainer) -> None:
         """you can use function when collided .please over ride."""
         self.physics.velocity *= -self.physics.coefficient
-        if self.physics.velocity.normalized().length_squared() <= 0.04 :
+        if self.physics.velocity.normalized().length_squared() <= 0.001 :
             self.set_velocity = Vector3(0,0,0)
+        self.is_collide = True
         return
     # override
     # spriteオブジェクトはset命令でvelocityをリセットする仕様にします。
