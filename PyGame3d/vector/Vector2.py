@@ -7,7 +7,7 @@ class Vector2:
 	x: float
 	y: float
 
-	def __init__(self, x: float = 0.0, y: float = 0.0) -> None:
+	def __init__(self, x: float, y: float) -> None:
 		self.x = float(x)
 		self.y = float(y)
 
