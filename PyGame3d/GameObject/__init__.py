@@ -1,5 +1,5 @@
 from abc import ABC , abstractmethod
-from PyGame3d.vector.Vector3 import Vector3
+from PyGame3d.vector import Vector3
 from PyGame3d.Draw import MeshLike,Transform
 import math
 

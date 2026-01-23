@@ -3,9 +3,15 @@
 ```sh
 python3.14 -m venv .venv
 source ./.venv/bin/activate
+sh setup.sh
 pip install -r requirements.txt
 python3.14 main.py
 ```
+
+#### 注意点
+
+一部の機能をcppのライブラリに依存するようにしています。環境構築時点でエラーが出た場合はPyGame3d/vector/__init__.pyのVector3の参照先をpythonで実装されたPyGame3d/vector/Vector3に変更して`sh setup.sh`を無視して下さい。
+
 
 ## 起動
 
