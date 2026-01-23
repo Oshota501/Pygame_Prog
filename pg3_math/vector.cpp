@@ -1,7 +1,9 @@
 #include <pybind11/pybind11.h>
-#include <pybind11/operators.h> // これが必要です
+#include <pybind11/operators.h>
 #include <string>
+#include <cmath>
 
+// c++初心者なので書き方については許して
 namespace py = pybind11;
 using namespace std;
 
@@ -10,17 +12,32 @@ struct Vector3 {
 
     Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
+    // +
     Vector3 operator+(const Vector3 &other) const {
         return Vector3(x + other.x, y + other.y, z + other.z);
     }
-
+    Vector3 operator+(float s) const {
+        return Vector3(x + s, y + s, z + s);
+    }
+    // -
     Vector3 operator-(const Vector3 &other) const {
         return Vector3(x - other.x, y - other.y, z - other.z);
+    }
+    Vector3 operator-(float s) const {
+        return Vector3(x - s, y - s, z - s);
+    }
+    // *
+    Vector3 operator*(const Vector3 &other) const {
+        return Vector3(x*other.z,y*other.y,z*other.z) ;
+    }
+    Vector3 operator*(float s) const {
+        return Vector3(x*s,y*s,z*s) ;
     }
     
     string toString() const {
         return "Vector3(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")";
     }
+    
 };
 
 PYBIND11_MODULE(vector, m) {
@@ -33,8 +50,9 @@ PYBIND11_MODULE(vector, m) {
         .def_readwrite("z", &Vector3::z)
         .def("__repr__", &Vector3::toString)
         
-        // これで Python の + が C++ の operator+ に繋がります
         .def(py::self + py::self)
-        // 引き算も繋いでおきます
-        .def(py::self - py::self);
+
+        .def(py::self - py::self)
+
+        .def(py::self * py::self);
 }
