@@ -79,7 +79,7 @@ class Sprite3DGravityPhysics (
             use_velocity:bool = False,
     ) -> None:
         super().__init__(velocity,mass,use_velocity=use_velocity)
-        self._delta_position = Vector3()
+        self._delta_position = Vector3(0,0,0)
     def cal_position (self,delta_time:float,position:Vector3) -> Vector3 :
         if self.use_velocity :
             deltaS = delta_time
