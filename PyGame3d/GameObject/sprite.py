@@ -2,15 +2,10 @@ from abc import ABC, abstractmethod
 from PyGame3d import static
 from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import (
-    CollisionDetectionContainer, 
-    GameContainer, 
     Sprite3DComponent,
-    BoundingObject,
-    BoundingShape,
-    AxisAlignedBoundingBox,
-    BoundingSphere,
-    SimpleBoundingObject
 )
+from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, BoundingObject, BoundingShape, CollisionDetectionContainer, SimpleBoundingObject
+from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.vector import Vector3
 import math
 
@@ -18,7 +13,7 @@ import math
 class Sprite3DBoundingObject(BoundingObject):
     sprite: "Sprite3D"
     
-    def __init__(self, sprite: "Sprite3D") -> None:
+    def __init__(self, sprite: "Sprite3D",min_p:Vector3,max_p:Vector3) -> None:
         self.sprite = sprite
     
     def bounding(self) -> BoundingShape:
@@ -85,9 +80,9 @@ class Sprite3DGravityPhysics (
     ) -> None:
         super().__init__(velocity,mass,use_velocity=use_velocity)
         self._delta_position = Vector3()
-    def cal_position (self,deltaMS:float,position:Vector3) -> Vector3 :
+    def cal_position (self,delta_time:float,position:Vector3) -> Vector3 :
         if self.use_velocity :
-            deltaS = deltaMS*0.001
+            deltaS = delta_time
             g = static.gravity_asseleration
             self.velocity += g*deltaS
             self._delta_position = self.velocity*deltaS
@@ -112,7 +107,7 @@ class PhysicsObject (ABC) :
         physics.use_velocity = enabled
     def set_elastic_module (self,m:float) -> None :
         physics = self.get_physics()
-        physics.elastic_module = m
+        physics.coefficient = m
 
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
 # Sprite
@@ -152,15 +147,15 @@ class Sprite3D (
         else:
             self.physics = physics
     # @override
-    def update(self,delta_MS:float):
-        super().update(delta_MS)
+    def update(self,delta_time:float):
+        super().update(delta_time)
         # 物理演算で位置を更新
         if self.is_collide :
             self._double_collide += 1
         else : 
             self._double_collide = 0 
-        if self.physics is not None and self._double_collide <= 3:
-            self.position += self.physics.cal_position(delta_MS, self.position)
+        if self.physics is not None and self._double_collide <= 4:
+            self.position += self.physics.cal_position(delta_time, self.position)
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),
@@ -204,10 +199,10 @@ class Sprite3D (
     
     def set_collide_enabled(self, enabled: bool) -> None:
         self._collide_enabled = enabled
-    def set_bounding_obj(self, obj: BoundingObject) -> None:
-        self._bounding_obj = [obj]
+    def set_bounding_obj(self, min_p:Vector3, max_p:Vector3) -> None:
+        self._bounding_obj = [Sprite3DBoundingObject(self,min_p,max_p)]
         
-    def get_bounding_obj(self) -> list[BoundingObject]:
+    def get_bounding_obj(self) -> list[Sprite3DBoundingObject]:
         # # _bounding_objが空の場合は、Sprite3DBoundingObjectを自動追加
         # if len(self._bounding_obj) == 0 and self._collide_enabled:
         #     self._bounding_obj.append(Sprite3DBoundingObject(self))
@@ -226,7 +221,7 @@ class Sprite3D (
         """you can use function when collided .please over ride."""
         self.physics.velocity *= -self.physics.coefficient
         if self.physics.velocity.normalized().length_squared() <= 0.001 :
-            self.set_velocity = Vector3(0,0,0)
+            self.set_velocity(Vector3(0,0,0))
         self.is_collide = True
         return
     # override

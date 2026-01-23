@@ -1,8 +1,10 @@
 from abc import ABC,abstractmethod
 from typing import Callable, Mapping
 
-from PyGame3d.GameObject import CollisionManager, GameContainer,ContainerComponent
+from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
+from PyGame3d.GameObject.Collide import CollisionManager
+from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.Scene.Event import EventListener
 
 from pygame.event import Event
@@ -12,7 +14,7 @@ from pygame.event import Event
 # PyGame3d.GameObject.SimpleGameObjectと役割が明確に異なっているので注意
 class GameScript (ABC) :
     @abstractmethod
-    def update (self,delta_MS:float) -> None :
+    def update (self,delta_time:float) -> None :
         return
     @abstractmethod
     def start (self) -> None :
@@ -31,7 +33,7 @@ class SceneComponent (ABC) :
     def start (self) -> None :
         pass
     @abstractmethod
-    def update (self,delta_MS:float) -> None :
+    def update (self,delta_time:float) -> None :
         pass
     @abstractmethod
     def get_camera (self) -> Camera :
@@ -71,13 +73,13 @@ class Scene (SceneComponent) :
             e.start()
         for c in self.container.get_child() :
             c.start()
-    def update (self,delta_MS:float):
+    def update (self,delta_time:float):
         for e in self.exe :
-            e.update(delta_MS)
+            e.update(delta_time)
         for c in self.container.get_child() :
-            c.update(delta_MS)
+            c.update(delta_time)
         for t in self.ticker.items() :
-            t[1](delta_MS)
+            t[1](delta_time)
         # CollideManager
         self._manager.check_all_collisions()
     def get_camera(self) -> Camera:
