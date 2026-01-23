@@ -81,13 +81,13 @@ class Camera (ContainerComponent):
             self.set_rotation(self.parent.get_rotation() + local_rotation)
         return
     def look_at(self,target_position: Vector3) -> None:
-        dx, dy, dz = target_position - self.position
-        distance_xz = math.sqrt(dx**2 + dz**2 + dy**2)
+        dl = target_position - self.position
+        distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
 
         # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
-        pitch = -math.degrees(math.atan2(dy, distance_xz))
+        pitch = -math.degrees(math.atan2(dl.y, distance_xz))
         
-        yaw = math.degrees(math.atan2(dx, -dz))
+        yaw = math.degrees(math.atan2(dl.x, -dl.z))
         self.set_rotation(Vector3(pitch, yaw, 0.0))
 
     # Scale
