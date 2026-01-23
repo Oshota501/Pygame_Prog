@@ -1,8 +1,9 @@
 from abc import ABC,abstractmethod
 from typing import Callable, Mapping
 
-from PyGame3d.GameObject import CollisionManager, GameContainer,ContainerComponent
+from PyGame3d.GameObject import CollisionManager,ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
+from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.Scene.Event import EventListener
 
 from pygame.event import Event

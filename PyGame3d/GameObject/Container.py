@@ -1,19 +1,24 @@
+import math
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.vector.Vector3 import Vector3
-import math
-# signature : Oshota
-class Camera (ContainerComponent):
+
+
+class GameContainer (ContainerComponent) :
     position : Vector3
     rotation : Vector3
+    scale : Vector3
     child : list[ContainerComponent]
     parent : ContainerComponent | None
-    def __init__(self) -> None:
-        self.position = Vector3(0,0,3)
-        self.rotation = Vector3(0,0,0)
+    name : str
+    def __init__(self,name="GameContainerName") -> None:
+        self.position = Vector3(0,0,0)
+        self.scale = Vector3(1,1,1)
+        self.rotation = Vector3(0,0,1)
         self.child = []
         self.parent = None
+        self.name = name
     def get_name (self) -> str :
-        return "Camera"
+        return self.name
     def add_child (self,object:ContainerComponent) -> None :
         pr_pointer = object.get_parent()
         if pr_pointer == None :
@@ -24,6 +29,9 @@ class Camera (ContainerComponent):
             print(f"Already registered with other container :{pr_pointer}")
             print("Registered faild.")
             return
+    def add_children(self,children:list[ContainerComponent]) -> None :
+        for child in children :
+            self.add_child(child)
     def get_child(self) -> list[ContainerComponent]:
         return self.child
     def remove_child(self, index: int) -> None:
@@ -80,29 +88,44 @@ class Camera (ContainerComponent):
         else :
             self.set_rotation(self.parent.get_rotation() + local_rotation)
         return
-    def look_at(self,target_position: Vector3) -> None:
-        dx, dy, dz = target_position - self.position
-        distance_xz = math.sqrt(dx**2 + dz**2 + dy**2)
-
-        # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
+    def look_at(self, target_position: Vector3) -> None:
+        dx,dy,dz = target_position - self.position
+        distance_xz = math.sqrt(dx**2 + dz**2)
+        # 注意: 座標系によっては dy の符号を変える必要があります
         pitch = -math.degrees(math.atan2(dy, distance_xz))
-        
         yaw = math.degrees(math.atan2(dx, -dz))
         self.set_rotation(Vector3(pitch, yaw, 0.0))
 
     # Scale
     def add_scale(self, delta_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return
+        self.scale += delta_scale
     def get_scale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0,1.0,1.0)
+        return self.scale
     def set_scale(self, absolute_scale: Vector3|int|float) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
+        if isinstance(absolute_scale,Vector3) :
+            self.scale = absolute_scale
+        else :
+            self.scale *= absolute_scale
         return
     def get_localscale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0,1.0,1.0)
+        if self.parent == None :
+            return self.scale
+        else :
+            return self.scale - self.parent.get_localscale() 
     def set_localscale(self, local_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
+        if self.parent == None :
+            self.set_scale(local_scale) 
+        else :
+            self.set_scale(self.parent.get_scale() + local_scale)
         return
+    @staticmethod
+    def include_transform (
+            position=Vector3(0,0,0),
+            rotation=Vector3(0,0,1),
+            scale=Vector3(1,1,1)
+    ) -> GameContainer :
+        g = GameContainer()
+        g.set_position(position)
+        g.set_rotation(rotation)
+        g.set_scale(scale)
+        return g
