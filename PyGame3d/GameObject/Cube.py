@@ -1,5 +1,5 @@
 from PyGame3d.Draw import MeshLike
-from PyGame3d.GameObject import AxisAlignedBoundingBox, SimpleBoundingObject
+from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, SimpleBoundingObject
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VertColorMesh
 from PyGame3d.Draw.uvmesh import UVMesh

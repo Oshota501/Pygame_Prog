@@ -2,14 +2,9 @@ from abc import ABC, abstractmethod
 from PyGame3d import static
 from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import (
-    CollisionDetectionContainer, 
     Sprite3DComponent,
-    BoundingObject,
-    BoundingShape,
-    AxisAlignedBoundingBox,
-    BoundingSphere,
-    SimpleBoundingObject
 )
+from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, BoundingObject, BoundingShape, CollisionDetectionContainer, SimpleBoundingObject
 from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.vector import Vector3
 import math
