@@ -1,6 +1,6 @@
 import math
 from PyGame3d.GameObject import ContainerComponent
-from PyGame3d.vector.Vector3 import Vector3
+from PyGame3d.vector import Vector3
 
 
 class GameContainer (ContainerComponent) :
