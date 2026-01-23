@@ -1,6 +1,6 @@
 from typing import Iterable, Tuple, Union
 
-from .Vector3 import Vector3
+from pg3_math.vector import Vector3
 from .Vector2 import Vector2
 
 __all__ = ["Vector3","Vector2"]

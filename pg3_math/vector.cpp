@@ -46,6 +46,31 @@ struct Vector3 {
         return Vector3(x*inv,y*inv,z*inv) ;
     }
 
+    float length (void) const {
+        return std::sqrt (x*x + y*y + z*z) ;
+    }
+    float length_squared (void) const {
+        return x*x + y*y + z*z ;
+    }
+    Vector3 normalized (void) const {
+        float l = length();
+        if(l==0.0f){
+            return Vector3(0.0f,0.0f,0.0f) ;
+        }
+        float inv = 1/l ;
+        return Vector3(x*inv,y*inv,z*inv);
+    }
+    float dot (const Vector3 &other)const {
+        return other.x*x + other.y*y + other.z*z ;
+    }
+    Vector3 cross (const Vector3 &other) const {
+        return Vector3 (
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x
+        ) ;
+    }
+
     // eq
     bool operator==(const Vector3 &other) const {
         return 
@@ -81,7 +106,13 @@ PYBIND11_MODULE(vector, m) {
         .def_readwrite("y", &Vector3::y)
         .def_readwrite("z", &Vector3::z)
         .def("__repr__", &Vector3::toString)
-        
+        // きのう
+        .def("length",&Vector3::length)
+        .def("length_squared",&Vector3::length_squared)
+        .def("normalized",&Vector3::normalized)
+        .def("dot",&Vector3::dot)
+        .def("cross",&Vector3::cross)
+
         // 足し算
         .def(py::self + py::self)    // vec + vec
         .def(py::self + float())     // vec + float

@@ -1,6 +1,5 @@
 # コードテスト用関数。
 def start () :
-    vec3test()
     return
 def update () :
     return
@@ -27,6 +26,7 @@ def performance_test () :
 
 def vec3test () :
     from pg3_math.vector import Vector3
+    import math
 
     v1 = Vector3(0,0,0)
     v2 = Vector3(0,0,0)
@@ -35,5 +35,11 @@ def vec3test () :
     v1.x += 10
     v2.x += 10
     assert v1 == v2 
+
+    v2.y = 10 
+    v3 = v2.normalized()
+    assert abs(math.sqrt(v3.x*v3.x + v3.y*v3.y + v3.z*v3.z)-1) <= 0.001
+    d = v2.dot(v1)
+    assert abs(d-100) <= 0.001
+
     print(v1,v2)
-    

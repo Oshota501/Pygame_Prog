@@ -33,9 +33,18 @@ container = GameContainer()
 container.add_children([useTextureObj,cube,floor,cutting])
 # stageに追加
 game.stage.add_child(container)
-# update関数定義
+# update関数定
+performance_sec = 0
+fps = 0
 def update (delta_time:float) -> None :
     global angle
+    global performance_sec,fps
+    performance_sec += delta_time
+    fps += 1
+    if performance_sec >= 1.0 :
+        performance_sec = 0
+        print(f"fps:{fps}")
+        fps = 0
     angle += delta_time
     camera.position = Vector3(math.sin(angle),0,math.cos(angle))*10
     camera.look_at(Vector3(0,0,0))
