@@ -3,24 +3,22 @@
 #include <string>
 
 namespace py = pybind11;
+using namespace std;
 
 struct Vector3 {
     float x, y, z;
 
     Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-    // 【修正箇所】名前を 'add' から 'operator+' に変更します
-    // これにより、C++の中でも "v1 + v2" と書けるようになり、py::self + py::self が動くようになります
     Vector3 operator+(const Vector3 &other) const {
         return Vector3(x + other.x, y + other.y, z + other.z);
     }
 
-    // 引き算もあると便利なので追加しておきます
     Vector3 operator-(const Vector3 &other) const {
         return Vector3(x - other.x, y - other.y, z - other.z);
     }
     
-    std::string toString() const {
+    string toString() const {
         return "Vector3(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")";
     }
 };
