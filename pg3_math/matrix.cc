@@ -20,6 +20,9 @@ struct Matrix4 {
     Matrix4(const array<float,16> &arr) {
         for (int i = 0; i < 16; ++i) m[i/4][i%4] = arr[i];
     }
+    Matrix4(const array<array<float,4>,4> &arr) {
+        m = arr ;
+    }
 
     static Matrix4 from_list(const vector<float> &v) {
         Matrix4 r;
@@ -151,6 +154,14 @@ struct Matrix4 {
         }
         return true ;
     }
+
+    void set_item (int line_index,int column_index,int value) {
+        m[line_index][column_index] = value ;
+        return ;
+    }
+    float get_item (int line_index,int column_index) {
+        return m[line_index][column_index] ;
+    }
 };
 
 PYBIND11_MODULE(matrix, m) {
@@ -159,6 +170,7 @@ PYBIND11_MODULE(matrix, m) {
     py::class_<Matrix4>(m, "Matrix4")
         .def(py::init<>())
         .def(py::init<const array<float,16>&>())
+        .def(py::init<const array<array<float,4>,4>&>())
         .def_readwrite("m",&Matrix4::m)
         .def_static("from_list", [](py::iterable seq){
             vector<float> v;
@@ -201,5 +213,7 @@ PYBIND11_MODULE(matrix, m) {
             if (i < 0 || i >= 4) throw py::index_error("Matrix4 index out of range");
             self.m[i] = row;
         })
+        .def("get_item", &Matrix4::get_item)
+        .def("set_item", &Matrix4::set_item)
         ;
 }

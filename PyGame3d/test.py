@@ -51,6 +51,13 @@ def mat4text () :
 
     m = Matrix4()
     m[2] = [0,10,10,0]
-    m2 = Matrix4()
-
-    print(m*m2)
+    m.set_item (2,0,10)
+    m2 = Matrix4([
+        [1,0,0,0],
+        [0,1,0,0],
+        [10,10,10,0],
+        [0,0,0,1]
+    ])
+    print(m)
+    print(m2)
+    assert m == m2
