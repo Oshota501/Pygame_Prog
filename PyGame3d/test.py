@@ -50,5 +50,7 @@ def mat4text () :
     from pg3_math.matrix import Matrix4
 
     m = Matrix4()
+    m[2] = [0,10,10,0]
+    m2 = Matrix4()
 
-    print(m)
+    print(m*m2)
