@@ -1,6 +1,8 @@
 # コードテスト用関数。
 def start () :
+    mat4text()
     return
+    
 def update () :
     return
     
@@ -43,3 +45,19 @@ def vec3test () :
     assert abs(d-100) <= 0.001
 
     print(v1,v2)
+
+def mat4text () :
+    from pg3_math.matrix import Matrix4
+
+    m = Matrix4()
+    m[2] = [0,10,10,0]
+    m.set_item (2,0,10)
+    m2 = Matrix4([
+        [1,0,0,0],
+        [0,1,0,0],
+        [10,10,10,0],
+        [0,0,0,1]
+    ])
+    print(m)
+    print(m2)
+    assert m == m2
