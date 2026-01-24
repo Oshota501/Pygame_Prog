@@ -5,7 +5,7 @@ from PyGame3d.GameObject.Cube import Cube,Floor,CuttingBoad
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.vector import Vector3
-
+import performance
 # おまじない
 game = PyGame3d.Application(check_performance=True)
 game.init() 
@@ -34,17 +34,9 @@ container.add_children([useTextureObj,cube,floor,cutting])
 # stageに追加
 game.stage.add_child(container)
 # update関数定
-performance_sec = 0
-fps = 0
 def update (delta_time:float) -> None :
     global angle
-    global performance_sec,fps
-    performance_sec += delta_time
-    fps += 1
-    if performance_sec >= 1.0 :
-        performance_sec = 0
-        print(f"fps:{fps}")
-        fps = 0
+    performance.update(delta_time)
     angle += delta_time
     camera.position = Vector3(math.sin(angle),0,math.cos(angle))*10
     camera.look_at(Vector3(0,0,0))
