@@ -6,9 +6,14 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 
 namespace py = pybind11;
 using namespace std;
+
+inline float radians(float degrees) {
+    return degrees * 3.14159265359f / 180.0f;
+}
 
 float EPSILON = 1.19209290E-07f; 
 
@@ -51,6 +56,35 @@ struct Matrix4 {
             0.0f,0.0f,0.0f,1.0f
         })) ;
         return i ;
+    }
+    static Matrix4 get_translation (float x,float y,float z) {
+        Matrix4 t(array<float,16>({
+            1.0f,0.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,0.0f,
+            0.0f,0.0f,1.0f,0.0f,
+               x,   y,   z,1.0f
+        })) ;
+        return t ;
+    }
+    static Matrix4 get_perspective(float fov_degrees,float aspect_ratio,float near,float far) {
+        float fov_rad = radians(fov_degrees);
+        float f = 1.0 / tan(fov_rad / 2.0);
+        Matrix4 t(array<float,16>({
+            f/aspect_ratio,0.0f,0.0f,0.0f,
+            0.0f,f,0.0f,0.0f,
+            0.0f,0.0f,(far + near) / (near - far),-1.0f,
+            0.0f,0.0f,(2.0f * far * near) / (near - far),1.0f
+        })) ;
+        return t ;
+    }
+    static Matrix4 get_scale(float x ,float y , float z) {
+        Matrix4 s(array<float ,16>({
+            x,0.0f, 0.0f, 0.0f,
+            0.0f,y, 0.0f, 0.0f,
+            0.0f,0.0f, z, 0.0f,
+            0.0f,0.0f, 0.0f, 1.0f
+        }));
+        return s ;
     }
 
     static Matrix4 identity() { return Matrix4(); }
@@ -189,7 +223,7 @@ struct Matrix4 {
 PYBIND11_MODULE(matrix, m) {
     m.doc() = "Matrix4 4x4 matrix";
 
-    py::class_<Matrix4>(m, "Matrix4")
+    py::class_<Matrix4>(m, "Matrix4",py::buffer_protocol())
         .def(py::init<>())
         .def(py::init<const array<float,16>&>())
         .def(py::init<const array<array<float,4>,4>&>())
@@ -241,5 +275,22 @@ PYBIND11_MODULE(matrix, m) {
         .def("set_item", &Matrix4::set_item)
         .def("tobytes", &Matrix4::tobytes)
         .def("elements",&Matrix4::get_elements)
-        ;
+
+        .def_static("get_translation", &Matrix4::get_translation)
+        .def_static("get_perspective", &Matrix4::get_perspective)
+        .def_static("get_scale",&Matrix4::get_scale)
+        // by gemini バッファプロトコルの作り方。
+        .def_buffer([](Matrix4 &m) -> py::buffer_info {
+            return py::buffer_info(
+                m.data.data(),      // 1. データの先頭アドレス（ここを見ろ！）
+                sizeof(float),          // 2. 要素1個のバイト数 (4byte)
+                py::format_descriptor<float>::format(), // 3. 型はfloatだよ
+                2,                      // 4. 次元の数 (4x4 なので 2次元)
+                { 4, 4 },               // 5. 各次元のサイズ (縦4, 横4)
+                
+                // 6. ストライド（メモリ上で次の要素に行くために何バイト進むか）
+                //    行を進むには float4個分(16byte)、列を進むには float1個分(4byte)
+                { sizeof(float) * 4, sizeof(float) }
+            );
+        });
 }
