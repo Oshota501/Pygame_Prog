@@ -5,6 +5,7 @@ import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 import PyGame3d.static as static
+from pg3_math.matrix import Matrix4
 
 # signature : Gemini AI
 class VertColorMesh (MeshLike,MeshRender):
@@ -28,7 +29,7 @@ class VertColorMesh (MeshLike,MeshRender):
             self.vao = self.ctx.vertex_array(program, content)
     def get_render_obj(self) -> ShaderContainerComponent:
         return self.rend
-    def render (self, transform:Transform,model_matrix:np.ndarray=matrix.get_i()) -> None:
+    def render (self, transform:Transform,model_matrix:Matrix4=matrix.get_i()) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
         self.rend.send_model(
             position = matrix.create_translation(transform.position.x,transform.position.y,transform.position.z) ,

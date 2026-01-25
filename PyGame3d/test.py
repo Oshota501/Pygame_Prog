@@ -49,7 +49,7 @@ def vec3test () :
 def mat4text () :
     from pg3_math.matrix import Matrix4
 
-    m = Matrix4()
+    m = Matrix4.get_identity()
     m[2] = [0,10,10,0]
     m.set_item (2,0,10)
     m2 = Matrix4([

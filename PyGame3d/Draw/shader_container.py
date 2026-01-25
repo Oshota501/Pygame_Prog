@@ -1,5 +1,5 @@
 from moderngl import Program,Context
-import numpy as np
+from PyGame3d.vector import Matrix4
 from PyGame3d import matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.matrix.lookat import create_lookAt
@@ -15,13 +15,13 @@ class ShaderContainerComponent (ABC) :
     def get_program (self) -> Program|None :
         pass
     @abstractmethod
-    def send_model (self,position:np.ndarray,rotation:np.ndarray,scale:np.ndarray,model_opt:np.ndarray) -> None :
+    def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
         pass
     @abstractmethod
-    def send_perspective (self,projection_matrix:np.ndarray) -> None :
+    def send_perspective (self,projection_matrix:Matrix4) -> None :
         pass
     @abstractmethod
-    def send_view (self,view_matrix:np.ndarray) -> None :
+    def send_view (self,view_matrix:Matrix4) -> None :
         pass
     @abstractmethod
     def send_view_by_camera (self,camera:Camera) -> None :
@@ -54,39 +54,39 @@ class ShaderContainer (
     def get_program (self) -> Program|None :
         return self.program 
     
-    def send_uniform (self,uniform_name:str,matrix:np.ndarray) -> None :
+    def send_uniform (self,uniform_name:str,matrix:Matrix4) -> None :
         # 視野角, アスペクト比800/600, 手前0.1～奥100.0まで見える
         if self.program is None :
             print ("\033[31mShader error .\n Default vertex shader do not exist \"uniform proj\" ")
             return 
         if uniform_name in self.program :
             # 以下のignoreが気になるようでしたら、コメントアウトしているコードを使って下さい。
-            self.program[uniform_name].write(matrix) # type: ignore
+            self.program[uniform_name].write(matrix.tobytes()) # type: ignore
             # proj_mat_uniform = cast(moderngl.Uniform,prog['proj'])
             # proj_mat_uniform.write(proj_mat)
         else :
             print (f"\033[31mShader error .\n Default vertex shader do not exist uniform {uniform_name} ")
             return
-    def send_model (self,position:np.ndarray,rotation:np.ndarray,scale:np.ndarray,model_opt:np.ndarray) -> None :
+    def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
         self.send_uniform("position",position)
         self.send_uniform("rotation",rotation)
         self.send_uniform("scale",scale)
         self.send_uniform("model_opt",model_opt)
         return
-    def send_perspective (self,projection_matrix:np.ndarray) -> None :
+    def send_perspective (self,projection_matrix:Matrix4) -> None :
         self.send_uniform("proj",projection_matrix)
         return
-    def send_view (self,view_matrix:np.ndarray) -> None :
+    def send_view (self,view_matrix:Matrix4) -> None :
         self.send_uniform("view",view_matrix) 
         return
     def send_view_by_camera (self,camera:Camera) -> None :
-        view_mat:np.ndarray
+        view_mat:Matrix4
         # 注意 カメラ行列はマイナスをかける。
         c = camera.get_position()
         cr = camera.get_rotation()
         trans_mat = matrix.create_translation(-c.x,-c.y,-c.z)
         rot_mat = rmatrix.create_camera(-cr.x,-cr.y,-cr.z)
-        view_mat = ( trans_mat @ rot_mat )
+        view_mat = ( trans_mat * rot_mat )
         self.send_uniform("view",view_mat)
         return
 

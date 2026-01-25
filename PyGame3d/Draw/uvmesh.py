@@ -1,6 +1,7 @@
 import moderngl
 import pygame
 import numpy as np
+from PyGame3d.vector import Matrix4
 import os
 
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
@@ -59,7 +60,7 @@ def load_obj(filename:str) -> np.ndarray:
     if len(final_data) % 5 == 0 :
         # for i in range(int(float(len(final_data)*0.2))) :
         #     print(final_data[i:i+4])
-        return np.array(final_data, dtype='f4')
+        return np.array(final_data)
     else :
         raise ValueError(f"Can not read .obj file : {filename}.")
 
@@ -158,7 +159,7 @@ class UVMaterial (MaterialLike):
         self.uniform_name = uniform_name
     def add_color_texture(self, color: tuple[float, float, float] | tuple[float, float, float, float], location:int=0, uniform_name:str="u_texture"):
         """単色テクスチャを登録するヘルパー。"""
-        tex = UVTexture.from_color(color)
+        tex = UVTexture.color(color)
         self.add_texture(tex, location, uniform_name)
 
     def use(self):
@@ -206,7 +207,7 @@ class UVMesh(MeshRender, MeshLike):
         program = self.material.program
         return (self.ctx, program)
 
-    def render(self, transform: Transform, model_matrix: np.ndarray | None = None) -> None:
+    def render(self, transform: Transform, model_matrix: Matrix4 | None = None) -> None:
         if model_matrix is None:
             model_matrix = matrix.get_i()
 
