@@ -3,15 +3,9 @@
 ```sh
 python3.14 -m venv .venv
 source ./.venv/bin/activate
-sh setup.sh
 pip install -r requirements.txt
 python3.14 main.py
 ```
-
-#### 注意点
-
-一部の機能をcppのライブラリに依存するようにしています。環境構築時点でエラーが出た場合はPyGame3d/vector/__init__.pyのVector3の参照先をpythonで実装されたPyGame3d/vector/Vector3に変更して`sh setup.sh`を無視して下さい。
-
 
 ## 起動
 
@@ -24,52 +18,71 @@ python3.14 main.py
 
 ## 使い方
 
+### パフォーマンスについて
+
+numpyのndarrayを使用したMatrix4とcppで自作したMatrix4が存在しています。（どちらも全く同じ実装です。）
+
+デフォルトで前者を使用するようにしていますが、後者の方が若干パフォーマンス的に速度が出るかもしれません。
+
+- コンパイル
+```sh
+sh setup.sh
+```
+- 変更
+`/PyGame3d/__init__.py`
+```py
+from .matrix.mat4 import Matrix4
+```
+を
+```py
+from .pg3_math.matrix import Matrix4
+```
+に変更
+
 ### 簡単な使い方
 
 main.py
 
 ```py
-# include
+# include<>
 import PyGame3d
 import math
-from PyGame3d.GameObject.Cube import Cube,Floor,CuttingBoad
-from PyGame3d.GameObject.sprite import Sprite3D
-from PyGame3d.GameObject import CollisionManager, GameContainer
-from PyGame3d.vector import Vector3
-
 # おまじない
-game = PyGame3d.Application(fps=60,check_performance=True)
+game = PyGame3d.Application(check_performance=True)
 game.init() 
-
+camera = game.stage.get_camera()
+# デバッグ用
+PyGame3d.PerformanceInspectator (game)
 # 変数定義
 angle = 0.0
 # ゲーム内オブジェクトを定義
-cube = Cube()
+cube = PyGame3d.Cube()
 cube.name = "move_obj"
-cube.position = Vector3(0,10,0)
-floor = Floor()
-floor.set_position(Vector3(0,-10,0))
-useTextureObj = Sprite3D.obj("./Assets/u.obj","./Assets/tex.png")
-game.stage.camera.position = Vector3(0,0,10)
-cutting = CuttingBoad("./Assets/tex.png")
-cutting.position = Vector3(0,5,-5)
-cutting.scale = Vector3(5,5,5)
+cube.position = PyGame3d.Vector3(0,10,0)
+floor = PyGame3d.Floor()
+floor.set_position(PyGame3d.Vector3(0,-10,0))
+useTextureObj = PyGame3d.Sprite3D.obj("./Assets/a.obj","./Assets/tex.png")
+game.stage.get_camera().position = PyGame3d.Vector3(0,0,10)
+cutting = PyGame3d.CuttingBoad("./Assets/tex.png")
+cutting.position = PyGame3d.Vector3(0,5,-5)
+cutting.scale = PyGame3d.Vector3(5,5,5)
 # 当たり判定の設定
 floor.set_collide_enabled(True)
 cube.set_collide_enabled(True)
 cube.set_velocity_enabled(True)
 # コンテナ定義
-container = GameContainer()
+container = PyGame3d.GameContainer()
 # コンテナに追加
 container.add_children([useTextureObj,cube,floor,cutting])
 # stageに追加
 game.stage.add_child(container)
-# update関数定義
+# update関数定
 def update (delta_time:float) -> None :
     global angle
+    
     angle += delta_time
-    game.stage.camera.position = Vector3(math.sin(angle),0,math.cos(angle))*10
-    game.stage.camera.look_at(Vector3(0,0,0))
+    camera.position = PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10
+    camera.look_at(PyGame3d.Vector3(0,0,0))
 # tickerに追加
 func_id = game.stage.ticker_add(update)
 # おまじない（while文スタート ）
@@ -80,6 +93,8 @@ game.start_rendering()
 なお`GameScript`を継承した関数をstageに追加することでもupdateとstart関数を使うことができます。
 
 ### ゲームの画面を使い分けたい場合
+
+**注意：仕様を変更したため、サポートされていません**
 
 ```py
 # import

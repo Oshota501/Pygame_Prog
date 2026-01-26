@@ -1,6 +1,7 @@
 import moderngl
 import pygame
 import numpy as np
+from PyGame3d.matrix import Matrix4
 import os
 
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
@@ -14,6 +15,7 @@ import PyGame3d.matrix.rotation as rmatrix
 def load_obj(filename:str) -> np.ndarray:
     vertices:list[list[float]] = [] # v
     tex_coords:list[list[float]] = [] # vt
+    normals:list[list[float]] = []    # vn
     
     # 最終的なGPU用の配列 (x, y, z, u, v)
     final_data :list[float]= []
@@ -33,10 +35,12 @@ def load_obj(filename:str) -> np.ndarray:
                 # v (縦方向) はOpenGLでは上下逆になることが多いので、1.0 - v したりします
                 # いったんそのまま読みます
                 tex_coords.append([float(parts[1]), float(parts[2])])
+            elif parts[0] == 'vn':
+                normals.append([float(parts[1]), float(parts[2]), float(parts[3])])
 
             # 面情報 (f v1/vt1/vn1 ...)
             elif parts[0] == 'f':
-                # [x, y, z, u, v]
+                # [x, y, z, u, v, nx,ny,nz]
                 vert : list[list[float]] = []
                 for i in range(1, len(parts)):
                     vals = parts[i].split('/')
@@ -48,7 +52,13 @@ def load_obj(filename:str) -> np.ndarray:
                     else:
                         uv = [0.0, 0.0] # ダミー
                     # 頂点データ追加
-                    vert.append([xyz[0],xyz[1],xyz[2],uv[0],uv[1]])
+                    if len(vals) > 2 and vals[2] != '':
+                        vn_idx = int(vals[2]) - 1
+                        nm = normals[vn_idx]
+                    else:
+                        # 法線がない場合は適当な値 (例: Y軸上向き)
+                        nm = [0.0, 1.0, 0.0]
+                    vert.append([xyz[0],xyz[1],xyz[2],uv[0],uv[1],nm[0],nm[1],nm[2]])
                 if len(vert) >= 3 :
                     # print(len(vert))
                     for i in range(1, len(vert)-1):
@@ -56,10 +66,10 @@ def load_obj(filename:str) -> np.ndarray:
                         final_data.extend(vert[i])
                         final_data.extend(vert[i+1])
     
-    if len(final_data) % 5 == 0 :
+    if len(final_data) % 8 == 0 :
         # for i in range(int(float(len(final_data)*0.2))) :
         #     print(final_data[i:i+4])
-        return np.array(final_data, dtype='f4')
+        return np.array(final_data)
     else :
         raise ValueError(f"Can not read .obj file : {filename}.")
 
@@ -158,7 +168,7 @@ class UVMaterial (MaterialLike):
         self.uniform_name = uniform_name
     def add_color_texture(self, color: tuple[float, float, float] | tuple[float, float, float, float], location:int=0, uniform_name:str="u_texture"):
         """単色テクスチャを登録するヘルパー。"""
-        tex = UVTexture.from_color(color)
+        tex = UVTexture.color(color)
         self.add_texture(tex, location, uniform_name)
 
     def use(self):
@@ -197,16 +207,19 @@ class UVMesh(MeshRender, MeshLike):
         program = material.program
         if len(mesh_data) == 0 :
             print("Matrix cannot empty")
-            mesh_data = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],dtype="f4")
+            mesh_data = np.array([0]*8,dtype="f4")
         self.vbo = self.ctx.buffer(mesh_data.astype("f4").tobytes())
-        content = [(self.vbo, "3f 2f", "in_vert", "in_uv")]
+        content = [
+            # '3f 2f 3f' は floatが 3つ(vert), 2つ(uv), 3つ(norm) という意味
+            (self.vbo, '3f 2f 3f', 'in_vert', 'in_uv', 'in_norm')
+        ]
         self.vao = self.ctx.vertex_array(program, content)
 
     def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program] | None:
         program = self.material.program
         return (self.ctx, program)
 
-    def render(self, transform: Transform, model_matrix: np.ndarray | None = None) -> None:
+    def render(self, transform: Transform, model_matrix: Matrix4 | None = None) -> None:
         if model_matrix is None:
             model_matrix = matrix.get_i()
 
@@ -242,12 +255,12 @@ class UVMesh(MeshRender, MeshLike):
         material.add_texture(tex,0)
         return UVMesh(material,np.array(
             [
-                0.5,0.5,0.0,1.0,1.0,
-                -0.5,0.5,0.0,0.0,1.0,
-                -0.5,-0.5,0.0,0.0,0.0,
+                 0.5, 0.5, 0.0,  1.0, 1.0,  0.0, 0.0, 1.0,
+                -0.5, 0.5, 0.0,  0.0, 1.0,  0.0, 0.0, 1.0,
+                -0.5,-0.5, 0.0,  0.0, 0.0,  0.0, 0.0, 1.0,
 
-                0.5,0.5,0.0,1.0,1.0,
-                -0.5,-0.5,0.0,0.0,0.0,
-                0.5,-0.5,0.0,1.0,0.0
+                 0.5, 0.5, 0.0,  1.0, 1.0,  0.0, 0.0, 1.0,
+                -0.5,-0.5, 0.0,  0.0, 0.0,  0.0, 0.0, 1.0,
+                 0.5,-0.5, 0.0,  1.0, 0.0,  0.0, 0.0, 1.0
             ]
         ,dtype="f4"))
