@@ -1,5 +1,5 @@
 from moderngl import Program,Context
-from PyGame3d.vector import Matrix4
+from PyGame3d.matrix import Matrix4
 from PyGame3d import matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.matrix.lookat import create_lookAt

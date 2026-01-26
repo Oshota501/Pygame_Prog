@@ -5,7 +5,7 @@ import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 import PyGame3d.static as static
-from pg3_math.matrix import Matrix4
+from PyGame3d.matrix import Matrix4
 
 # signature : Gemini AI
 class VertColorMesh (MeshLike,MeshRender):

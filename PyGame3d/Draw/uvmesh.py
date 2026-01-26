@@ -1,7 +1,7 @@
 import moderngl
 import pygame
 import numpy as np
-from PyGame3d.vector import Matrix4
+from PyGame3d.matrix import Matrix4
 import os
 
 from PyGame3d.Draw.shader_container import ShaderContainerComponent

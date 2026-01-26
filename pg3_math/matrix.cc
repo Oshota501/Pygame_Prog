@@ -48,6 +48,7 @@ struct Matrix4 {
             for (int j = 0; j < 4; ++j)
                 data[i*4+j] = (i == j) ? 1.0f : 0.0f;
     }
+    // 3dでよくある行列
     static Matrix4 get_identity() {
         Matrix4 i(array<float,16>({
             1.0f,0.0f,0.0f,0.0f,
@@ -86,9 +87,58 @@ struct Matrix4 {
         }));
         return s ;
     }
-
+    static Matrix4 get_lookat (
+        float eye_x ,float eye_y ,float eye_z ,
+        float target_x ,float target_y ,float target_z ,
+        float up_x=0.0f ,float up_y=1.0f ,float up_z=0.0f
+    ) {
+        // forward = normalize(target - eye)
+        float forward_x = target_x - eye_x;
+        float forward_y = target_y - eye_y;
+        float forward_z = target_z - eye_z;
+        float forward_len = sqrt(forward_x*forward_x + forward_y*forward_y + forward_z*forward_z);
+        forward_x /= forward_len; forward_y /= forward_len; forward_z /= forward_len;
+        
+        // right = normalize(cross(forward, up))
+        float right_x = forward_y * up_z - forward_z * up_y;
+        float right_y = forward_z * up_x - forward_x * up_z;
+        float right_z = forward_x * up_y - forward_y * up_x;
+        float right_len = sqrt(right_x*right_x + right_y*right_y + right_z*right_z);
+        right_x /= right_len; right_y /= right_len; right_z /= right_len;
+        
+        // up = normalize(cross(right, forward))
+        float new_up_x = right_y * forward_z - right_z * forward_y;
+        float new_up_y = right_z * forward_x - right_x * forward_z;
+        float new_up_z = right_x * forward_y - right_y * forward_x;
+        float new_up_len = sqrt(new_up_x*new_up_x + new_up_y*new_up_y + new_up_z*new_up_z);
+        new_up_x /= new_up_len; new_up_y /= new_up_len; new_up_z /= new_up_len;
+        
+        // ビュー行列（転置された形で直接構成）
+        // 行優先で格納して、列ベクトルの順序で転置
+        Matrix4 rm(array<float,16>({
+            right_x,   new_up_x,   -forward_x,   0.0f,
+            right_y,   new_up_y,   -forward_y,   0.0f,
+            right_z,   new_up_z,   -forward_z,   0.0f,
+            -(right_x*eye_x + right_y*eye_y + right_z*eye_z),
+            -(new_up_x*eye_x + new_up_y*eye_y + new_up_z*eye_z),
+            (forward_x*eye_x + forward_y*eye_y + forward_z*eye_z),
+            1.0f
+        }));
+        return rm;
+    }
+    static Matrix4 euler_angle (float x,float y,float z) {
+        float Sx = sinf(x), Cx = cosf(x);
+        float Sy = sinf(y), Cy = cosf(y);
+        float Sz = sinf(z), Cz = cosf(z);
+        return Matrix4(array<float,16>({
+            Cz*Cy,                 -Sz*Cx + Cz*Sy*Sx,   Sz*Sx + Cz*Sy*Cx,   0.0f,
+            Sz*Cy,                  Cz*Cx + Sz*Sy*Sx,  -Cz*Sx + Sz*Sy*Cx,   0.0f,
+           -Sy,                     Cy*Sx,              Cy*Cx,               0.0f,
+            0.0f,                    0.0f,               0.0f,               1.0f
+        }));
+    }
     static Matrix4 identity() { return Matrix4(); }
-
+    // オーバーロード
     Matrix4 operator*(const Matrix4 &o) const {
         Matrix4 r;
         for (int i = 0; i < 4; ++i) {
@@ -279,6 +329,8 @@ PYBIND11_MODULE(matrix, m) {
         .def_static("get_translation", &Matrix4::get_translation)
         .def_static("get_perspective", &Matrix4::get_perspective)
         .def_static("get_scale",&Matrix4::get_scale)
+        .def_static("get_lookat",&Matrix4::get_lookat)
+        .def_static("euler_angle",&Matrix4::euler_angle)
         // by gemini バッファプロトコルの作り方。
         .def_buffer([](Matrix4 &m) -> py::buffer_info {
             return py::buffer_info(

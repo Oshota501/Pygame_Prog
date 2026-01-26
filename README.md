@@ -3,7 +3,6 @@
 ```sh
 python3.14 -m venv .venv
 source ./.venv/bin/activate
-sh setup.sh
 pip install -r requirements.txt
 python3.14 main.py
 ```

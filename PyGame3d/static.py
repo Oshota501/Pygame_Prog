@@ -1,5 +1,5 @@
 import moderngl
-from PyGame3d import Scene
+from PyGame3d.Scene import Scene
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 from PyGame3d.vector import Vector3
 
