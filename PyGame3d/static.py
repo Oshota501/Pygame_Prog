@@ -1,12 +1,12 @@
 import moderngl
 from PyGame3d.Scene import Scene
-from PyGame3d.Draw.shader_container import ShaderContainerComponent
+from PyGame3d.Draw.shader_container import VColorShaderContainer,UVShaderContainer
 from PyGame3d.vector import Vector3
 
 
 context : moderngl.Context | None = None
-vert_color_mesh : ShaderContainerComponent | None = None
-uv_mesh : ShaderContainerComponent | None = None
+vert_color_mesh : VColorShaderContainer | None = None
+uv_mesh : UVShaderContainer | None = None
 
 scene : Scene | None = None
 

@@ -15,7 +15,7 @@ cube.name = "move_obj"
 cube.position = PyGame3d.Vector3(0,10,0)
 floor = PyGame3d.Floor()
 floor.set_position(PyGame3d.Vector3(0,-10,0))
-useTextureObj = PyGame3d.Sprite3D.obj("./Assets/a.obj","./Assets/tex.png")
+useTextureObj = PyGame3d.Sprite3D.obj("./Assets/u.obj","./Assets/tex.png")
 game.stage.get_camera().position = PyGame3d.Vector3(0,0,10)
 cutting = PyGame3d.CuttingBoad("./Assets/tex.png")
 cutting.position = PyGame3d.Vector3(0,5,-5)

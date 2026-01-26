@@ -1,11 +1,12 @@
 import pygame
 import moderngl
-from PyGame3d.Scene import SceneComponent,Scene
+from PyGame3d.Scene import Scene
+from PyGame3d.Scene.component import SceneComponent
 import PyGame3d.matrix as matrix
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
 from PyGame3d.vector.Vector2 import Vector2
-from PyGame3d.Draw.shader_container import ShaderContainer, ShaderContainerComponent
+from PyGame3d.Draw.shader_container import ShaderContainer, ShaderContainerComponent,UVShaderContainer,VColorShaderContainer
 import PyGame3d.static  as static 
 import time
 
@@ -52,8 +53,8 @@ class Application (
         self.is_init = False
         self._screen = None
         self.check_performance = check_performance
-        static.uv_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
-        static.vert_color_mesh = ShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
+        static.uv_mesh = UVShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
+        static.vert_color_mesh = VColorShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
         if static.uv_mesh is None or static.vert_color_mesh is None :
             raise ValueError("Shader program is not found.")
         self._shader_program = [

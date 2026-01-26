@@ -1,6 +1,7 @@
 from abc import ABC,abstractmethod
 from typing import Callable, Mapping
 
+from PyGame3d.Draw.shader_container import ShaderContainer
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Collide import CollisionManager
@@ -9,47 +10,12 @@ from PyGame3d.Scene.Event import EventListener
 
 from pygame.event import Event
 
+from PyGame3d.Scene.component import GameScript, SceneComponent
+
 # signature : oshota
 # Spriteの移動など外部的な処理に使うUpdataとStart
 # PyGame3d.GameObject.SimpleGameObjectと役割が明確に異なっているので注意
-class GameScript (ABC) :
-    @abstractmethod
-    def update (self,delta_time:float) -> None :
-        return
-    @abstractmethod
-    def start (self) -> None :
-        return
     
-class SceneComponent (ABC) :
-    container : GameContainer 
-    def __init__(self) -> None:
-        super().__init__()
-        self.container = GameContainer()
-    def get_container(self) -> ContainerComponent:
-        return self.container
-    def add_child(self,object:ContainerComponent) -> None :
-        self.container.add_child(object)
-    @abstractmethod
-    def start (self) -> None :
-        pass
-    @abstractmethod
-    def update (self,delta_time:float) -> None :
-        pass
-    @abstractmethod
-    def get_camera (self) -> Camera :
-        pass
-    @abstractmethod
-    def script_add (self,game_script:GameScript) -> None :
-        pass
-    @abstractmethod
-    def ticker_add (self,func:Callable[[float],None]) -> int :
-        pass
-    @abstractmethod
-    def ticker_remove (self,func_id:int) -> None :
-        pass
-    @abstractmethod
-    def get_event_listener (self) -> list[EventListener] :
-        pass
 class Scene (SceneComponent) :
     camera : Camera
     exe : list[GameScript]
@@ -57,6 +23,7 @@ class Scene (SceneComponent) :
     ticker : dict[int,Callable[[float],None]]
     _interval_id_top : int
     _manager : CollisionManager
+    shader : list[ShaderContainer ]
     def __init__(self) -> None:
         super().__init__()
         self.camera = Camera ()
@@ -66,6 +33,9 @@ class Scene (SceneComponent) :
         self.start()
         self._interval_id_top = 0 
         self._manager = CollisionManager()
+        from PyGame3d import static
+        if static.uv_mesh is not None and static.vert_color_mesh is not None :
+            self.shader = [static.uv_mesh,static.vert_color_mesh]
     def script_add(self,game_script:GameScript) -> None:
         self.exe.append(game_script)
     def start(self) :
@@ -74,6 +44,8 @@ class Scene (SceneComponent) :
         for c in self.container.get_child() :
             c.start()
     def update (self,delta_time:float):
+        for shader in self.shader :
+            shader.update(self)
         for e in self.exe :
             e.update(delta_time)
         for c in self.container.get_child() :

@@ -1,4 +1,5 @@
 from moderngl import Program,Context
+from PyGame3d.Scene.component import SceneComponent
 from PyGame3d.matrix import Matrix4
 from PyGame3d import matrix
 import PyGame3d.matrix.rotation as rmatrix
@@ -26,9 +27,13 @@ class ShaderContainerComponent (ABC) :
     @abstractmethod
     def send_view_by_camera (self,camera:Camera) -> None :
         pass
+    @abstractmethod
+    def update (self,scene:SceneComponent) -> None :
+        pass
 
 class ShaderContainer (
     ShaderContainerComponent,
+    ABC
 ):
     fragment : str
     vertex : str
@@ -89,15 +94,43 @@ class ShaderContainer (
         view_mat = ( trans_mat * rot_mat )
         self.send_uniform("view",view_mat)
         return
+    @abstractmethod
+    def update(self, scene: SceneComponent) -> None:
+        pass
 
+class UVShaderContainer (
+    ShaderContainer
+) :
+    def update(self, scene: SceneComponent) -> None:
+        self.program['light_pos'].value = (10.0, 10.0, 10.0) # type: ignore # 斜め上など
+        self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
+        self.program['light_color'].value = (1.0, 1.0, 1.0) # type: ignore # 白色の光
+        
     @staticmethod
-    def open_path (vertpath:str,fragpath:str) -> ShaderContainer|None :
+    def open_path (vertpath:str,fragpath:str) -> UVShaderContainer|None :
         try :
             with open(vertpath,"r") as vertshader :
                 with open(fragpath,"r") as fragmentshader :
                     vert = vertshader.read()
                     frag = fragmentshader.read()
-                    return ShaderContainer(vert=vert,frag=frag)
+                    return UVShaderContainer(vert=vert,frag=frag)
+        except :
+            print("Not found shader program text file.")
+        return None
+
+class VColorShaderContainer (
+    ShaderContainer
+) :
+    def update(self, scene: SceneComponent) -> None:
+        return
+    @staticmethod
+    def open_path (vertpath:str,fragpath:str) -> VColorShaderContainer|None :
+        try :
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+                    return VColorShaderContainer(vert=vert,frag=frag)
         except :
             print("Not found shader program text file.")
         return None
