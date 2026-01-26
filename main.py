@@ -2,7 +2,7 @@
 import PyGame3d
 import math
 # おまじない
-game = PyGame3d.Application(check_performance=True)
+game = PyGame3d.Application(fps=60)
 game.init() 
 camera = game.stage.get_camera()
 # デバッグ用

@@ -11,6 +11,8 @@ python3.14 main.py
 
 python3.14を指定していますが、python3コマンドでもversionが最新であれば動きます（多分）
 
+型定義とかが実装されているpythonを使用して下さい。
+
 ```sh
 source ./.venv/bin/activate
 python3.14 main.py
@@ -226,11 +228,11 @@ localな値を使用する場合に対応するため、全てのTransform系の
   - moderngl の Context と Program を保持
   - 使用するメッシュによって使い分けるための class
 
-## 開発中
-
 class UVMesh
 
 - 保持する行列が [x,y,z,u,v] の行列
 - .objのTextureに対応
+
+## 開発中
 
 ## 未開発

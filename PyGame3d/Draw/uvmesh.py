@@ -189,6 +189,14 @@ class UVMaterial (MaterialLike):
             m.add_texture(t,i)
         return m
 
+def polygone_triangle (verts:list[list[float]]) -> list[float] :
+    result:list[float] = []
+    if len(verts) >= 3 :
+        for i in range(len(verts)-2) :
+            result.extend(verts[0])
+            result.extend(verts[i+1])
+            result.extend(verts[i+2])
+    return result
 class UVMesh(MeshRender, MeshLike):
     ctx: moderngl.Context
     shader: ShaderContainerComponent
@@ -264,3 +272,73 @@ class UVMesh(MeshRender, MeshLike):
                  0.5,-0.5, 0.0,  1.0, 0.0,  0.0, 0.0, 1.0
             ]
         ,dtype="f4"))
+    @staticmethod
+    def get_cube_data (texture:UVTexture) -> UVMesh :
+        material = UVMaterial()
+        material.add_texture(texture,0)
+        verts:list[float] = []
+        # 流石にだるすぎたのでAIにやらせた。
+
+        # 上面 (Y+)
+        verts.extend(polygone_triangle([
+            [ -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 0.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0, ],
+            [ 0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 0.0, ],
+        ]))
+        
+        # 下面 (Y-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, -1.0, 0.0, ],
+            [ 0.5, -0.5, -0.5, 1.0, 0.0, 0.0, -1.0, 0.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 1.0, 0.0, -1.0, 0.0, ],
+            [ -0.5, -0.5, 0.5, 0.0, 1.0, 0.0, -1.0, 0.0, ],
+        ]))
+        
+        # 前面 (Z+)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 1.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 1.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, ],
+        ]))
+        
+        # 背面 (Z-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, -1.0, ],
+            [ -0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 0.0, -1.0, ],
+            [ 0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, -1.0, ],
+            [ 0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0, ],
+        ]))
+        
+        # 右面 (X+)
+        verts.extend(polygone_triangle([
+            [ 0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, 0.5, -0.5, 0.0, 1.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0, ],
+        ]))
+        
+        # 左面 (X-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 1.0, 0.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, -0.5, 0.5, 0.0, 0.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 1.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, 0.5, -0.5, 1.0, 1.0, -1.0, 0.0, 0.0, ],
+        ]))
+
+        return UVMesh(material,np.array(verts,dtype="f4"))
+    @staticmethod
+    def floor_mesh (color=(0.6,0.6,0.6),size=(20,20)) -> UVMesh :
+        tex = UVTexture.color(color)
+        material = UVMaterial()
+        material.add_texture(tex,0)
+
+        verts = polygone_triangle([
+            [-size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [-size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [ size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [ size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+        ])
+
+        return UVMesh(material,np.array(verts,dtype="f4"))
