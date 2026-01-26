@@ -6,7 +6,7 @@ game = PyGame3d.Application(check_performance=True)
 game.init() 
 camera = game.stage.get_camera()
 # デバッグ用
-
+PyGame3d.PerformanceInspectator (game)
 # 変数定義
 angle = 0.0
 # ゲーム内オブジェクトを定義

@@ -21,9 +21,9 @@ class PerformanceInspectator :
         self.fps += 1
         
         if self.performance_sec >= 1.0 :
-            performance_sec = 0
+            self.performance_sec = 0
             self.fpss.append(self.fps)
             self.ffpss.append(self.fps*self.fps)
             a = PerformanceInspectator.ave(self.fpss)
             print(f"n:{len(self.fpss)}, fps:{self.fps}, a:{math.floor(a)}, s:{math.floor((math.sqrt(PerformanceInspectator.ave(self.ffpss)-a*a))*100)*0.01}")
-            fps = 0
+            self.fps = 0

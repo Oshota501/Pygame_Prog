@@ -1,6 +1,5 @@
 # コードテスト用関数。
 def start () :
-    mat4text()
     return
     
 def update () :
