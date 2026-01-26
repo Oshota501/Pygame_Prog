@@ -1,3 +1,4 @@
+# from pg3_math.vector import Vector3
 from .Vector3 import Vector3
 from .Vector2 import Vector2
 

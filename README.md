@@ -7,11 +7,6 @@ pip install -r requirements.txt
 python3.14 main.py
 ```
 
-#### 注意点
-
-一部の機能をcppのライブラリに依存するようにしています。環境構築時点でエラーが出た場合はPyGame3d/vector/__init__.pyのVector3の参照先をpythonで実装されたPyGame3d/vector/Vector3に変更して`sh setup.sh`を無視して下さい。
-
-
 ## 起動
 
 python3.14を指定していますが、python3コマンドでもversionが最新であれば動きます（多分）
@@ -22,6 +17,27 @@ python3.14 main.py
 ```
 
 ## 使い方
+
+### パフォーマンスについて
+
+numpyのndarrayを使用したMatrix4とcppで自作したMatrix4が存在しています。（どちらも全く同じ実装です。）
+
+デフォルトで前者を使用するようにしていますが、後者の方が若干パフォーマンス的に速度が出るかもしれません。
+
+- コンパイル
+```sh
+sh setup.sh
+```
+- 変更
+`/PyGame3d/__init__.py`
+```py
+from .matrix.mat4 import Matrix4
+```
+を
+```py
+from .pg3_math.matrix import Matrix4
+```
+に変更
 
 ### 簡単な使い方
 
