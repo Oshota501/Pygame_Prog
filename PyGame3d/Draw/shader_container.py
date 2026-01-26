@@ -102,9 +102,9 @@ class UVShaderContainer (
     ShaderContainer
 ) :
     def update(self, scene: SceneComponent) -> None:
-        self.program['light_pos'].value = (10.0, 10.0, 10.0) # type: ignore # 斜め上など
+        self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など
         self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
-        self.program['light_color'].value = (1.0, 1.0, 1.0) # type: ignore # 白色の光
+        self.program['light_color'].value = scene.get_light().get_color() # type: ignore # 白色の光
         
     @staticmethod
     def open_path (vertpath:str,fragpath:str) -> UVShaderContainer|None :

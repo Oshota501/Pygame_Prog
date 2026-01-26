@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 from PyGame3d.GameObject import ContainerComponent
+from PyGame3d.GameObject.Light import Light
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.Scene.Event import EventListener
@@ -42,4 +43,7 @@ class SceneComponent (ABC) :
         pass
     @abstractmethod
     def get_event_listener (self) -> list[EventListener] :
+        pass
+    @abstractmethod
+    def get_light (self) -> Light :
         pass

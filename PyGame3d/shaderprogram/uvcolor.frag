@@ -27,7 +27,7 @@ void main() {
     float specularStrength = 0.5;
     vec3 viewDir = normalize(view_pos - v_frag_pos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // 32は輝き度（大きいほど鋭いハイライト）
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128); // 128は輝き度（大きいほど鋭いハイライト）
     vec3 specular = specularStrength * spec * light_color;
 
     //4 

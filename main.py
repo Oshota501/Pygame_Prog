@@ -5,6 +5,7 @@ import math
 game = PyGame3d.Application(fps=60)
 game.init() 
 camera = game.stage.get_camera()
+light = game.stage.get_light()
 # デバッグ用
 PyGame3d.PerformanceInspectator (game)
 # 変数定義
@@ -35,8 +36,7 @@ def update (delta_time:float) -> None :
     global angle
     
     angle += delta_time
-    camera.position = PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10
-    camera.look_at(PyGame3d.Vector3(0,0,0))
+    light.position = PyGame3d.Vector3(0,math.sin(angle)*5+6,0)
 # tickerに追加
 func_id = game.stage.ticker_add(update)
 # おまじない（while文スタート ）
