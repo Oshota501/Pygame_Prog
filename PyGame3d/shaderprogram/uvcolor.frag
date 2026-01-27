@@ -16,7 +16,7 @@ void main() {
     vec3 lightDir = normalize(light_pos - v_frag_pos);
 
     // 1. Ambient (環境光)
-    float ambientStrength = 0.3;
+    float ambientStrength = 0.45;
     vec3 ambient = ambientStrength * light_color;
 
     // 2. Diffuse (拡散光)
@@ -27,7 +27,7 @@ void main() {
     float specularStrength = 0.5;
     vec3 viewDir = normalize(view_pos - v_frag_pos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128); // 128は輝き度（大きいほど鋭いハイライト）
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // 32は輝き度（大きいほど鋭いハイライト）
     vec3 specular = specularStrength * spec * light_color;
 
     //4 
