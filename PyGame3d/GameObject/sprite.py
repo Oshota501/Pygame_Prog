@@ -243,21 +243,12 @@ class Sprite3D (
         g.set_scale(scale)
         return g
     @staticmethod
-    def obj(obj_filename:str,texture_filename:str|None=None) -> Sprite3D :
-        from PyGame3d.Draw.uvmesh import UVTextureImage,UVMaterial,UVMesh,UVTexture
+    def obj(obj_filename:str) -> Sprite3D :
+        from PyGame3d.Draw.uvmesh import UVMesh
         import os
         result = Sprite3D()
-        tex_wall : TextureLike
-        if texture_filename is None :
-            tex_wall = UVTexture.color((0,1,0))
-        else :
-            if not os.path.exists(texture_filename):
-                raise FileNotFoundError(f"Texture file not found: {texture_filename}")
-            tex_wall = UVTextureImage(filepath=texture_filename)
-        mat_wall = UVMaterial()
-        mat_wall.add_texture(tex_wall,0)
         if not os.path.exists(obj_filename):
             raise FileNotFoundError(f"Object file not found: {obj_filename}")
-        result.mesh = UVMesh.load_obj(mat_wall,obj_filename=obj_filename)
+        result.mesh = UVMesh.load_obj(filename=obj_filename)
         return result
 

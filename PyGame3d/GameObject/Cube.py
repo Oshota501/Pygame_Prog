@@ -2,7 +2,7 @@ from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, SimpleBoundingObject
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VertColorMesh
-from PyGame3d.Draw.uvmesh import UVMesh,UVTexture
+from PyGame3d.Draw.uvmesh import UVSubMesh,UVTexture
 import PyGame3d.static as static
 from PyGame3d.vector import Vector3
 
@@ -11,7 +11,7 @@ class Cube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
         if static.vert_color_mesh is not None and static.context is not None:
-            self.mesh = UVMesh.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
+            self.mesh = UVSubMesh.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
         else :
             raise ValueError("まだinitされていないようです")
         self.set_bounding_obj(Vector3(-0.5,-0.5,-0.5),Vector3(0.5,0.5,0.5))
@@ -74,7 +74,7 @@ class Floor (Sprite3D) :
         super().__init__()
         import PyGame3d.static as static
         if static.uv_mesh is not None and static.context is not None:
-            self.mesh = UVMesh.floor_mesh(color=(0.3,0.3,0.1))
+            self.mesh = UVSubMesh.floor_mesh(color=(0.3,0.3,0.1))
         else :
             raise ValueError("まだinitされていないようです")
         self.set_bounding_obj(Vector3(-20,-5,-20),Vector3(20,0,20))
@@ -92,7 +92,7 @@ class Floor (Sprite3D) :
 class CuttingBoad (Sprite3D) :
     def __init__(self,tex_filepath:str) -> None:
         super().__init__()
-        self.mesh = UVMesh.cutting_boad(tex_filepath)
+        self.mesh = UVSubMesh.cutting_boad(tex_filepath)
         self.set_bounding_obj(Vector3(-0.5,-0.5,0),Vector3(0.5,0.5,0))
     @staticmethod
     def transform (
