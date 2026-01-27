@@ -481,8 +481,6 @@ class UVMesh (MeshRender, MeshLike) :
             if "map_Kd" in mtl_info:
                 
                 texture_filename = mtl_info["map_Kd"]
-                if not os.path.exists(texture_filename) :
-                    print("\033[33mWarning\033[39m : Image file is not found . ")
                 texture_path = os.path.join(base_dir, texture_filename)
 
                 tex = UVTextureImage(texture_path)
