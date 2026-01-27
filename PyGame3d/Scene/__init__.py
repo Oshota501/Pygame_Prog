@@ -6,6 +6,7 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Collide import CollisionManager
 from PyGame3d.GameObject.Container import GameContainer
+from PyGame3d.GameObject.Light import Light
 from PyGame3d.Scene.Event import EventListener
 
 from pygame.event import Event
@@ -24,6 +25,7 @@ class Scene (SceneComponent) :
     _interval_id_top : int
     _manager : CollisionManager
     shader : list[ShaderContainer ]
+    light : Light
     def __init__(self) -> None:
         super().__init__()
         self.camera = Camera ()
@@ -33,6 +35,7 @@ class Scene (SceneComponent) :
         self.start()
         self._interval_id_top = 0 
         self._manager = CollisionManager()
+        self.light = Light()
         from PyGame3d import static
         if static.uv_mesh is not None and static.vert_color_mesh is not None :
             self.shader = [static.uv_mesh,static.vert_color_mesh]
@@ -64,6 +67,8 @@ class Scene (SceneComponent) :
         return self._interval_id_top - 1 
     def ticker_remove(self, func_id: int) -> None:
         del self.ticker[func_id]
+    def get_light(self) -> Light:
+        return self.light 
     
     @staticmethod
     def default () -> Scene :

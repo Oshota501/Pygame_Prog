@@ -16,9 +16,9 @@ void main() {
     vec3 lightDir = normalize(light_pos - v_frag_pos);
 
     // 1. Ambient (環境光)
-    float ambientStrength = 0.3;
+    float ambientStrength = 0.45;
     vec3 ambient = ambientStrength * light_color;
-
+    
     // 2. Diffuse (拡散光)
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * light_color;
@@ -32,6 +32,10 @@ void main() {
 
     //4 
     vec4 texColor = texture(u_texture, v_uv);
+    // 透過
+    if (texColor.a < 0.1) {
+        discard;
+    }
     vec3 result = (ambient + diffuse + specular) * texColor.rgb;
     f_color = vec4(result, texColor.a);
 }

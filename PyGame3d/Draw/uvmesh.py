@@ -12,13 +12,24 @@ import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 
 # signature : Gemini AI
-def load_obj(filename:str) -> np.ndarray:
-    vertices:list[list[float]] = [] # v
-    tex_coords:list[list[float]] = [] # vt
-    normals:list[list[float]] = []    # vn
+def load_obj(filename: str) -> list[tuple[str, np.ndarray]]:
+    """
+    戻り値: [(マテリアル名, 頂点データ配列), (マテリアル名, 頂点データ配列), ...] のリスト
+    """
+    vertices = [] # v
+    tex_coords = [] # vt
+    normals = []    # vn
     
-    # 最終的なGPU用の配列 (x, y, z, u, v)
-    final_data :list[float]= []
+    # マテリアルごとにデータを蓄積する辞書
+    # key: マテリアル名, value: [float, float, ...] (頂点データリスト)
+    material_groups: dict[str, list[float]] = {}
+    
+    current_material = "default" # 初期マテリアル名
+    material_groups[current_material] = [] # 初期リスト作成
+    
+    # MTLファイルのパス保持用
+    mtl_filename = None
+    base_dir = os.path.dirname(filename)
 
     with open(filename, 'r') as file:
         for line in file:
@@ -26,52 +37,124 @@ def load_obj(filename:str) -> np.ndarray:
             if not parts:
                 continue
 
-            # 頂点座標 (v x y z)
+            # --- 基本情報の読み込み ---
             if parts[0] == 'v':
                 vertices.append([float(parts[1]), float(parts[2]), float(parts[3])])
-            
-            # テクスチャ座標 (vt u v)
             elif parts[0] == 'vt':
-                # v (縦方向) はOpenGLでは上下逆になることが多いので、1.0 - v したりします
-                # いったんそのまま読みます
                 tex_coords.append([float(parts[1]), float(parts[2])])
             elif parts[0] == 'vn':
                 normals.append([float(parts[1]), float(parts[2]), float(parts[3])])
+            
+            # --- マテリアル関連 ---
+            elif parts[0] == 'mtllib':
+                # MTLファイル名を記録 (後で読み込むため)
+                mtl_filename = os.path.join(base_dir, parts[1])
+                
+            elif parts[0] == 'usemtl':
+                # 使用するマテリアルを切り替える
+                current_material = parts[1]
+                if current_material not in material_groups:
+                    material_groups[current_material] = []
 
-            # 面情報 (f v1/vt1/vn1 ...)
+            # --- 面情報の構築 ---
             elif parts[0] == 'f':
-                # [x, y, z, u, v, nx,ny,nz]
-                vert : list[list[float]] = []
+                # 現在選択されているマテリアルのリストに追加する
+                vert_list = []
                 for i in range(1, len(parts)):
                     vals = parts[i].split('/')
+                    
+                    # 座標
                     v_idx = int(vals[0]) - 1
                     xyz = vertices[v_idx]
+                    
+                    # UV
                     if len(vals) > 1 and vals[1] != '':
                         vt_idx = int(vals[1]) - 1
                         uv = tex_coords[vt_idx]
                     else:
-                        uv = [0.0, 0.0] # ダミー
-                    # 頂点データ追加
+                        uv = [0.0, 0.0]
+
+                    # 法線
                     if len(vals) > 2 and vals[2] != '':
                         vn_idx = int(vals[2]) - 1
                         nm = normals[vn_idx]
                     else:
-                        # 法線がない場合は適当な値 (例: Y軸上向き)
                         nm = [0.0, 1.0, 0.0]
-                    vert.append([xyz[0],xyz[1],xyz[2],uv[0],uv[1],nm[0],nm[1],nm[2]])
-                if len(vert) >= 3 :
-                    # print(len(vert))
-                    for i in range(1, len(vert)-1):
-                        final_data.extend(vert[0])
-                        final_data.extend(vert[i])
-                        final_data.extend(vert[i+1])
+
+                    # 8要素データを一時リストへ
+                    vert_list.append([xyz[0],xyz[1],xyz[2], uv[0],uv[1], nm[0],nm[1],nm[2]])
+
+                # 三角形分割して現在のマテリアルグループに追加
+                if len(vert_list) >= 3 :
+                    for i in range(1, len(vert_list)-1):
+                        material_groups[current_material].extend(vert_list[0])
+                        material_groups[current_material].extend(vert_list[i])
+                        material_groups[current_material].extend(vert_list[i+1])
+
+    # --- 解析終了後の整形 ---
+    result_meshes = []
     
-    if len(final_data) % 8 == 0 :
-        # for i in range(int(float(len(final_data)*0.2))) :
-        #     print(final_data[i:i+4])
-        return np.array(final_data)
-    else :
-        raise ValueError(f"Can not read .obj file : {filename}.")
+    # MTLファイルを解析
+    mtl_data = {}
+    if mtl_filename:
+        mtl_data = parse_mtl(mtl_filename)
+    
+    # グループごとのデータを numpy 配列に変換し、MTLデータとセットで返すことも可能だが、
+    # ここでは「マテリアル名」と「データ」を返し、呼び出し元で紐付けさせる
+    for mat_name, data in material_groups.items():
+        if len(data) > 0:
+            # 配列化
+            arr = np.array(data, dtype='f4')
+            
+            # このマテリアル名に対応するテクスチャパスなどを取得したい場合は
+            # mtl_data.get(mat_name) を使うことになる
+            # ここではシンプルにリストに追加して返す
+            result_meshes.append({
+                "material_name": mat_name,
+                "data": arr,
+                "mtl_info": mtl_data.get(mat_name, {}) # MTL情報も一緒に入れておく
+            })
+            
+    return result_meshes
+
+def parse_mtl(filename: str) -> dict:
+    """
+    MTLファイルを解析し、マテリアル名とプロパティの辞書を返す
+    戻り値例: 
+    ```py
+    { 
+        'MaterialA': {'map_Kd': 'textureA.png', 'Kd': [1.0, 1.0, 1.0]}, 
+        'MaterialB': {'map_Kd': 'textureB.png'} 
+    }
+    ```
+    """
+    materials = {}
+    current_mtl = None
+    
+    if not os.path.exists(filename):
+        print(f"Warning: MTL file not found: {filename}")
+        return {}
+
+    with open(filename, 'r') as file:
+        for line in file:
+            parts = line.split()
+            if not parts:
+                continue
+            
+            # 新しいマテリアル定義
+            if parts[0] == 'newmtl':
+                current_mtl = parts[1]
+                materials[current_mtl] = {}
+            
+            # 拡散反射色 (Diffuse Color)
+            elif parts[0] == 'Kd':
+                materials[current_mtl]['Kd'] = [float(parts[1]), float(parts[2]), float(parts[3])]
+            
+            # 拡散反射テクスチャ (Texture Map)
+            elif parts[0] == 'map_Kd':
+                materials[current_mtl]['map_Kd'] = parts[1]
+                
+    return materials
 
 class UVTexture (TextureLike):
     ctx : moderngl.Context
@@ -188,8 +271,20 @@ class UVMaterial (MaterialLike):
         for i,t in enumerate(texs) :
             m.add_texture(t,i)
         return m
+    @staticmethod
+    def img_mono_texture (filename:str) -> UVMaterial :
+        tex = UVTextureImage(filepath=filename)
+        return UVMaterial.include_texture([tex])
 
-class UVMesh(MeshRender, MeshLike):
+def polygone_triangle (verts:list[list[float]]) -> list[float] :
+    result:list[float] = []
+    if len(verts) >= 3 :
+        for i in range(len(verts)-2) :
+            result.extend(verts[0])
+            result.extend(verts[i+1])
+            result.extend(verts[i+2])
+    return result
+class UVSubMesh(MeshRender, MeshLike):
     ctx: moderngl.Context
     shader: ShaderContainerComponent
     material: UVMaterial
@@ -246,14 +341,18 @@ class UVMesh(MeshRender, MeshLike):
         return self.material
     
     @staticmethod
-    def load_obj (material:UVMaterial,obj_filename:str) -> UVMesh :
-        return UVMesh(material,load_obj(obj_filename))
+    def load_obj (obj_filename:str) -> list[UVSubMesh] :
+        objs:list[tuple[str, np.ndarray]] = load_obj(obj_filename)
+        result : list[UVSubMesh] = []
+        for obj in objs :
+            result.append(UVSubMesh(UVMaterial.img_mono_texture(obj[0]),obj[1]))
+        return result
     @staticmethod
-    def cutting_boad (texture_name:str) -> UVMesh :
+    def cutting_boad (texture_name:str) -> UVSubMesh :
         tex = UVTextureImage(texture_name)
         material = UVMaterial()
         material.add_texture(tex,0)
-        return UVMesh(material,np.array(
+        return UVSubMesh(material,np.array(
             [
                  0.5, 0.5, 0.0,  1.0, 1.0,  0.0, 0.0, 1.0,
                 -0.5, 0.5, 0.0,  0.0, 1.0,  0.0, 0.0, 1.0,
@@ -264,3 +363,138 @@ class UVMesh(MeshRender, MeshLike):
                  0.5,-0.5, 0.0,  1.0, 0.0,  0.0, 0.0, 1.0
             ]
         ,dtype="f4"))
+    @staticmethod
+    def get_cube_data (texture:UVTexture) -> UVSubMesh :
+        material = UVMaterial()
+        material.add_texture(texture,0)
+        verts:list[float] = []
+        # 流石にだるすぎたのでAIにやらせた。
+
+        # 上面 (Y+)
+        verts.extend(polygone_triangle([
+            [ -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 0.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0, ],
+            [ 0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 0.0, ],
+        ]))
+        
+        # 下面 (Y-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, -1.0, 0.0, ],
+            [ 0.5, -0.5, -0.5, 1.0, 0.0, 0.0, -1.0, 0.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 1.0, 0.0, -1.0, 0.0, ],
+            [ -0.5, -0.5, 0.5, 0.0, 1.0, 0.0, -1.0, 0.0, ],
+        ]))
+        
+        # 前面 (Z+)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 1.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 1.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, ],
+        ]))
+        
+        # 背面 (Z-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, -1.0, ],
+            [ -0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 0.0, -1.0, ],
+            [ 0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, -1.0, ],
+            [ 0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0, ],
+        ]))
+        
+        # 右面 (X+)
+        verts.extend(polygone_triangle([
+            [ 0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, 0.5, -0.5, 0.0, 1.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 0.0, 0.0, ],
+            [ 0.5, -0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0, ],
+        ]))
+        
+        # 左面 (X-)
+        verts.extend(polygone_triangle([
+            [ -0.5, -0.5, -0.5, 1.0, 0.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, -0.5, 0.5, 0.0, 0.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, 0.5, 0.5, 0.0, 1.0, -1.0, 0.0, 0.0, ],
+            [ -0.5, 0.5, -0.5, 1.0, 1.0, -1.0, 0.0, 0.0, ],
+        ]))
+
+        return UVSubMesh(material,np.array(verts,dtype="f4"))
+    @staticmethod
+    def floor_mesh (color=(0.6,0.6,0.6),size=(20,20)) -> UVSubMesh :
+        tex = UVTexture.color(color)
+        material = UVMaterial()
+        material.add_texture(tex,0)
+
+        verts = polygone_triangle([
+            [-size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [-size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [ size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+            [ size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
+        ])
+
+        return UVSubMesh(material,np.array(verts,dtype="f4"))
+    
+class UVMesh (MeshRender, MeshLike) :
+    sub_mesh : list[UVSubMesh]
+    def __init__(self) -> None:
+        self.sub_mesh = []
+    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
+        if len(self.sub_mesh) == 0 :
+            return None
+        else :
+            m = self.sub_mesh[0]
+            return (m.ctx,m.material.program)
+    def render (self,transform:Transform, model_matrix:Matrix4|None=None) -> None:
+        for sub in self.sub_mesh :
+            if model_matrix is None :
+                sub.render(transform,Matrix4.get_identity())
+            else :
+                sub.render(transform,model_matrix)
+    def destroy (self) -> None:
+        for sub in self.sub_mesh :
+            sub.destroy()
+        self.sub_mesh = []
+    def get_material (self) -> MaterialLike | None :
+        if len(self.sub_mesh) == 0 :
+            return None
+        else :
+            m = self.sub_mesh[0]
+            return m.get_material()
+
+    @staticmethod
+    def load_obj (filename:str) -> UVMesh :
+        mesh = UVMesh()
+        base_dir = os.path.dirname(filename)
+        
+        # 1. OBJとMTLを読み込んで分割データを取得
+        sub_mesh_data_list = load_obj(filename)
+        
+        for item in sub_mesh_data_list:
+            # pythonの辞書型は型に対する生合成がないのか？？
+            mesh_data = item["data"] # type:ignore
+            mtl_info:dict = item["mtl_info"] # type:ignore
+            
+            # 2. マテリアルを作成
+            material = UVMaterial()
+            
+            # テクスチャ画像がある場合
+            if "map_Kd" in mtl_info:
+                
+                texture_filename = mtl_info["map_Kd"]
+                texture_path = os.path.join(base_dir, texture_filename)
+
+                tex = UVTextureImage(texture_path)
+                material.add_texture(tex, 0)
+                
+            else:
+                # テクスチャが読み込めないだって？？
+                # objファイルを直接いじるんだね
+                print("\033[33mWarning\033[39m : .obj file of 3D model does not have map_Kd Option.\nWhen this option does not exsit , Texture is \".obj default color\" or pink .")
+                # テクスチャがない場合は色情報(Kd)を使うか、デフォルトピンク
+                color = mtl_info.get("Kd", [1.0, 0.3, 0.1])
+                material.add_color_texture((color[0], color[1], color[2], 1.0))
+            
+            # 3. メッシュ作成
+            s_mesh = UVSubMesh(material, mesh_data)
+            mesh.sub_mesh.append(s_mesh)
+        return mesh
