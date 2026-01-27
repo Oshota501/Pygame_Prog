@@ -22,7 +22,7 @@ class StartScene (Scene) :
     cube : Cube
     sign : CuttingBoad
     angle : float
-    player : Player
+    player : FPSPlayer
 
     def __init__(self) -> None:
         super().__init__()
