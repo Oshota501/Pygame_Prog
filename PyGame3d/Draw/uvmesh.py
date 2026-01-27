@@ -472,24 +472,26 @@ class UVMesh (MeshRender, MeshLike) :
         for item in sub_mesh_data_list:
             # pythonの辞書型は型に対する生合成がないのか？？
             mesh_data = item["data"] # type:ignore
-            mtl_info = item["mtl_info"] # type:ignore
+            mtl_info:dict = item["mtl_info"] # type:ignore
             
             # 2. マテリアルを作成
             material = UVMaterial()
             
             # テクスチャ画像がある場合
             if "map_Kd" in mtl_info:
-                texture_filename = mtl_info["map_Kd"]
-                texture_path = os.path.join(base_dir, texture_filename)
                 
-                try:
-                    tex = UVTextureImage(texture_path)
-                    material.add_texture(tex, 0)
-                except Exception as e:
-                    print(f"Texture load failed: {texture_path}")
-                    # 失敗したらピンクテクスチャなど
-                    material.add_color_texture((1.0, 0.3, 0.1))
+                texture_filename = mtl_info["map_Kd"]
+                if not os.path.exists(texture_filename) :
+                    print("\033[33mWarning\033[39m : Image file is not found . ")
+                texture_path = os.path.join(base_dir, texture_filename)
+
+                tex = UVTextureImage(texture_path)
+                material.add_texture(tex, 0)
+                
             else:
+                # テクスチャが読み込めないだって？？
+                # objファイルを直接いじるんだね
+                print("\033[33mWarning\033[39m : .obj file of 3D model does not have map_Kd Option.\nWhen this option does not exsit , Texture is \".obj default color\" or pink .")
                 # テクスチャがない場合は色情報(Kd)を使うか、デフォルトピンク
                 color = mtl_info.get("Kd", [1.0, 0.3, 0.1])
                 material.add_color_texture((color[0], color[1], color[2], 1.0))
