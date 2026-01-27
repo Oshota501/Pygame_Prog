@@ -16,7 +16,7 @@ from .GameObject.Camera import Camera
 from .GameObject.Container import GameContainer
 from .GameObject.sprite import Sprite3D
 # サンプル
-from .GameObject.Cube import Cube,CuttingBoad,Floor
+from .GameObject.Sample import Cube,CuttingBoad,Floor
 
 __all__ = [
     "Application",
