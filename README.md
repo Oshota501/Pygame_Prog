@@ -46,11 +46,10 @@ from .pg3_math.matrix import Matrix4
 main.py
 
 ```py
-# include<>
 import PyGame3d
 import math
 # おまじない
-game = PyGame3d.Application(check_performance=True)
+game = PyGame3d.Application(fps=64)
 game.init() 
 camera = game.stage.get_camera()
 # デバッグ用
@@ -63,11 +62,11 @@ cube.name = "move_obj"
 cube.position = PyGame3d.Vector3(0,10,0)
 floor = PyGame3d.Floor()
 floor.set_position(PyGame3d.Vector3(0,-10,0))
-useTextureObj = PyGame3d.Sprite3D.obj("./Assets/a.obj","./Assets/tex.png")
+useTextureObj = PyGame3d.Sprite3D.obj("./Assets/test.obj")
 game.stage.get_camera().position = PyGame3d.Vector3(0,0,10)
-cutting = PyGame3d.CuttingBoad("./Assets/tex.png")
+cutting = PyGame3d.CuttingBoad("./Assets/py.png")
 cutting.position = PyGame3d.Vector3(0,5,-5)
-cutting.scale = PyGame3d.Vector3(5,5,5)
+cutting.scale = PyGame3d.Vector3(10,5,5)
 # 当たり判定の設定
 floor.set_collide_enabled(True)
 cube.set_collide_enabled(True)
@@ -99,17 +98,20 @@ game.start_rendering()
 **注意：仕様を変更したため、サポートされていません**
 
 ```py
-# import
-import PyGame3d
 import math
-from PyGame3d import Scene
-from PyGame3d.GameObject.Cube import Cube, Floor,CuttingBoad
-from PyGame3d.GameObject import GameContainer
-from PyGame3d.GameObject.sprite import Sprite3D
-from PyGame3d.vector import Vector3
+from PyGame3d import (
+    Application,
+    Sprite3D,
+    Floor,
+    Cube,
+    CuttingBoad,
+    Scene,
+    Vector3,
+    GameContainer,
+)
 
 # おまじない
-game = PyGame3d.Application()
+game = Application()
 game.init() 
 
 # ゲームのシーン設定
@@ -122,7 +124,7 @@ class StartScene (Scene) :
 
     def __init__(self) -> None:
         super().__init__()
-        self.sprite = Sprite3D.obj("./Assets/u.obj","./Assets/tex.png")
+        self.sprite = Sprite3D.obj("./Assets/u.obj")
         self.sprite.position = Vector3(0,0,0)
         self.floor = Floor.transform(position=Vector3(0,-3,0))
         self.cube = Cube()
@@ -141,12 +143,10 @@ class StartScene (Scene) :
         self.camera.position = Vector3(math.sin(self.angle),0.5,math.cos(self.angle))*10
         self.camera.look_at (Vector3(0,0,0))
         
-        
-
-
 game.set_scene(StartScene())
 # おまじない（while文スタート ）
 game.start_rendering()
+
 ```
 
 ## 実装したいことlist
