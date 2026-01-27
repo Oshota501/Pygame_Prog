@@ -127,12 +127,6 @@ class Application (
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
-                    pass
-                elif event.type == pygame.VIDEORESIZE :
-                    print("Update perspective matrix")
-                    # 型安全が実装されていないようです。
-                    self.set_resolution((event.w,event.h))
 
             test.update()
 
