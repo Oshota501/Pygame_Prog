@@ -50,7 +50,6 @@ class Application (
             perspective:float=90,
             screen_size:tuple[int,int]=(1000,680),
             viewing_angle:float=100,
-            check_performance:bool = False,
     ) -> None:
         self.perspective = perspective
         self.screen_size = screen_size
@@ -70,7 +69,7 @@ class Application (
             UVShaderContainer () ,
             VColorShaderContainer () ,
         ]
-        
+
         if fps is not None :
             self._updata_time = 1/fps
         else :
@@ -156,9 +155,6 @@ class Application (
             if self.fps is not None :
                 self._clock.tick(self.fps)
             
-            if self.check_performance and self.fps is not None:
-                if 1/deltatime <= self.fps*0.75 :
-                    print("Warning : fps is not stabilized:", 1/deltatime)
             self.stage.update(deltatime)
 
             pygame.display.flip()

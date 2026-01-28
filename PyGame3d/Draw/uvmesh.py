@@ -33,7 +33,7 @@ class UVShaderContainer (
                     frag = fragmentshader.read()
             super().__init__(vert, frag)
         except :
-            print("Not found shader program text file.")
+            raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
         return None
     def update(self, scene: SceneComponent) -> None:
         self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など

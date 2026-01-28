@@ -28,7 +28,7 @@ class VColorShaderContainer (
                     frag = fragmentshader.read()
             super().__init__(vert, frag)
         except :
-            print("Not found shader program text file.")
+            raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
 
     def update(self, scene: SceneComponent) -> None:
         return

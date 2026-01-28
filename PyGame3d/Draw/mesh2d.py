@@ -12,8 +12,8 @@ class Mesh2dShaderContainer (
     metaclass=SingletonABCMeta
 ) :
     def __init__(self,
-            vertpath: str="./PyGame3d/shaderprogram/mesh2d.vert",
-            fragpath: str="./PyGame3d/shaderprogram/mesh2d.frag"
+            vertpath: str="./PyGame3d/shaderprogram/2d.vert",
+            fragpath: str="./PyGame3d/shaderprogram/2d.frag"
     ) -> None:
         try :
             frag : str
@@ -24,7 +24,7 @@ class Mesh2dShaderContainer (
                     frag = fragmentshader.read()
             super().__init__(vert, frag)
         except :
-            print("Not found shader program text file.")
+            raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
     
     def update(self, scene) -> None:
         # 2D描画ではカメラ(View)の影響を受けない（あるいはスクロール用のみ）
