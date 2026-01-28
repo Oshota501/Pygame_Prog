@@ -80,3 +80,17 @@ class Vector2:
 		if not isinstance(other, Vector2):
 			return False
 		return self.x == other.x and self.y == other.y
+	def __getitem__ (self,index:int) -> float :
+		if index == 0 :
+			return self.x
+		elif index == 1 :
+			return self.y
+		else :
+			raise IndexError(f"Index {index} is out of range .")
+	def __setitem__ (self,index:int,value:float) -> None :
+		if index == 0 :
+			self.x = value
+		elif index == 1 :
+			self.y = value
+		else :
+			raise IndexError(f"Index {index} is out of range .")

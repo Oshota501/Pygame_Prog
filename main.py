@@ -33,7 +33,11 @@ class StartScene (Scene) :
         self.floor = Floor.transform(position=Vector3(0,-3,0))
         self.cube = Cube()
         self.sign = CuttingBoad("./Assets/py.png")
-        
+        self.ui = game.add_object.ui_text(
+            "hello",
+            "/System/Library/Fonts/ヒラギノ角ゴシック W0.ttc",
+            position=game.add_object.get_ui_center()
+        )
         self.floor.set_collide_enabled(True)
         container = GameContainer()
         # Player needs to be registered as a child so its update() runs every frame

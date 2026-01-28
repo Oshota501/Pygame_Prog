@@ -1,5 +1,6 @@
 import pygame
 import moderngl
+from PyGame3d.GameObject.generater import DefaultObjectGenerater
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
 import PyGame3d.matrix as matrix
@@ -22,7 +23,7 @@ class ApplicationComponent(ABC) :
 class Application (
     ApplicationComponent
 ) :
-
+    add_object : DefaultObjectGenerater 
     screen_size : tuple[int,int]
     _viewing_angle : float
 
@@ -73,7 +74,10 @@ class Application (
         else :
             self.stage = scene
 
-
+        self.add_object = DefaultObjectGenerater (
+            self.screen_size ,
+            self.stage
+        )
 
     def get_scene(self) -> SceneComponent:
         return self.stage
@@ -156,3 +160,4 @@ class Application (
             pygame.display.flip()
 
         pygame.quit()       
+

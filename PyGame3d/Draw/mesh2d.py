@@ -206,7 +206,8 @@ class Mesh2d(MeshRender, MeshLike):
         text: str, 
         font_size: int = 24, 
         color: tuple[int, int, int] = (255, 255, 255), 
-        font_path: str | None = None
+        font_path: str | None = None,
+        text_pivod:bool=False
     ) -> "Mesh2d":
         """
         文字列からMesh2dを生成する (Pillow使用)
@@ -272,4 +273,4 @@ class Mesh2d(MeshRender, MeshLike):
         
         # 8. Mesh2dを返す (pivot_center=Trueなら中心基準、Falseなら左上基準)
         # 文字列はUIとして左上基準で配置したいことが多いので False にしています
-        return Mesh2d(material, w, h, pivot_center=True)
+        return Mesh2d(material, w, h, pivot_center=text_pivod)
