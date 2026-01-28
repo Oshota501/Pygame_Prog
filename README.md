@@ -1,3 +1,21 @@
+# 説明
+
+### Pygameの3dライブラリです。
+
+画面とイベント処理は完全にpygameに依存していますが、描画のプロセスにpygameは一切関与しておらず、modernglに依存しています。
+
+### 弱点・修正すべき点
+
+- オイラー角
+
+  - Unityなどと違ってオイラー角を採用しているので向けない方向があります。つまり、飛行機操縦ゲームとかを作りたかったら、UnityとかThree.jsをおとなしく使って下さい。
+
+- 物理演算
+
+  - 適当に実装しているから精度は悪いと思われます。
+
+そもそも学部一回生が作っている時点で察して下さい。
+
 # 環境構築
 
 ```sh
@@ -5,6 +23,18 @@ python3.14 -m venv .venv
 source ./.venv/bin/activate
 pip install -r requirements.txt
 python3.14 main.py
+```
+
+2duiのtextを使う場合は以下のコマンド（MacOS）でフォントのpathを確かめて下さい。
+
+```sh
+ls /System/Library/Fonts
+```
+
+例えば
+
+```
+"/System/Library/Fonts/ヒラギノ角ゴシック W0.ttc"
 ```
 
 ## 起動
@@ -228,7 +258,7 @@ localな値を使用する場合に対応するため、全てのTransform系の
   - moderngl の Context と Program を保持
   - 使用するメッシュによって使い分けるための class
 
-class UVMesh
+class UV3dMesh
 
 - 保持する行列が [x,y,z,u,v] の行列
 - .objのTextureに対応

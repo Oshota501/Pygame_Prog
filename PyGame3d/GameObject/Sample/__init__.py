@@ -3,7 +3,7 @@ from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, CollisionDetectionContainer, SimpleBoundingObject
 from PyGame3d.GameObject.sprite import Sprite3D, Sprite3DBoundingObject, Sprite3DPhysicsComponent
 from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
-from PyGame3d.Draw.uvmesh import UVSubMesh,UVTexture
+from PyGame3d.Draw.uvmesh import UV3dMeshSub,UVTexture
 import PyGame3d.static as static
 from PyGame3d.vector import Vector2, Vector3
 import pygame
@@ -13,7 +13,7 @@ class Cube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
         
-        self.mesh = UVSubMesh.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
+        self.mesh = UV3dMeshSub.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
 
         self.set_bounding_obj(Vector3(-0.5,-0.5,-0.5),Vector3(0.5,0.5,0.5))
     @staticmethod
@@ -75,7 +75,7 @@ class Floor (Sprite3D) :
         super().__init__()
         import PyGame3d.static as static
         if static.context is not None:
-            self.mesh = UVSubMesh.floor_mesh(color=(0.3,0.3,0.1))
+            self.mesh = UV3dMeshSub.floor_mesh(color=(0.3,0.3,0.1))
         else :
             raise ValueError("Not yet excuse Application.init() . \n First line in your source code is \n```py\nimport PyGame3d as pg\ngame=pg.Application(fps=60)\ngame = pg.init()\n```")
         self.set_bounding_obj(Vector3(-10,-5,-10),Vector3(10,0,10))
@@ -94,7 +94,7 @@ class Floor (Sprite3D) :
 class CuttingBoad (Sprite3D) :
     def __init__(self,tex_filepath:str) -> None:
         super().__init__()
-        self.mesh = UVSubMesh.cutting_boad(tex_filepath)
+        self.mesh = UV3dMeshSub.cutting_boad(tex_filepath)
         self.set_bounding_obj(Vector3(-0.5,-0.5,0),Vector3(0.5,0.5,0))
     @staticmethod
     def transform (

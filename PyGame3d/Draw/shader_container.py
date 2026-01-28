@@ -1,11 +1,12 @@
+from typing import TYPE_CHECKING
 from moderngl import Program,Context
 from PyGame3d.Scene.component import SceneComponent
 from PyGame3d.matrix import Matrix4
-from PyGame3d import matrix
-import PyGame3d.matrix.rotation as rmatrix
-from PyGame3d.matrix.lookat import create_lookAt
 from PyGame3d.GameObject.Camera import Camera
 from abc import ABC,abstractmethod
+
+if TYPE_CHECKING:
+    from PyGame3d.game import Application
 
 # signature : oshota
 class ShaderContainerComponent (ABC) :
@@ -20,8 +21,12 @@ class ShaderContainerComponent (ABC) :
     def get_program (self) -> Program|None :
         pass
     @abstractmethod
+    def start (self,game:"Application") -> None :
+        pass
+    @abstractmethod
     def update (self,scene:SceneComponent) -> None :
         pass
+    
 class ShaderContainaer3dComponent (ABC) :
     @abstractmethod
     def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :

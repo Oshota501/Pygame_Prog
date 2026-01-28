@@ -1,5 +1,6 @@
 import pygame
 import moderngl
+from PyGame3d.GameObject.generater import DefaultObjectGenerater
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
 import PyGame3d.matrix as matrix
@@ -22,6 +23,7 @@ class ApplicationComponent(ABC) :
 class Application (
     ApplicationComponent
 ) :
+    add_object : DefaultObjectGenerater 
     screen_size : tuple[int,int]
     _viewing_angle : float
 
@@ -55,6 +57,7 @@ class Application (
         self.is_init = False
         self._screen = None
         self.fps = fps
+        
 
         import PyGame3d.env as env
         self._shader_program = env.DEFAULT_SHADERS
@@ -71,6 +74,11 @@ class Application (
         else :
             self.stage = scene
 
+        self.add_object = DefaultObjectGenerater (
+            self.screen_size ,
+            self.stage
+        )
+
     def get_scene(self) -> SceneComponent:
         return self.stage
     def set_scene(self,scene:SceneComponent) -> None :
@@ -86,6 +94,7 @@ class Application (
     def init (self) -> None :
         pygame.init()
         self._setup_glversion()
+        
         # OpenGLコンテキストはウィンドウ作成後に生成する必要がある
         self.ctx = moderngl.create_context()
         static.context = self.ctx
@@ -121,11 +130,12 @@ class Application (
             self.start_rendering()
             return
         
+        for shader in self._shader_program :
+            shader.start(self)
         test.start()
         self.get_scene().start()
         a_time = time.time()
         while running:
-            no_process = time.time()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -150,3 +160,4 @@ class Application (
             pygame.display.flip()
 
         pygame.quit()       
+

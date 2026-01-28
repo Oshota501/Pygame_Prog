@@ -94,7 +94,7 @@ class ContainerComponent (
         pass
 
 
-class Sprite3DComponent (ContainerComponent,ABC) :
+class DrawableContainerComponent (ContainerComponent,ABC) :
     @abstractmethod
     def get_mesh (self) -> MeshLike|None :
         pass

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from PyGame3d import static
 from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.GameObject import (
-    Sprite3DComponent,
+    DrawableContainerComponent,
 )
 from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, BoundingObject, BoundingShape, CollisionDetectionContainer, SimpleBoundingObject
 from PyGame3d.GameObject.Container import GameContainer
@@ -138,7 +138,7 @@ class PhysicsObject (ABC) :
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
 class Sprite3D (
     GameContainer,
-    Sprite3DComponent,
+    DrawableContainerComponent,
     CollisionDetectionContainer,
     PhysicsObject
 ) :
@@ -268,11 +268,11 @@ class Sprite3D (
         return g
     @staticmethod
     def obj(obj_filename:str) -> Sprite3D :
-        from PyGame3d.Draw.uvmesh import UVMesh
+        from PyGame3d.Draw.uvmesh import UV3dMesh
         import os
         result = Sprite3D()
         if not os.path.exists(obj_filename):
             raise FileNotFoundError(f"Object file not found: {obj_filename}")
-        result.mesh = UVMesh.load_obj(filename=obj_filename)
+        result.mesh = UV3dMesh.load_obj(filename=obj_filename)
         return result
 
