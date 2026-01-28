@@ -117,9 +117,11 @@ class Mesh2d(MeshRender, MeshLike):
 
         w, h = width, height
         if pivot_center:
-            l, r, t, b = -w/2, w/2, h/2, -h/2
+            # 中心基準の場合も、Y軸の向きに注意
+            l, r, t, b = -w/2, w/2, -h/2, h/2 # 上がマイナス、下がプラス
         else:
-            l, r, t, b = 0, w, 0, -h 
+            # 左上基準の場合
+            l, r, t, b = 0, w, 0, h
 
         # 頂点データ (x, y, u, v)
         vertices = np.array([
@@ -138,6 +140,9 @@ class Mesh2d(MeshRender, MeshLike):
 
     def render(self, transform: Transform) -> None:
         # マテリアルを適用 (テクスチャバインド等)
+        # しんどテスト無効
+        self.ctx.disable(moderngl.DEPTH_TEST)
+        self.ctx.disable(moderngl.CULL_FACE)
         self.material.use()
         
         model_mat = (
@@ -151,6 +156,8 @@ class Mesh2d(MeshRender, MeshLike):
         else :
             raise ValueError("Shader does not have uniform 'model'")
         self.vao.render()
+        self.ctx.enable(moderngl.DEPTH_TEST)
+        self.ctx.enable(moderngl.CULL_FACE)
         
     def set_color_tint(self, r, g, b, a):
         # tintはUniformなのでシェーダーに対して直接送るか、マテリアルに機能を持たせる
@@ -201,69 +208,68 @@ class Mesh2d(MeshRender, MeshLike):
         color: tuple[int, int, int] = (255, 255, 255), 
         font_path: str | None = None
     ) -> "Mesh2d":
-        from PIL import Image, ImageDraw, ImageFont
         """
-        文字列からMesh2dを生成する (pygame.font不使用版: Pillow使用)
-        color: (R, G, B) 0-255
-        font_path: .ttfファイルのパス (Noneの場合はPillowのデフォルトフォント)
+        文字列からMesh2dを生成する (Pillow使用)
         """
         from PyGame3d import static
+        from PyGame3d.Draw.texture import UVTexture # 必要に応じてimportパス調整
+        from PIL import ImageFont,Image,ImageDraw
+        
         if static.context is None:
             raise ValueError("Please execute Application.init()")
         ctx = static.context
 
-        # 1. フォントのロード
+        # 1. フォントのロード (Pillow)
         try:
             if font_path:
                 font = ImageFont.truetype(font_path, font_size)
             else:
-                # デフォルトはビットマップフォントなのでサイズ指定が無効な場合があるが、
-                # load_default() は引数を取らないバージョンもあるため調整
+                print("\033[33mWarning : Font path does not set right.")
+                # デフォルトフォントの読み込み試行
                 try:
-                    font = ImageFont.truetype("arial.ttf", font_size) # Windows/Mac共通でありがちなフォントを試行
+                    font = ImageFont.truetype("arial.ttf", font_size)
                 except:
-                    font = ImageFont.load_default() # フォールバック
+                    font = ImageFont.load_default()
         except OSError:
-            print("Font file not found or invalid. Using default.")
             font = ImageFont.load_default()
+            print("\033[33mWarning : Font path does not set right.")
 
-        # 2. テキストサイズの計算 (バウンディングボックス取得)
-        # getbbox -> (left, top, right, bottom)
+        # 2. テキストサイズの計算
         bbox = font.getbbox(text)
-        text_width = int(bbox[2]) 
-        text_height = int(bbox[3] + bbox[1]) # ベースライン調整など含む高さ
+        text_width = int(bbox[2])
+        # bbox[3]はベースラインより下の高さなので、bbox[1](上の余白)も考慮する場合があるが
+        # getbboxの仕様に合わせて高さを確保
+        text_height = int(bbox[3] - bbox[1] + 5) # 少し余裕を持たせる
 
-        # 少し余白を持たせる（文字欠け防止）
-        w, h = text_width + 4, text_height + 4
+        # 画像サイズ (余白を持たせる)
+        w, h = text_width + 4, text_height + 10
 
-        # 3. Pillowで画像生成 (RGBA)
-        image = Image.new("RGBA", (w, h), (0, 0, 0, 0)) # 背景透明
+        # 3. Pillowで画像生成 (RGBA, 背景透明)
+        image = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
 
-        # テキスト描画
-        # colorは (R, G, B, A)
+        # 文字描画 (位置調整)
         draw.text((2, 0), text, font=font, fill=color + (255,))
 
-        # 4. 上下反転 (OpenGLのUV座標系に合わせるため)
-        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        # 4. 上下反転 (OpenGLのUV座標系 V=0が下 に合わせる)
+        # ※Mesh2dのUV設定(左上がV=1.0)なら、画像は「正位置」でOKな場合もありますが、
+        #  OpenGLのテクスチャデータ転送は通常「左下原点」で行われるため、反転が必要なケースが多いです。
+        #  もし文字が上下逆さまに出たら、この行をコメントアウトしてください。
+        image = image.transpose(Image.FLIP_TOP_BOTTOM) # type:ignore
 
         # 5. ModernGLテクスチャの生成
         texture_data = image.tobytes("raw", "RGBA")
         tex = ctx.texture((w, h), 4, texture_data)
         tex.filter = (moderngl.LINEAR, moderngl.LINEAR)
         
-        # 6. マテリアルとメッシュの生成
-        # ここで既存の UVTexture ラッパーに入れるために少し工夫が必要ですが
-        # 直接 UVTexture を生成するコンストラクタがない場合、
-        # UVTexture クラスを経由せず、ここでマテリアルを手動構築するか、
-        # UVTexture に生テクスチャを受け取るコンストラクタを追加するのが綺麗です。
-        
-        # 今回は UVTexture クラスをハックしてインスタンス化します
+        # 6. UVTextureラッパーの生成 (__new__ハックで無理やり生成)
         uv_tex = UVTexture.__new__(UVTexture)
         uv_tex.ctx = ctx
         uv_tex.texture = tex
         
+        # 7. Materialの生成
         material = Mesh2dMaterial.from_texture(uv_tex)
         
-        # Mesh2dを返す (サイズはピクセル等倍)
+        # 8. Mesh2dを返す (pivot_center=Trueなら中心基準、Falseなら左上基準)
+        # 文字列はUIとして左上基準で配置したいことが多いので False にしています
         return Mesh2d(material, w, h, pivot_center=True)

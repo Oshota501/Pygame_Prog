@@ -22,6 +22,7 @@ class ApplicationComponent(ABC) :
 class Application (
     ApplicationComponent
 ) :
+
     screen_size : tuple[int,int]
     _viewing_angle : float
 
@@ -55,6 +56,7 @@ class Application (
         self.is_init = False
         self._screen = None
         self.fps = fps
+        
 
         import PyGame3d.env as env
         self._shader_program = env.DEFAULT_SHADERS
@@ -70,6 +72,8 @@ class Application (
             static.scene = self.stage
         else :
             self.stage = scene
+
+
 
     def get_scene(self) -> SceneComponent:
         return self.stage
@@ -128,7 +132,6 @@ class Application (
         self.get_scene().start()
         a_time = time.time()
         while running:
-            no_process = time.time()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False

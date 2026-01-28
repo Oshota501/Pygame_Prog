@@ -25,6 +25,18 @@ pip install -r requirements.txt
 python3.14 main.py
 ```
 
+2duiのtextを使う場合は以下のコマンド（MacOS）でフォントのpathを確かめて下さい。
+
+```sh
+ls /System/Library/Fonts
+```
+
+例えば
+
+```
+"/System/Library/Fonts/ヒラギノ角ゴシック W0.ttc"
+```
+
 ## 起動
 
 python3.14を指定していますが、python3コマンドでもversionが最新であれば動きます（多分）
