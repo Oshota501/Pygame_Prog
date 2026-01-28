@@ -1,5 +1,8 @@
 import pygame
 import moderngl
+from PyGame3d.Draw.mesh2d import Mesh2dShaderContainer
+from PyGame3d.Draw.uvmesh import UVShaderContainer
+from PyGame3d.Draw.vcolormesh import VColorShaderContainer
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
 import PyGame3d.matrix as matrix
@@ -47,7 +50,7 @@ class Application (
             perspective:float=90,
             screen_size:tuple[int,int]=(1000,680),
             viewing_angle:float=100,
-            check_performance:bool = False
+            check_performance:bool = False,
     ) -> None:
         self.perspective = perspective
         self.screen_size = screen_size
@@ -57,8 +60,17 @@ class Application (
         self.is_init = False
         self._screen = None
         self.fps = fps
-        self._shader_program  = []
-        self._shader3ds = []
+
+        self._shader_program = [
+            UVShaderContainer () ,
+            VColorShaderContainer () ,
+            Mesh2dShaderContainer ()
+        ]
+        self._shader3ds = [
+            UVShaderContainer () ,
+            VColorShaderContainer () ,
+        ]
+        
         if fps is not None :
             self._updata_time = 1/fps
         else :
@@ -82,14 +94,13 @@ class Application (
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
         self._screen = pygame.display.set_mode(self.screen_size, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    def set_shader (self,shader_container:ShaderContainer|ShaderContainaer3dComponent) -> None :
-        pass
     def init (self) -> None :
         pygame.init()
         self._setup_glversion()
         # OpenGLコンテキストはウィンドウ作成後に生成する必要がある
         self.ctx = moderngl.create_context()
         static.context = self.ctx
+        
         self.ctx.enable(moderngl.DEPTH_TEST|moderngl.CULL_FACE)
         if self.ctx is None:
             raise RuntimeError("\033[31mModernGL context is not initialized")

@@ -16,10 +16,19 @@ class VColorShaderContainer (
     metaclass=SingletonABCMeta
 ) :
     def __init__(self,
-                vert: str = "./PyGame3d/shaderprogram/vcolor.vert", 
-                frag: str = "./PyGame3d/shaderprogram/vcolor.frag", 
+                vertpath: str = "./PyGame3d/shaderprogram/vcolor.vert", 
+                fragpath: str = "./PyGame3d/shaderprogram/vcolor.frag", 
     ) -> None:
-        super().__init__(vert, frag)
+        try :
+            vert : str
+            frag : str
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+            super().__init__(vert, frag)
+        except :
+            print("Not found shader program text file.")
 
     def update(self, scene: SceneComponent) -> None:
         return
@@ -45,17 +54,7 @@ class VColorShaderContainer (
         view_mat = ( trans_mat * rot_mat )
         self.send_uniform("view",view_mat)
         return
-    @staticmethod
-    def open_path (vertpath:str,fragpath:str) -> VColorShaderContainer|None :
-        try :
-            with open(vertpath,"r") as vertshader :
-                with open(fragpath,"r") as fragmentshader :
-                    vert = vertshader.read()
-                    frag = fragmentshader.read()
-                    return VColorShaderContainer(vert=vert,frag=frag)
-        except :
-            print("Not found shader program text file.")
-        return None
+
 # signature : Gemini AI
 class VertColorMesh (MeshLike,MeshRender):
     rend : VColorShaderContainer

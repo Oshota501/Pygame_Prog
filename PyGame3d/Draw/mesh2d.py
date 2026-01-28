@@ -11,11 +11,20 @@ class Mesh2dShaderContainer (
     ShaderContainer,
     metaclass=SingletonABCMeta
 ) :
-    def __init__(self, 
-                vert: str="./PyGame3d/shaderprogram/mesh2d.vert", 
-                frag: str="./PyGame3d/shaderprogram/mesh2d.frag"
+    def __init__(self,
+            vertpath: str="./PyGame3d/shaderprogram/mesh2d.vert",
+            fragpath: str="./PyGame3d/shaderprogram/mesh2d.frag"
     ) -> None:
-        super().__init__(vert, frag)
+        try :
+            frag : str
+            vert : str
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+            super().__init__(vert, frag)
+        except :
+            print("Not found shader program text file.")
     
     def update(self, scene) -> None:
         # 2D描画ではカメラ(View)の影響を受けない（あるいはスクロール用のみ）
@@ -25,21 +34,7 @@ class Mesh2dShaderContainer (
 
     # 2D用の正射影行列を送るメソッド（既存のsend_perspectiveを流用しても良いが区別するため）
     def send_ortho(self, ortho_matrix: Matrix4) -> None:
-        if 'proj' in self.program:
-            self.program['proj'].write(ortho_matrix.tobytes()) # type: ignore
-        
-    @staticmethod
-    def open_path (vertpath:str,fragpath:str) -> Mesh2dShaderContainer|None :
-        try :
-            with open(vertpath,"r") as vertshader :
-                with open(fragpath,"r") as fragmentshader :
-                    vert = vertshader.read()
-                    frag = fragmentshader.read()
-                    return Mesh2dShaderContainer(vert=vert,frag=frag)
-        except :
-            print("Not found shader program text file.")
-        return None
-    
+        self.send_uniform("proj",ortho_matrix)
 
 # --- 2Dメッシュクラス ---
 class Mesh2d(MeshLike):

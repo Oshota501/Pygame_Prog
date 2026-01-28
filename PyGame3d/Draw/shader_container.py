@@ -41,21 +41,14 @@ class ShaderContainer (
 ):
     fragment : str
     vertex : str
-    program : Program
-    context : Context
+    program : Program|None
+    context : Context|None
 
     def __init__(self,vert:str,frag:str) -> None:
-        from PyGame3d.static import context
         self.vertex = vert
         self.fragment = frag
-        if context is None :
-            raise ValueError ("please excuse Application.init()")
-        self.context = context
-        self.program = context.program(
-            vertex_shader=self.vertex,
-            fragment_shader=self.fragment
-        )
-
+        self.program = None
+        self.context = None
         return
     # コンパイラー
     def compile (self,context:Context) -> Program :

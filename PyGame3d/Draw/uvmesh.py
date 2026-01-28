@@ -20,10 +20,21 @@ class UVShaderContainer (
     metaclass=SingletonABCMeta
 ) :
     def __init__(self, 
-                vert: str = "./PyGame3d/shaderprogram/uvcolor.vert", 
-                frag: str = "./PyGame3d/shaderprogram/uvcolor.frag"
+                vertpath: str = "./PyGame3d/shaderprogram/uvcolor.vert", 
+                fragpath: str = "./PyGame3d/shaderprogram/uvcolor.frag"
         ) -> None:
-        super().__init__(vert, frag)
+        
+        try :
+            vert : str
+            frag : str
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+            super().__init__(vert, frag)
+        except :
+            print("Not found shader program text file.")
+        return None
     def update(self, scene: SceneComponent) -> None:
         self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など
         self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
@@ -50,20 +61,7 @@ class UVShaderContainer (
         view_mat = ( trans_mat * rot_mat )
         self.send_uniform("view",view_mat)
         return
-    
-    @staticmethod
-    def open_path (vertpath:str,fragpath:str) -> UVShaderContainer|None :
-        try :
-            with open(vertpath,"r") as vertshader :
-                with open(fragpath,"r") as fragmentshader :
-                    vert = vertshader.read()
-                    frag = fragmentshader.read()
-                    return UVShaderContainer(vert=vert,frag=frag)
-        except :
-            print("Not found shader program text file.")
-        return None
 
-    
 # signature : Gemini AI
 def load_obj(filename: str) -> list[tuple[str, np.ndarray]]:
     """
