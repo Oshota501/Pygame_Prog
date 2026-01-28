@@ -8,7 +8,7 @@ from PyGame3d import (
     Vector3,
     GameContainer,
 )
-from PyGame3d.GameObject.Sample import FPSPlayer
+from PyGame3d.GameObject.Sample.player import FPSPlayer
 
 # おまじない
 game = Application(fps=60)
