@@ -2,6 +2,7 @@ from abc import ABC,abstractmethod
 from typing import Callable, Mapping
 
 from PyGame3d.Draw.shader_container import ShaderContainer
+
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Collide import CollisionManager
@@ -26,7 +27,7 @@ class Scene (SceneComponent) :
     _manager : CollisionManager
     shader : list[ShaderContainer ]
     light : Light
-    def __init__(self) -> None:
+    def __init__(self,shaders:list[ShaderContainer]=[]) -> None:
         super().__init__()
         self.camera = Camera ()
         self.exe = []
@@ -36,9 +37,7 @@ class Scene (SceneComponent) :
         self._interval_id_top = 0 
         self._manager = CollisionManager()
         self.light = Light()
-        from PyGame3d import static
-        if static.uv_mesh is not None and static.vert_color_mesh is not None :
-            self.shader = [static.uv_mesh,static.vert_color_mesh]
+        self.shader = shaders
     def script_add(self,game_script:GameScript) -> None:
         self.exe.append(game_script)
     def start(self) :
@@ -72,9 +71,10 @@ class Scene (SceneComponent) :
     
     @staticmethod
     def default () -> Scene :
-        from PyGame3d.GameObject.Cube import Floor
+        from PyGame3d.GameObject.Sample import Floor
         from PyGame3d.vector import Vector3
-        s = Scene()
+        from PyGame3d.Draw.uvmesh import UVShaderContainer
+        s = Scene(shaders=[UVShaderContainer(),])
         floor = Floor.include_transform(position=Vector3(0,0,0))
         background = GameContainer()
         background.add_child(floor)

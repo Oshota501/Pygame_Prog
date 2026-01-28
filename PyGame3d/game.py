@@ -29,14 +29,17 @@ class Application (
     ctx : moderngl.Context | None
     _clock : pygame.time.Clock
     is_init : bool
-    _shader_program : list[ShaderContainerComponent]
+
+    _shader_program : list[ShaderContainerComponent|None]
+    _shader3ds : list[ShaderContainaer3dComponent|None]
+
     stage : SceneComponent
     perspective : float
     _screen : pygame.Surface | None
     fps : int|None
     _updata_time : float|None
     check_performance : bool
-    _shader3ds : list[ShaderContainaer3dComponent]
+
 
     def __init__(self,
             scene:Scene|None=None,
@@ -53,31 +56,9 @@ class Application (
         self._clock = pygame.time.Clock()
         self.is_init = False
         self._screen = None
-        from PyGame3d.Draw.mesh2d import Mesh2dShaderContainer
-        from PyGame3d.Draw.uvmesh import UVShaderContainer
-        from PyGame3d.Draw.vcolormesh import VColorShaderContainer
-        self.check_performance = check_performance
-        static.uv_mesh = UVShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
-        static.vert_color_mesh = VColorShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
-        static.mesh_2d = Mesh2dShaderContainer.open_path("./PyGame3d/shaderprogram/2d.vert","./PyGame3d/shaderprogram/2d.frag")
-        shaders : list[tuple[ShaderContainerComponent|None,str]] = [
-            (static.uv_mesh,"uv"),
-            (static.vert_color_mesh,"vcolor"),
-            (static.mesh_2d,"2d")
-        ]
-        self._shader_program = []
-        
-        for sh in shaders :
-            if sh[0] is None :
-                raise ValueError("Shader program is not found :",sh[1])
-            else :
-                self._shader_program.append(sh[0])
-        # 直前でNoneでないことを証明しているのでignoreしておきます。
-        self._shader3ds = [ # type:ignore 
-            static.uv_mesh,
-            static.vert_color_mesh
-        ]
         self.fps = fps
+        self._shader_program  = []
+        self._shader3ds = []
         if fps is not None :
             self._updata_time = 1/fps
         else :
@@ -101,7 +82,8 @@ class Application (
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
         self._screen = pygame.display.set_mode(self.screen_size, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
-        
+    def set_shader (self,shader_container:ShaderContainer|ShaderContainaer3dComponent) -> None :
+        pass
     def init (self) -> None :
         pygame.init()
         self._setup_glversion()
@@ -114,9 +96,11 @@ class Application (
 
         proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
         for prog in self._shader_program :
-            prog.compile(self.ctx)
+            if prog is not None :
+                prog.compile(self.ctx)
         for prog in self._shader3ds :
-            prog.send_perspective(proj_mat)
+            if prog is not None :
+                prog.send_perspective(proj_mat)
         self.is_init = True
 
         return
@@ -127,7 +111,8 @@ class Application (
         self.screen_size = resolution
         proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
         for prog in self._shader3ds :
-            prog.send_perspective(proj_mat)
+            if prog is not None :
+                prog.send_perspective(proj_mat)
     def start_rendering (self) :
         running = True
         if self.ctx is None or self._shader_program is None:
@@ -151,7 +136,8 @@ class Application (
             
             camera = self.get_scene().get_camera()
             for prog in self._shader3ds:
-                prog.send_view_by_camera(camera)
+                if prog is not None :
+                    prog.send_view_by_camera(camera)
             
             now = time.time()
             deltatime = now-a_time 

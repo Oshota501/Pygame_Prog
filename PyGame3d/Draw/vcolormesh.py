@@ -2,6 +2,7 @@ import numpy as np
 import moderngl
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.Scene.component import SceneComponent
+from PyGame3d.Singleton import SingletonABCMeta
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
@@ -11,8 +12,15 @@ from PyGame3d.matrix import Matrix4
 
 class VColorShaderContainer (
     ShaderContainer,
-    ShaderContainaer3dComponent
+    ShaderContainaer3dComponent,
+    metaclass=SingletonABCMeta
 ) :
+    def __init__(self,
+                vert: str = "./PyGame3d/shaderprogram/vcolor.vert", 
+                frag: str = "./PyGame3d/shaderprogram/vcolor.frag", 
+    ) -> None:
+        super().__init__(vert, frag)
+
     def update(self, scene: SceneComponent) -> None:
         return
     def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
@@ -56,10 +64,10 @@ class VertColorMesh (MeshLike,MeshRender):
     ctx : moderngl.Context
 
     def __init__(self, vertices:np.ndarray) -> None:
-        if static.context is None or static.vert_color_mesh is None :
+        if static.context is None :
             raise
         self.ctx = static.context
-        self.rend = static.vert_color_mesh
+        self.rend = VColorShaderContainer()
         program = self.rend.get_program()
         if self.ctx is None or program is None :
             print("error : Read shader has probrem .")

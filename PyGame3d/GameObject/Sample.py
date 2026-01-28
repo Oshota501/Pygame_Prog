@@ -2,7 +2,7 @@ import math
 from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, SimpleBoundingObject
 from PyGame3d.GameObject.sprite import Sprite3D, Sprite3DBoundingObject, Sprite3DPhysicsComponent
-from PyGame3d.Draw.vcolormesh import VertColorMesh
+from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
 from PyGame3d.Draw.uvmesh import UVSubMesh,UVTexture
 import PyGame3d.static as static
 from PyGame3d.vector import Vector2, Vector3
@@ -12,10 +12,9 @@ import pygame
 class Cube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
-        if static.vert_color_mesh is not None and static.context is not None:
-            self.mesh = UVSubMesh.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
-        else :
-            raise ValueError("まだinitされていないようです")
+        
+        self.mesh = UVSubMesh.get_cube_data(UVTexture.color((0.3,0.3,0.3)))
+
         self.set_bounding_obj(Vector3(-0.5,-0.5,-0.5),Vector3(0.5,0.5,0.5))
     @staticmethod
     def transform (
@@ -31,8 +30,8 @@ class Cube (Sprite3D) :
 class VColorCube (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
-        if static.vert_color_mesh is not None and static.context is not None:
-            self.mesh = VertColorMesh.get_cube_data(static.context,static.vert_color_mesh)
+        if  static.context is not None:
+            self.mesh = VertColorMesh.get_cube_data(static.context,VColorShaderContainer())
         else :
             raise ValueError("まだinitされていないようです")
         self.set_bounding_obj(Vector3(-0.5,-0.5,-0.5),Vector3(0.5,0.5,0.5))
@@ -53,8 +52,8 @@ class VColorFloor (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
         import PyGame3d.static as static
-        if static.vert_color_mesh is not None and static.context is not None:
-            self.mesh = VertColorMesh.get_checkerboad_mesh(static.context,static.vert_color_mesh,color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
+        if static.context is not None:
+            self.mesh = VertColorMesh.get_checkerboad_mesh(static.context,VColorShaderContainer(),color1=(0.0,0.5,0.0),color2=(0.01,0.01,0.01))
         else :
             raise ValueError("まだinitされていないようです")
         self.set_bounding_obj(Vector3(-20,-5,-20),Vector3(20,0,20))
@@ -75,7 +74,7 @@ class Floor (Sprite3D) :
     def __init__(self) -> None:
         super().__init__()
         import PyGame3d.static as static
-        if static.uv_mesh is not None and static.context is not None:
+        if static.context is not None:
             self.mesh = UVSubMesh.floor_mesh(color=(0.3,0.3,0.1))
         else :
             raise ValueError("Not yet excuse Application.init() . \n First line in your source code is \n```py\nimport PyGame3d as pg\ngame=pg.Application(fps=60)\ngame = pg.init()\n```")

@@ -3,6 +3,7 @@ import pygame
 import numpy as np
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.Scene.component import SceneComponent
+from PyGame3d.Singleton import SingletonABCMeta
 from PyGame3d.matrix import Matrix4
 import os
 
@@ -15,8 +16,14 @@ import PyGame3d.matrix.rotation as rmatrix
 
 class UVShaderContainer (
     ShaderContainer,
-    ShaderContainaer3dComponent
+    ShaderContainaer3dComponent,
+    metaclass=SingletonABCMeta
 ) :
+    def __init__(self, 
+                vert: str = "./PyGame3d/shaderprogram/uvcolor.vert", 
+                frag: str = "./PyGame3d/shaderprogram/uvcolor.frag"
+        ) -> None:
+        super().__init__(vert, frag)
     def update(self, scene: SceneComponent) -> None:
         self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など
         self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
@@ -277,9 +284,8 @@ class UVMaterial (MaterialLike):
     textures : dict[int,TextureLike]
     uniform_name : str
     def __init__(self):
-        if static.uv_mesh is None :
-            raise ValueError("Please execute Application.init ()")
-        program = static.uv_mesh.get_program()
+        uv_mesh = UVShaderContainer()
+        program = uv_mesh.get_program()
         if program is None :
             raise ValueError("Please execute Application.init ()")
         self.program = program
@@ -338,11 +344,11 @@ class UVSubMesh(MeshRender, MeshLike):
     vao: moderngl.VertexArray
 
     def __init__(self, material: UVMaterial, mesh_data: np.ndarray) -> None:
-        if static.context is None or static.uv_mesh is None:
+        if static.context is None :
             raise ValueError("Please execute Application.init() before creating UVMesh")
 
         self.ctx = static.context
-        self.shader = static.uv_mesh
+        self.shader = UVShaderContainer()
         self.material = material
 
         program = material.program

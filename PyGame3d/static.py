@@ -8,9 +8,6 @@ from PyGame3d.vector import Vector3
 
 
 context : moderngl.Context | None = None
-vert_color_mesh : VColorShaderContainer | None = None
-uv_mesh : UVShaderContainer | None = None
-mesh_2d : Mesh2dShaderContainer | None = None
 
 scene : Scene | None = None
 
