@@ -1,16 +1,12 @@
 from abc import ABC,abstractmethod
-from typing import Callable, Mapping
+from typing import Callable
 
-from PyGame3d.Draw.shader_container import ShaderContainer
+from PyGame3d.Draw.shader_container import ShaderContainerComponent
 
-from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Collide import CollisionManager
 from PyGame3d.GameObject.Container import GameContainer
 from PyGame3d.GameObject.Light import Light
-from PyGame3d.Scene.Event import EventListener
-
-from pygame.event import Event
 
 from PyGame3d.Scene.component import GameScript, SceneComponent
 
@@ -21,13 +17,14 @@ from PyGame3d.Scene.component import GameScript, SceneComponent
 class Scene (SceneComponent) :
     camera : Camera
     exe : list[GameScript]
-    ev : list[EventListener]
     ticker : dict[int,Callable[[float],None]]
     _interval_id_top : int
     _manager : CollisionManager
-    shader : list[ShaderContainer ]
+    shader : list[ShaderContainerComponent ]
     light : Light
-    def __init__(self,shaders:list[ShaderContainer]=[]) -> None:
+    
+    from PyGame3d.env import DEFAULT_SHADERS
+    def __init__(self,shaders:list[ShaderContainerComponent]=DEFAULT_SHADERS) -> None:
         super().__init__()
         self.camera = Camera ()
         self.exe = []
@@ -58,8 +55,6 @@ class Scene (SceneComponent) :
         self._manager.check_all_collisions()
     def get_camera(self) -> Camera:
         return self.camera
-    def get_event_listener(self) -> list[EventListener]:
-        return self.ev
     def ticker_add(self, func: Callable[[float], None]) -> int:
         self.ticker[self._interval_id_top] = func
         self._interval_id_top += 1
@@ -73,8 +68,8 @@ class Scene (SceneComponent) :
     def default () -> Scene :
         from PyGame3d.GameObject.Sample import Floor
         from PyGame3d.vector import Vector3
-        from PyGame3d.Draw.uvmesh import UVShaderContainer
-        s = Scene(shaders=[UVShaderContainer(),])
+        
+        s = Scene()
         floor = Floor.include_transform(position=Vector3(0,0,0))
         background = GameContainer()
         background.add_child(floor)

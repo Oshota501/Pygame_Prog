@@ -1,15 +1,11 @@
 import pygame
 import moderngl
-from PyGame3d.Draw.mesh2d import Mesh2dShaderContainer
-from PyGame3d.Draw.uvmesh import UVShaderContainer
-from PyGame3d.Draw.vcolormesh import VColorShaderContainer
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
 import PyGame3d.matrix as matrix
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
-from PyGame3d.vector.Vector2 import Vector2
-from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
+from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainerComponent
 import PyGame3d.static  as static 
 import time
 
@@ -33,8 +29,8 @@ class Application (
     _clock : pygame.time.Clock
     is_init : bool
 
-    _shader_program : list[ShaderContainerComponent|None]
-    _shader3ds : list[ShaderContainaer3dComponent|None]
+    _shader_program : list[ShaderContainerComponent]
+    _shader3ds : list[ShaderContainaer3dComponent]
 
     stage : SceneComponent
     perspective : float
@@ -60,15 +56,9 @@ class Application (
         self._screen = None
         self.fps = fps
 
-        self._shader_program = [
-            UVShaderContainer () ,
-            VColorShaderContainer () ,
-            Mesh2dShaderContainer ()
-        ]
-        self._shader3ds = [
-            UVShaderContainer () ,
-            VColorShaderContainer () ,
-        ]
+        import PyGame3d.env as env
+        self._shader_program = env.DEFAULT_SHADERS
+        self._shader3ds = env.DEFAULT_3D_SHADERS
 
         if fps is not None :
             self._updata_time = 1/fps
@@ -76,7 +66,7 @@ class Application (
             self._updata_time = None
 
         if scene == None :
-            self.stage = Scene()
+            self.stage = Scene(self._shader_program)
             static.scene = self.stage
         else :
             self.stage = scene

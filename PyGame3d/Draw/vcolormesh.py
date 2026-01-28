@@ -7,7 +7,6 @@ import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
-import PyGame3d.static as static
 from PyGame3d.matrix import Matrix4
 
 class VColorShaderContainer (
@@ -63,6 +62,7 @@ class VertColorMesh (MeshLike,MeshRender):
     ctx : moderngl.Context
 
     def __init__(self, vertices:np.ndarray) -> None:
+        from PyGame3d import static
         if static.context is None :
             raise
         self.ctx = static.context

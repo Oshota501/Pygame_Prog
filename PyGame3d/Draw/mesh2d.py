@@ -1,6 +1,5 @@
 import moderngl
 from PyGame3d import matrix
-from PyGame3d import static
 from PyGame3d.Draw import MeshLike, TextureLike, Transform
 from PyGame3d.Draw.shader_container import ShaderContainer
 from PyGame3d.Singleton import SingletonABCMeta
@@ -46,6 +45,7 @@ class Mesh2d(MeshLike):
 
     # 幅と高さを持つ矩形を作成
     def __init__(self, texture: TextureLike, width: float, height: float, pivot_center: bool = True) -> None:
+        from PyGame3d import static
         if static.context is None:
             raise ValueError("Please execute Application.init()")
         

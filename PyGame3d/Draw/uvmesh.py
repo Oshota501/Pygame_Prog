@@ -10,7 +10,6 @@ import os
 from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
 from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, Transform, TextureLike
 
-import PyGame3d.static as static
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 
@@ -215,6 +214,7 @@ class UVTexture (TextureLike):
         self.texture = texture
     @staticmethod
     def get_context () -> moderngl.Context :
+        from PyGame3d import static
         if static.context is None :
             raise ValueError("please execute Application.init()")
         return static.context
@@ -226,6 +226,7 @@ class UVTexture (TextureLike):
     @classmethod
     def color(cls, color: tuple[float, float, float] | tuple[float, float, float, float], size: tuple[int, int] = (1, 1)) -> "UVTexture":
         """指定色から単色テクスチャを生成する。colorは0.0～1.0のRGBA/ RGBタプル。"""
+        from PyGame3d import static
         if static.context is None:
             raise ValueError("please execute Application.init()")
         ctx = static.context
@@ -342,6 +343,7 @@ class UVSubMesh(MeshRender, MeshLike):
     vao: moderngl.VertexArray
 
     def __init__(self, material: UVMaterial, mesh_data: np.ndarray) -> None:
+        from PyGame3d import static
         if static.context is None :
             raise ValueError("Please execute Application.init() before creating UVMesh")
 
