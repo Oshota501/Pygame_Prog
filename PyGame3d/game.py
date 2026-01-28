@@ -6,7 +6,7 @@ import PyGame3d.matrix as matrix
 from abc import ABC , abstractmethod
 import PyGame3d.test as test
 from PyGame3d.vector.Vector2 import Vector2
-from PyGame3d.Draw.shader_container import ShaderContainer, ShaderContainerComponent,UVShaderContainer,VColorShaderContainer
+from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
 import PyGame3d.static  as static 
 import time
 
@@ -36,6 +36,7 @@ class Application (
     fps : int|None
     _updata_time : float|None
     check_performance : bool
+    _shader3ds : list[ShaderContainaer3dComponent]
 
     def __init__(self,
             scene:Scene|None=None,
@@ -52,14 +53,29 @@ class Application (
         self._clock = pygame.time.Clock()
         self.is_init = False
         self._screen = None
+        from PyGame3d.Draw.mesh2d import Mesh2dShaderContainer
+        from PyGame3d.Draw.uvmesh import UVShaderContainer
+        from PyGame3d.Draw.vcolormesh import VColorShaderContainer
         self.check_performance = check_performance
         static.uv_mesh = UVShaderContainer.open_path("./PyGame3d/shaderprogram/uvcolor.vert","./PyGame3d/shaderprogram/uvcolor.frag")
         static.vert_color_mesh = VColorShaderContainer.open_path("./PyGame3d/shaderprogram/vcolor.vert","./PyGame3d/shaderprogram/vcolor.frag")
-        if static.uv_mesh is None or static.vert_color_mesh is None :
-            raise ValueError("Shader program is not found.")
-        self._shader_program = [
+        static.mesh_2d = Mesh2dShaderContainer.open_path("./PyGame3d/shaderprogram/2d.vert","./PyGame3d/shaderprogram/2d.frag")
+        shaders : list[tuple[ShaderContainerComponent|None,str]] = [
+            (static.uv_mesh,"uv"),
+            (static.vert_color_mesh,"vcolor"),
+            (static.mesh_2d,"2d")
+        ]
+        self._shader_program = []
+        
+        for sh in shaders :
+            if sh[0] is None :
+                raise ValueError("Shader program is not found :",sh[1])
+            else :
+                self._shader_program.append(sh[0])
+        # 直前でNoneでないことを証明しているのでignoreしておきます。
+        self._shader3ds = [ # type:ignore 
             static.uv_mesh,
-            static.vert_color_mesh,
+            static.vert_color_mesh
         ]
         self.fps = fps
         if fps is not None :
@@ -99,6 +115,7 @@ class Application (
         proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
         for prog in self._shader_program :
             prog.compile(self.ctx)
+        for prog in self._shader3ds :
             prog.send_perspective(proj_mat)
         self.is_init = True
 
@@ -109,7 +126,7 @@ class Application (
         print(resolution)
         self.screen_size = resolution
         proj_mat = matrix.create_perspective(self._viewing_angle, self.screen_size[0]/self.screen_size[1], 0.1, self.perspective)
-        for prog in self._shader_program :
+        for prog in self._shader3ds :
             prog.send_perspective(proj_mat)
     def start_rendering (self) :
         running = True
@@ -133,7 +150,7 @@ class Application (
             self.ctx.clear(0.1, 0.1, 0.1)
             
             camera = self.get_scene().get_camera()
-            for prog in self._shader_program :
+            for prog in self._shader3ds:
                 prog.send_view_by_camera(camera)
             
             now = time.time()

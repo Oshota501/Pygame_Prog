@@ -1,16 +1,62 @@
 import moderngl
 import pygame
 import numpy as np
+from PyGame3d.GameObject.Camera import Camera
+from PyGame3d.Scene.component import SceneComponent
 from PyGame3d.matrix import Matrix4
 import os
 
-from PyGame3d.Draw.shader_container import ShaderContainerComponent
+from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
 from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, Transform, TextureLike
 
 import PyGame3d.static as static
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 
+class UVShaderContainer (
+    ShaderContainer,
+    ShaderContainaer3dComponent
+) :
+    def update(self, scene: SceneComponent) -> None:
+        self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など
+        self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
+        self.program['light_color'].value = scene.get_light().get_color() # type: ignore # 白色の光
+    def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
+        self.send_uniform("position",position)
+        self.send_uniform("rotation",rotation)
+        self.send_uniform("scale",scale)
+        self.send_uniform("model_opt",model_opt)
+        return
+    def send_perspective (self,projection_matrix:Matrix4) -> None :
+        self.send_uniform("proj",projection_matrix)
+        return
+    def send_view (self,view_matrix:Matrix4) -> None :
+        self.send_uniform("view",view_matrix) 
+        return
+    def send_view_by_camera (self,camera:Camera) -> None :
+        view_mat:Matrix4
+        # 注意 カメラ行列はマイナスをかける。
+        c = camera.get_position()
+        cr = camera.get_rotation()
+        trans_mat = matrix.create_translation(-c.x,-c.y,-c.z)
+        rot_mat = rmatrix.create_camera(-cr.x,-cr.y,-cr.z)
+        view_mat = ( trans_mat * rot_mat )
+        self.send_uniform("view",view_mat)
+        return
+    
+    @staticmethod
+    def open_path (vertpath:str,fragpath:str) -> UVShaderContainer|None :
+        try :
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+                    return UVShaderContainer(vert=vert,frag=frag)
+        except :
+            print("Not found shader program text file.")
+        return None
+
+    
 # signature : Gemini AI
 def load_obj(filename: str) -> list[tuple[str, np.ndarray]]:
     """
@@ -286,7 +332,7 @@ def polygone_triangle (verts:list[list[float]]) -> list[float] :
     return result
 class UVSubMesh(MeshRender, MeshLike):
     ctx: moderngl.Context
-    shader: ShaderContainerComponent
+    shader: UVShaderContainer
     material: UVMaterial
     vbo: moderngl.Buffer
     vao: moderngl.VertexArray
