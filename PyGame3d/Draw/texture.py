@@ -2,7 +2,6 @@ import os
 import moderngl
 import pygame
 from PyGame3d.Draw import MaterialLike, TextureLike
-from PyGame3d.Draw.uvmesh import UV3dShaderContainer
 
 
 class UVTexture (TextureLike):
@@ -82,6 +81,7 @@ class UVMaterial (MaterialLike):
     textures : dict[int,TextureLike]
     uniform_name : str
     def __init__(self):
+        from PyGame3d.Draw.uvmesh import UV3dShaderContainer
         uv_mesh = UV3dShaderContainer()
         program = uv_mesh.get_program()
         if program is None :
