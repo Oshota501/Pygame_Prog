@@ -5,7 +5,6 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Light import Light
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Container import GameContainer
-from PyGame3d.Scene.Event import EventListener
 class GameScript (ABC) :
     @abstractmethod
     def update (self,delta_time:float) -> None :
@@ -40,9 +39,6 @@ class SceneComponent (ABC) :
         pass
     @abstractmethod
     def ticker_remove (self,func_id:int) -> None :
-        pass
-    @abstractmethod
-    def get_event_listener (self) -> list[EventListener] :
         pass
     @abstractmethod
     def get_light (self) -> Light :

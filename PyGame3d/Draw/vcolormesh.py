@@ -1,24 +1,72 @@
 import numpy as np
 import moderngl
+from PyGame3d.GameObject.Camera import Camera
+from PyGame3d.Scene.component import SceneComponent
+from PyGame3d.Singleton import SingletonABCMeta
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
-from PyGame3d.Draw.shader_container import ShaderContainerComponent
-import PyGame3d.static as static
+from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
 from PyGame3d.matrix import Matrix4
+
+class VColorShaderContainer (
+    ShaderContainer,
+    ShaderContainaer3dComponent,
+    metaclass=SingletonABCMeta
+) :
+    def __init__(self,
+                vertpath: str = "./PyGame3d/shaderprogram/vcolor.vert", 
+                fragpath: str = "./PyGame3d/shaderprogram/vcolor.frag", 
+    ) -> None:
+        try :
+            vert : str
+            frag : str
+            with open(vertpath,"r") as vertshader :
+                with open(fragpath,"r") as fragmentshader :
+                    vert = vertshader.read()
+                    frag = fragmentshader.read()
+            super().__init__(vert, frag)
+        except :
+            raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
+
+    def update(self, scene: SceneComponent) -> None:
+        return
+    def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
+        self.send_uniform("position",position)
+        self.send_uniform("rotation",rotation)
+        self.send_uniform("scale",scale)
+        self.send_uniform("model_opt",model_opt)
+        return
+    def send_perspective (self,projection_matrix:Matrix4) -> None :
+        self.send_uniform("proj",projection_matrix)
+        return
+    def send_view (self,view_matrix:Matrix4) -> None :
+        self.send_uniform("view",view_matrix) 
+        return
+    def send_view_by_camera (self,camera:Camera) -> None :
+        view_mat:Matrix4
+        # 注意 カメラ行列はマイナスをかける。
+        c = camera.get_position()
+        cr = camera.get_rotation()
+        trans_mat = matrix.create_translation(-c.x,-c.y,-c.z)
+        rot_mat = rmatrix.create_camera(-cr.x,-cr.y,-cr.z)
+        view_mat = ( trans_mat * rot_mat )
+        self.send_uniform("view",view_mat)
+        return
 
 # signature : Gemini AI
 class VertColorMesh (MeshLike,MeshRender):
-    rend : ShaderContainerComponent
+    rend : VColorShaderContainer
     vbo : moderngl.Buffer
     vao : moderngl.VertexArray
     ctx : moderngl.Context
 
     def __init__(self, vertices:np.ndarray) -> None:
-        if static.context is None or static.vert_color_mesh is None :
+        from PyGame3d import static
+        if static.context is None :
             raise
         self.ctx = static.context
-        self.rend = static.vert_color_mesh
+        self.rend = VColorShaderContainer()
         program = self.rend.get_program()
         if self.ctx is None or program is None :
             print("error : Read shader has probrem .")

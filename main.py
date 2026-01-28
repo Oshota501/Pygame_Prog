@@ -1,4 +1,3 @@
-import math
 from PyGame3d import (
     Application,
     Sprite3D,
@@ -9,11 +8,11 @@ from PyGame3d import (
     Vector3,
     GameContainer,
 )
-from PyGame3d.GameObject.Sample import FPSPlayer
+from PyGame3d.GameObject.Sample.player import FPSPlayer
 
 # おまじない
 game = Application(fps=60)
-game.init() 
+game.init()
 
 # ゲームのシーン設定
 class StartScene (Scene) :
@@ -45,7 +44,7 @@ class StartScene (Scene) :
     def update(self, delta_time: float):
         super().update(delta_time)
         self.angle += delta_time
-        
+
 game.set_scene(StartScene())
 # おまじない（while文スタート ）
 game.start_rendering()

@@ -38,3 +38,20 @@ def create_scale(x:float,y:float,z:float) -> Matrix4 :
         0.0,0.0, z, 0.0,
         0.0,0.0, 0.0, 1.0
     ])
+
+def create_ortho(left: float, right: float, bottom: float, top: float, near: float, far: float) -> Matrix4:
+    """正射影行列を作成する"""
+    rml = right - left
+    tmb = top - bottom
+    fmn = far - near
+    
+    M = Matrix4()
+    M[0, 0] = 2.0 / rml
+    M[1, 1] = 2.0 / tmb
+    M[2, 2] = -2.0 / fmn
+    
+    M[3, 0] = -(right + left) / rml
+    M[3, 1] = -(top + bottom) / tmb
+    M[3, 2] = -(far + near) / fmn
+    
+    return M

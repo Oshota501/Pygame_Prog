@@ -12,20 +12,44 @@ import math
 # signature : oshota
 class Sprite3DBoundingObject(BoundingObject):
     sprite: "Sprite3D"
+    min_local: Vector3
+    max_local: Vector3
     
     def __init__(self, sprite: "Sprite3D",min_p:Vector3,max_p:Vector3) -> None:
         self.sprite = sprite
+        self.min_local = min_p
+        self.max_local = max_p
     
     def bounding(self) -> BoundingShape:
         """Sprite3Dの位置とスケールからAABBを計算する。"""
         position = self.sprite.get_position()
         scale = self.sprite.get_scale()
         
-        # スケールを考慮した最小点と最大点を計算
-        # 簡易実装: スケールの半分を半径として使用
-        half_size = Vector3(abs(scale.x) / 2.0, abs(scale.y) / 2.0, abs(scale.z) / 2.0)
-        min_point = position - half_size
-        max_point = position + half_size
+        # ローカル座標でのバウンディングボックスのサイズを計算
+        local_size = self.max_local - self.min_local
+        local_center = (self.min_local + self.max_local) * 0.5
+        
+        # スケールを適用したサイズを計算
+        scaled_size = Vector3(
+            local_size.x * abs(scale.x),
+            local_size.y * abs(scale.y),
+            local_size.z * abs(scale.z)
+        )
+        
+        # スケールを適用した中心位置を計算
+        scaled_center = Vector3(
+            local_center.x * scale.x,
+            local_center.y * scale.y,
+            local_center.z * scale.z
+        )
+        
+        # ワールド座標での中心位置
+        world_center = position + scaled_center
+        
+        # ワールド座標でのバウンディングボックスの最小点・最大点を計算
+        half_size = scaled_size * 0.5
+        min_point = world_center - half_size
+        max_point = world_center + half_size
         
         return AxisAlignedBoundingBox(min_point, max_point)
 
@@ -154,7 +178,7 @@ class Sprite3D (
             self._double_collide += 1
         else : 
             self._double_collide = 0 
-        if self.physics is not None and self._double_collide <= 4:
+        if self.physics is not None and self._double_collide <= 3:
             self.position += self.physics.cal_position(delta_time, self.position)
         if self.mesh is not None :
             self.mesh.render(Transform(
