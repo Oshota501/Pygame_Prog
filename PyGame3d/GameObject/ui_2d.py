@@ -21,7 +21,6 @@ class UI_2d (GameContainer,DrawableContainerComponent) :
             self.get_scale()
         )
         self.mesh.render(transform)
-        print("z")
         return super().update(delta_time)
     
     @staticmethod

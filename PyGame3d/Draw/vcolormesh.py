@@ -8,7 +8,11 @@ import PyGame3d.matrix.rotation as rmatrix
 from PyGame3d.Draw import MaterialLike, MeshLike,MeshRender,Transform
 from PyGame3d.Draw.shader_container import ShaderContainaer3dComponent, ShaderContainer, ShaderContainerComponent
 from PyGame3d.matrix import Matrix4
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from PyGame3d.game import Application
 
+# signature : oshota
 class VColorShaderContainer (
     ShaderContainer,
     ShaderContainaer3dComponent,
@@ -28,7 +32,8 @@ class VColorShaderContainer (
             super().__init__(vert, frag)
         except :
             raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
-
+    def start(self, game: Application) -> None:
+        return 
     def update(self, scene: SceneComponent) -> None:
         return
     def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :

@@ -86,6 +86,7 @@ class Application (
     def init (self) -> None :
         pygame.init()
         self._setup_glversion()
+        
         # OpenGLコンテキストはウィンドウ作成後に生成する必要がある
         self.ctx = moderngl.create_context()
         static.context = self.ctx
@@ -121,6 +122,8 @@ class Application (
             self.start_rendering()
             return
         
+        for shader in self._shader_program :
+            shader.start(self)
         test.start()
         self.get_scene().start()
         a_time = time.time()

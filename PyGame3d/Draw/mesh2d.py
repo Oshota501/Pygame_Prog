@@ -5,6 +5,11 @@ from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, TextureLike, Trans
 from PyGame3d.Draw.shader_container import ShaderContainer
 from PyGame3d.Scene.component import SceneComponent
 from PyGame3d.Singleton import SingletonABCMeta
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from PyGame3d.game import Application
+
+# signature : oshota
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Vector2
 from PyGame3d.Draw.texture import UVTexture 
@@ -25,6 +30,16 @@ class Mesh2dShaderContainer(ShaderContainer, metaclass=SingletonABCMeta):
         except :
             raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
 
+    def start(self, game: Application) -> None:
+        # 1. 画面サイズを取得
+        width, height = game.screen_size
+        
+        # 2. 2D用の正射影行列を作成
+        ortho_mat = matrix.create_ortho(0, width, height, 0, -1.0, 1.0)
+        
+        # 3. シングルトンのMesh2dShaderContainerに送信
+        from PyGame3d.Draw.mesh2d import Mesh2dShaderContainer
+        Mesh2dShaderContainer().send_ortho(ortho_mat)
 
     def update(self, scene:SceneComponent) -> None:
         # デフォルト値

@@ -5,6 +5,11 @@ from PyGame3d.Draw.texture import UVMaterial, UVTexture, UVTextureImage
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.Scene.component import SceneComponent
 from PyGame3d.Singleton import SingletonABCMeta
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from PyGame3d.game import Application
+
+# signature : oshota
 from PyGame3d.matrix import Matrix4
 import os
 
@@ -35,6 +40,9 @@ class UV3dShaderContainer (
         except :
             raise FileExistsError(f"ShaderProgram is not found.\n{fragpath}\n{vertpath}")
         return None
+    def start(self, game: Application) -> None:
+        return 
+    
     def update(self, scene: SceneComponent) -> None:
         self.program['light_pos'].value = scene.get_light().get_position() # type: ignore # 斜め上など
         self.program['view_pos'].value = scene.get_camera().get_position()   # type: ignore # 現在のカメラ座標
