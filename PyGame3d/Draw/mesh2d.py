@@ -1,6 +1,6 @@
 import moderngl
 from PyGame3d import matrix
-from PyGame3d.Draw import MeshLike, TextureLike, Transform
+from PyGame3d.Draw import MeshLike, MeshRender, TextureLike, Transform
 from PyGame3d.Draw.shader_container import ShaderContainer
 from PyGame3d.Singleton import SingletonABCMeta
 from PyGame3d.matrix.mat4 import Matrix4
@@ -36,7 +36,7 @@ class Mesh2dShaderContainer (
         self.send_uniform("proj",ortho_matrix)
 
 # --- 2Dメッシュクラス ---
-class Mesh2d(MeshLike):
+class Mesh2d(MeshRender,MeshLike):
     ctx: moderngl.Context
     shader: Mesh2dShaderContainer
     material_tex: TextureLike
@@ -54,16 +54,15 @@ class Mesh2d(MeshLike):
         # もし未ロードならシェーダーを読み込む（シングルトン的な管理推奨）
         # ここでは簡易的に都度確認
 
-        self.shader = static.mesh_2d # type:ignore
+        self.shader = Mesh2dShaderContainer()
         self.material_tex = texture
 
-        # 頂点データ生成 (x, y, u, v)
-        # pivot_center: Trueなら中心が(0,0)、Falseなら左上が(0,0)
+
         w, h = width, height
         if pivot_center:
             l, r, t, b = -w/2, w/2, h/2, -h/2
         else:
-            l, r, t, b = 0, w, 0, -h # Y軸は上がプラスか下がプラスか、投影行列次第
+            l, r, t, b = 0, w, 0, -h 
 
         # GLの標準的なUV座標 (左下原点想定ならVを反転など調整)
         vertices = np.array([
@@ -103,3 +102,4 @@ class Mesh2d(MeshLike):
     def destroy(self):
         self.vbo.release()
         self.vao.release()
+    

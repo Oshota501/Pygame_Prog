@@ -1,9 +1,10 @@
 import numpy as np
-from PyGame3d.Draw.uvmesh import UVMaterial, UVSubMesh
+from PyGame3d.Draw.uvmesh import UV3dMeshSub
+from PyGame3d.Draw.texture import UVMaterial
 from PyGame3d.vector import Vector3
 
 # signature : oshota
-class CreativeUVMesh (UVSubMesh) :
+class CreativeUV3dMesh (UV3dMeshSub) :
     vert : list[Vector3]
     uv : list[tuple[float,float]]
     mesh_data : list[float]
