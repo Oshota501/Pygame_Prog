@@ -1,9 +1,15 @@
+import math
+
 from PyGame3d import (
     Application,
     Sprite3D,
     Floor,
+    Cube,
+    CuttingBoad,
     Scene,
     Vector3,
+    Vector2,
+    GameContainer,
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
@@ -26,7 +32,7 @@ class StartScene(Scene):
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
         self.player = FPSPlayer(self.get_camera())
-        self.player.jump_power = 0.6
+        self.player.jump_power = 2
         self.add_child(self.gun)
         self.gun.set_localposition(Vector3(0.3, 0.3, 1))
 
@@ -34,7 +40,7 @@ class StartScene(Scene):
 
     def start(self):
         super().start()
-
+        
     def update(self, delta_time: float):
         super().update(delta_time)
 
