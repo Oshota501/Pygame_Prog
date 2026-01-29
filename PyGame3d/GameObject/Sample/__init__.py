@@ -1,12 +1,9 @@
-import math
 from PyGame3d.Draw import MeshLike
-from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, CollisionDetectionContainer, SimpleBoundingObject
-from PyGame3d.GameObject.sprite import Sprite3D, Sprite3DBoundingObject, Sprite3DPhysicsComponent
+from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
 from PyGame3d.Draw.uvmesh import UV3dMeshSub,UVTexture
 import PyGame3d.static as static
-from PyGame3d.vector import Vector2, Vector3
-import pygame
+from PyGame3d.vector import Vector3
 
 # signature : oshota
 class Cube (Sprite3D) :

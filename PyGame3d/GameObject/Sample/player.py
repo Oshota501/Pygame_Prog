@@ -1,6 +1,5 @@
 import math
 import pygame
-from PyGame3d import Singleton
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.vector import Vector2, Vector3
 

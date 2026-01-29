@@ -84,7 +84,6 @@ class Camera (ContainerComponent):
         self.rotation = local_rotation
         return
     def look_at(self,target_position: Vector3) -> None:
-        print(target_position,self.get_position())
         dl = target_position - self.get_position()
         distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
 
