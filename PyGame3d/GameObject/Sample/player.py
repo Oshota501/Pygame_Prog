@@ -1,12 +1,12 @@
-# coding by oshota 
-
 import math
 import pygame
-from PyGame3d.Draw import MeshLike
-from PyGame3d.Draw.texture import UVTexture
-from PyGame3d.Draw.uvmesh import UV3dMeshSub
-from PyGame3d.GameObject.sprite import Sprite3D, Sprite3DBoundingObject, Sprite3DPhysicsComponent
+from PyGame3d import Singleton
+from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.vector import Vector2, Vector3
+
+# coding by oshota
+# pylint で 5 点は悲しい
+# Too many 祖先 は無理すぎる。Componentを持つクラスを作っただけじゃないですか〜
 
 class Player (Sprite3D) :
     # pointer
@@ -16,9 +16,9 @@ class Player (Sprite3D) :
     xz_angle : float
     y_angle : float
     sensitibity : float
-    is_mouse_rock : bool 
+    is_mouse_rock : bool
     _esc_was_down : bool
-    
+
     def __init__(self,sensitibity=1/200,is_mouse_rock=False) -> None:
         super().__init__(
             name="player"
@@ -65,10 +65,10 @@ class Player (Sprite3D) :
         self._look_at.x = math.sin(self.xz_angle)*c
         self._look_at.z = math.cos(self.xz_angle)*c
         self._look_at.y = math.sin(self.y_angle)
-        
+
         self._keypress(delta_time)
         return super().update(delta_time)
-        
+
     def _keypress (self,delta_time:float) -> None :
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] :
@@ -82,7 +82,7 @@ class Player (Sprite3D) :
         if keys[pygame.K_SPACE] :
             self.is_collide = False
             self.set_velocity(Vector3(0,self.jump_power,0))
-        
+
     def _lock_mouse_to_center(self) -> None:
         surface = pygame.display.get_surface()
         if surface is None:
@@ -98,15 +98,15 @@ class Player (Sprite3D) :
         pygame.event.set_grab(False)
         pygame.mouse.set_visible(True)
 
-class FPSPlayer (Player) :
+class FPSPlayer (Player,metaclass=Singleton) :
     from PyGame3d.GameObject.Camera import Camera
     perspect : Camera
-    
+
     def __init__(self, camera : Camera ,sensitibity=1/200, is_mouse_rock=True) -> None:
         super().__init__(sensitibity, is_mouse_rock)
         self.perspect = camera
         self.add_child(camera)
-        
+
     def update(self, delta_time: float):
         # 親クラスのマウス処理とlook_at計算を実行
         # ただしキー入力処理は実行しない
@@ -130,17 +130,17 @@ class FPSPlayer (Player) :
         self._look_at.x = math.sin(self.xz_angle)*c
         self._look_at.z = math.cos(self.xz_angle)*c
         self._look_at.y = math.sin(self.y_angle)
-        
+
         # カメラの位置と向きを更新
-        self.perspect.look_at(self._look_at+self.position)
-        
+        self.perspect.look_at(self._look_at)
+
         self._keypress(delta_time)
-        
+
         if self.position.y <= - 50 :
             self.set_position(Vector3(0,4,0))
         # Sprite3D.update()を直接呼ぶ（Player.update()をスキップ）
         return Sprite3D.update(self, delta_time)
-    
+
     # override
     def _keypress (self,delta_time:float) -> None :
         """FPS視点での移動（プレイヤーの向きに依存）"""
@@ -149,7 +149,7 @@ class FPSPlayer (Player) :
         forward = Vector3(self._look_at.x, 0, self._look_at.z).normalized()
         # 右方向ベクトル（前方向を90度右に回転）
         right = Vector3(self._look_at.z, 0, -self._look_at.x).normalized()
-        
+
         if keys[pygame.K_w] :
             self.add_position(forward * delta_time)
         if keys[pygame.K_s] :
@@ -158,7 +158,7 @@ class FPSPlayer (Player) :
             self.add_position(-right * delta_time)
         if keys[pygame.K_a] :
             self.add_position(right * delta_time)
-        
+
         esc_now = keys[pygame.K_ESCAPE]
         if esc_now and not self._esc_was_down:
             self.is_mouse_rock = not self.is_mouse_rock
@@ -169,10 +169,9 @@ class FPSPlayer (Player) :
                 # reset delta baseline when unlocked
                 self._mouse = Vector2(*pygame.mouse.get_pos())
         self._esc_was_down = esc_now
-        
+
         if keys[pygame.K_SPACE] :
             self.is_collide = False
             if abs(self.physics.velocity.y) <= 0.001 :
                 print("jump")
                 self.physics.velocity.y += 9.81
-    
