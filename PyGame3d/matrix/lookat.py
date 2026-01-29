@@ -1,6 +1,6 @@
 from PyGame3d.vector import Vector3
 from PyGame3d.matrix import Matrix4
-
+# fmt: off
 # signature : Gemini AI
 def create_lookAt (eye:Vector3,target:Vector3,up=Vector3(0,1,0)) -> Matrix4 :
 
@@ -15,3 +15,4 @@ def create_lookAt (eye:Vector3,target:Vector3,up=Vector3(0,1,0)) -> Matrix4 :
         0,         0,         0,          1.0
     ])
     return rm.T()
+# fmt: on

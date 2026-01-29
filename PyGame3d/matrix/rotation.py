@@ -9,36 +9,42 @@ def create_x(degrees:float):
     c = math.cos(rad)
     s = math.sin(rad)
     # 4x4行列 (列優先)
+    # fmt: off
     return Matrix4([
         1.0, 0.0, 0.0, 0.0,
         0.0,   c,  -s, 0.0,
         0.0,   s,   c, 0.0,
         0.0, 0.0, 0.0, 1.0,
     ])
+    # fmt: on
 
 # Y軸周りの回転行列を作る関数
 def create_y(degrees:float):
     rad = math.radians(degrees)
     c = math.cos(rad)
     s = math.sin(rad)
+    # fmt: off
     return Matrix4([
           c, 0.0,   s, 0.0,
         0.0, 1.0, 0.0, 0.0,
          -s, 0.0,   c, 0.0,
         0.0, 0.0, 0.0, 1.0,
     ])
+    # fmt: on
 
 # Z軸周りの回転行列を作る関数
 def create_z(degrees):
     rad = math.radians(degrees)
     c = math.cos(rad)
     s = math.sin(rad)
+    # fmt: off
     return Matrix4([
           c,  -s, 0.0, 0.0,
           s,   c, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0,
     ])
+    # fmt: on
 
 def create (x:float=0.0,y:float=0.0,z:float=0.0) -> Matrix4:
     # X, Y, Z軸の回転を組み合わせた行列を作成

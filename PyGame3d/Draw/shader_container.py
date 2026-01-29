@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 # signature : oshota
 class ShaderContainerComponent (ABC) :
     """
+    ShaderContainerComponent の Docstring
     このクラスを持つ場合、metaclass=SingletonABCMeta をくっつけていないと毎回描画時にコンパイルする羽目になるので気をつけて下さい。
-
     """
     @abstractmethod
     def compile (self,context:Context) -> Program :
@@ -28,6 +28,9 @@ class ShaderContainerComponent (ABC) :
         pass
     
 class ShaderContainaer3dComponent (ABC) :
+    """
+    ShaderContainaer3dComponent の Docstring
+    """
     @abstractmethod
     def send_model (self,position:Matrix4,rotation:Matrix4,scale:Matrix4,model_opt:Matrix4) -> None :
         pass

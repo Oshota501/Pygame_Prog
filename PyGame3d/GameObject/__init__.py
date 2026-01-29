@@ -4,6 +4,9 @@ from PyGame3d.Draw import MeshLike
 
 # 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
+    """
+    SimpleGameObject の Docstring
+    """
     @abstractmethod
     def draw_update (self) -> None :
         pass
@@ -18,6 +21,9 @@ class SimpleGameObject (ABC) :
 # ------ ------ ------ ------ ------ ------ ------ ------ ------
 # signature : Oshota
 class PositionComponent (ABC) :
+    """
+    PositionComponent の Docstring
+    """
     # position
     @abstractmethod
     def get_position (self) -> Vector3 :
@@ -35,6 +41,9 @@ class PositionComponent (ABC) :
     def set_localposition (self ,local_position:Vector3) -> None :
         pass
 class RotationComponent (ABC) :
+    """
+    RotationComponent の Docstring
+    """
     # rotation
     @abstractmethod
     def get_rotation (self) -> Vector3 :
@@ -55,6 +64,9 @@ class RotationComponent (ABC) :
     def look_at (self,target_position:Vector3) -> None :
         pass
 class ScaleComponent (ABC) :
+    """
+    ScaleComponent の Docstring
+    """
     # Scale
     @abstractmethod
     def get_scale (self) -> Vector3 :
@@ -79,6 +91,9 @@ class ContainerComponent (
             ScaleComponent,
             ABC
     ) :
+    """
+    ContainerComponent の Docstring
+    """
     @abstractmethod
     def get_name (self) -> str :
         pass
@@ -100,6 +115,9 @@ class ContainerComponent (
 
 
 class DrawableContainerComponent (ContainerComponent,ABC) :
+    """
+    DrawableContainerComponent の Docstring
+    """
     @abstractmethod
     def get_mesh (self) -> MeshLike|None :
         pass

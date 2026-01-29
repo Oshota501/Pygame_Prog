@@ -7,25 +7,29 @@ class Matrix4:
 
     def __init__(self, arr: Optional[Sequence[float]]=None) -> None:
         if arr is None:
+            # fmt: off
             self.m = np.array([
                 1.0 , 0.0 , 0.0 , 0.0 ,
                 0.0 , 1.0 , 0.0 , 0.0 ,
                 0.0 , 0.0 , 1.0 , 0.0 ,
                 0.0 , 0.0 , 0.0 , 1.0 ,
             ], dtype="f4")  # ← dtype="f4"を追加
+            # fmt: on
         else:
             if len(arr) == 16:
                 self.m = np.array(arr,dtype="f4")
             else :
                 raise ValueError("Array is not 4*4 Matrix")
 
-    def set_identity(self) -> None: 
+    def set_identity(self) -> None:
+        # fmt: off
         self.m = np.array([
             1.0 , 0.0 , 0.0 , 0.0 ,
             0.0 , 1.0 , 0.0 , 0.0 ,
             0.0 , 0.0 , 1.0 , 0.0 ,
             0.0 , 0.0 , 0.0 , 1.0 ,
         ],dtype="f4")
+        # fmt: on
     @overload
     def __mul__(self, other: "Matrix4") -> "Matrix4":
         pass
@@ -132,39 +136,47 @@ class Matrix4:
         return Matrix4(arr)
     @staticmethod
     def get_translation (x:float,y:float,z:float) -> Matrix4:
+        # fmt: off
         return Matrix4 ([
             1,0,0,0,
             0,1,0,0,
             0,0,1,0,
             x,y,z,1
         ])
+        # fmt: on
     @staticmethod
     def create_perspective(fov_degrees:float, aspect_ratio:float, near:float, far:float)-> Matrix4:
         fov_rad = math.radians(fov_degrees)
         f = 1.0 / math.tan(fov_rad / 2.0)
+        # fmt: off
         return Matrix4([
             f / aspect_ratio,    0.0,  0.0,                                   0.0,
             0.0,                 f,    0.0,                                   0.0,
             0.0,                 0.0,  (far + near) / (near - far),          -1.0,
             0.0,                 0.0,  (2.0 * far * near) / (near - far),     0.0,
         ])
+        # fmt: on
     @staticmethod
     def create_scale(x:float,y:float,z:float) -> Matrix4 :
+        # fmt: off
         return Matrix4([
             x,0.0, 0.0, 0.0,
             0.0,y, 0.0, 0.0,
             0.0,0.0, z, 0.0,
             0.0,0.0, 0.0, 1.0
         ])
+        # fmt: on
     @staticmethod
     def create_euler_angles (x:float,y:float,z:float) -> Matrix4 :
         Sx, Cx = math.sin(x), math.cos(x)
         Sy, Cy = math.sin(y), math.cos(y)
         Sz, Cz = math.sin(z), math.cos(z)
         # ZYX順の回転行列
+        # fmt: off
         return Matrix4([
             Cz*Cy,                  -Sz*Cx + Cz*Sy*Sx,   Sz*Sx + Cz*Sy*Cx,   0.0,
             Sz*Cy,                   Cz*Cx + Sz*Sy*Sx,  -Cz*Sx + Sz*Sy*Cx,   0.0,
            -Sy,                      Cy*Sx,              Cy*Cx,               0.0,
             0.0,                     0.0,                0.0,                 1.0
         ])
+        # fmt: on

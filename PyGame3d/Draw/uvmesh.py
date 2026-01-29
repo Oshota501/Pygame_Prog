@@ -292,6 +292,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
         tex = UVTextureImage(texture_name)
         material = UVMaterial()
         material.add_texture(tex,0)
+        # fmt: off
         return UV3dMeshSub(material,np.array(
             [
                  0.5, 0.5, 0.0,  1.0, 1.0,  0.0, 0.0, 1.0,
@@ -303,6 +304,8 @@ class UV3dMeshSub(MeshRender, MeshLike):
                  0.5,-0.5, 0.0,  1.0, 0.0,  0.0, 0.0, 1.0
             ]
         ,dtype="f4"))
+        # fmt: on
+
     @staticmethod
     def get_cube_data (texture:UVTexture) -> UV3dMeshSub :
         material = UVMaterial()
@@ -311,13 +314,14 @@ class UV3dMeshSub(MeshRender, MeshLike):
         # 流石にだるすぎたのでAIにやらせた。
 
         # 上面 (Y+)
+        # fmt: off
         verts.extend(polygone_triangle([
             [ -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 0.0, ],
             [ -0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, ],
             [ 0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0, ],
             [ 0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 0.0, ],
         ]))
-        
+
         # 下面 (Y-)
         verts.extend(polygone_triangle([
             [ -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, -1.0, 0.0, ],
@@ -325,7 +329,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
             [ 0.5, -0.5, 0.5, 1.0, 1.0, 0.0, -1.0, 0.0, ],
             [ -0.5, -0.5, 0.5, 0.0, 1.0, 0.0, -1.0, 0.0, ],
         ]))
-        
+
         # 前面 (Z+)
         verts.extend(polygone_triangle([
             [ -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0, ],
@@ -333,7 +337,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
             [ 0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 1.0, ],
             [ -0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, ],
         ]))
-        
+
         # 背面 (Z-)
         verts.extend(polygone_triangle([
             [ -0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, -1.0, ],
@@ -341,7 +345,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
             [ 0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, -1.0, ],
             [ 0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0, ],
         ]))
-        
+
         # 右面 (X+)
         verts.extend(polygone_triangle([
             [ 0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.0, ],
@@ -349,7 +353,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
             [ 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 0.0, 0.0, ],
             [ 0.5, -0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0, ],
         ]))
-        
+
         # 左面 (X-)
         verts.extend(polygone_triangle([
             [ -0.5, -0.5, -0.5, 1.0, 0.0, -1.0, 0.0, 0.0, ],
@@ -357,6 +361,7 @@ class UV3dMeshSub(MeshRender, MeshLike):
             [ -0.5, 0.5, 0.5, 0.0, 1.0, -1.0, 0.0, 0.0, ],
             [ -0.5, 0.5, -0.5, 1.0, 1.0, -1.0, 0.0, 0.0, ],
         ]))
+        # fmt: on
 
         return UV3dMeshSub(material,np.array(verts,dtype="f4"))
     @staticmethod
@@ -364,13 +369,14 @@ class UV3dMeshSub(MeshRender, MeshLike):
         tex = UVTexture.color(color)
         material = UVMaterial()
         material.add_texture(tex,0)
-
+        # fmt: off
         verts = polygone_triangle([
             [-size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
             [-size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
             [ size[0]*0.5 ,0 , size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
             [ size[0]*0.5 ,0 ,-size[0]*0.5,1.0,0.0, 0.0, 1.0, 0.0],
         ])
+        # fmt: on
 
         return UV3dMeshSub(material,np.array(verts,dtype="f4"))
     

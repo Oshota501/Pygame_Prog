@@ -4,6 +4,8 @@ from PyGame3d.matrix.mat4 import Matrix4
 # signature : oshota , gemini ai
 # 転置済み(Transposed)の配列定義
 # 数学的な行列の「行」と「列」を入れ替えて定義しています
+    
+# fmt: off
 def get_i () -> Matrix4 :
     return Matrix4([
         1.0, 0.0, 0.0, 0.0,
@@ -38,6 +40,7 @@ def create_scale(x:float,y:float,z:float) -> Matrix4 :
         0.0,0.0, z, 0.0,
         0.0,0.0, 0.0, 1.0
     ])
+# fmt: on
 
 def create_ortho(left: float, right: float, bottom: float, top: float, near: float, far: float) -> Matrix4:
     """正射影行列を作成する"""
