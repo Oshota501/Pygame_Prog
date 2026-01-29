@@ -5,46 +5,62 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.GameObject.Light import Light
 from PyGame3d.GameObject.Camera import Camera
 from PyGame3d.GameObject.Container import GameContainer
-class GameScript (ABC) :
+
+
+class GameScript(ABC):
     @abstractmethod
-    def update (self,delta_time:float) -> None :
-        return
-    @abstractmethod
-    def start (self) -> None :
+    def update(self, delta_time: float) -> None:
         return
 
-class SceneComponent (ABC) :
-    container : GameContainer 
+    @abstractmethod
+    def start(self) -> None:
+        return
+
+
+class SceneComponent(ABC):
+    container: GameContainer
+
     def __init__(self) -> None:
         super().__init__()
         self.container = GameContainer()
+
     def get_container(self) -> ContainerComponent:
         return self.container
-    def add_child(self,object:ContainerComponent) -> None :
+
+    def add_child(self, object: ContainerComponent) -> None:
         self.container.add_child(object)
-    def add_children (self,*objects:ContainerComponent) -> None :
-        for object in objects :
+
+    def add_children(self, *objects: ContainerComponent) -> None:
+        for object in objects:
             self.add_child(object)
-    def draw_update (self) -> None :
+
+    def draw_update(self) -> None:
         self.container.draw_update()
+
     @abstractmethod
-    def start (self) -> None :
+    def start(self) -> None:
         pass
+
     @abstractmethod
-    def update (self,delta_time:float) -> None :
+    def update(self, delta_time: float) -> None:
         pass
+
     @abstractmethod
-    def get_camera (self) -> Camera :
+    def get_camera(self) -> Camera:
         pass
+
     @abstractmethod
-    def script_add (self,game_script:GameScript) -> None :
+    def script_add(self, game_script: GameScript) -> None:
         pass
+
     @abstractmethod
-    def ticker_add (self,func:Callable[[float],None]) -> int :
+    def ticker_add(self, func: Callable[[float], None]) -> int:
         pass
+
     @abstractmethod
-    def ticker_remove (self,func_id:int) -> None :
+    def ticker_remove(self, func_id: int) -> None:
         pass
+
     @abstractmethod
-    def get_light (self) -> Light :
+    def get_light(self) -> Light:
         pass
