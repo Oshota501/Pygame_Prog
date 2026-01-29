@@ -1,6 +1,7 @@
 import math
 from typing import Iterable, Sequence, List, Optional, overload, Union
 import numpy as np
+from PyGame3d.vector import Vector3
 
 class Matrix4:
     m: np.ndarray   
@@ -80,7 +81,7 @@ class Matrix4:
         return res
     def to_array(self) -> List[float]: 
         return [v for v in self.m]
-    def __eq__ (self, other: object) -> bool :
+    def __eq__ (self, other: object) -> bool : 
         if isinstance(other,Matrix4) :
             for i,v in enumerate(other.m ):
                 if not (v == self.m[i]) :
@@ -89,38 +90,44 @@ class Matrix4:
         else :
             return False
         
-    def get_item (self,line_index:int,column_index:int) -> float :
+    def get_item (self,line_index:int,column_index:int) -> float : 
         return self.m[line_index*4+column_index]
-    def tobytes (self) -> bytes :
+    def tobytes (self) -> bytes : 
         return self.m.astype("f4").tobytes()
     @overload
-    def __getitem__ (self,index:int) -> float :
+    def __getitem__ (self,index:int) -> float : 
         pass
     @overload
-    def __getitem__(self,index:tuple[int,int]) -> float :
+    def __getitem__(self,index:tuple[int,int]) -> float : 
         pass
-    def __getitem__(self, index:int|tuple[int,int]) -> float: 
+    def __getitem__(self, index:int|tuple[int,int]) -> float:
         if isinstance(index,tuple) :
             return self.get_item(index[0],index[1])
         else :
             return self.m [index]
 
-    def set_item (self,line_index:int,column_index:int,value:float) -> None :
+    def set_item (self,line_index:int,column_index:int,value:float) -> None : 
         if line_index*4+column_index >= 0 and line_index*4+column_index <16 :
             self.m[line_index*4+column_index] = value
         else :
             raise IndexError(f"index is out of range")
     @overload
-    def __setitem__(self, index:tuple[int,int],value:float) -> None :
+    def __setitem__(self, index:tuple[int,int],value:float) -> None : 
         pass
     @overload
-    def __setitem__(self, index:int,value:float) -> None :
+    def __setitem__(self, index:int,value:float) -> None : 
         pass
     def __setitem__(self, index:int|tuple[int,int], value:float) -> None:
         if isinstance (index,tuple) :
             self.set_item(index[0],index[1],value)
         else :
             self.m[index] = value
+    
+    def get_inverse(self) -> "Matrix4":
+        m = self.m.reshape(4, 4)
+        inv = np.linalg.inv(m)
+        return Matrix4(inv.flatten())
+
     @staticmethod
     def identity() -> "Matrix4": 
         return Matrix4()
@@ -168,3 +175,34 @@ class Matrix4:
            -Sy,                      Cy*Sx,              Cy*Cx,               0.0,
             0.0,                     0.0,                0.0,                 1.0
         ])
+
+def get_translation(mat: Matrix4) -> "Vector3":
+    return Vector3(mat.m[12], mat.m[13], mat.m[14])
+
+def get_scale(mat: Matrix4) -> "Vector3":
+    return Vector3(
+        math.sqrt(mat.m[0]**2 + mat.m[1]**2 + mat.m[2]**2),
+        math.sqrt(mat.m[4]**2 + mat.m[5]**2 + mat.m[6]**2),
+        math.sqrt(mat.m[8]**2 + mat.m[9]**2 + mat.m[10]**2)
+    )
+
+def get_rotation(mat: Matrix4) -> "Vector3":
+    sy = math.sqrt(mat.m[0]**2 + mat.m[4]**2)
+    singular = sy < 1e-6
+    if not singular:
+        x = math.atan2(mat.m[9], mat.m[10])
+        y = math.atan2(-mat.m[8], sy)
+        z = math.atan2(mat.m[4], mat.m[0])
+    else:
+        x = math.atan2(-mat.m[6], mat.m[5])
+        y = math.atan2(-mat.m[8], sy)
+        z = 0
+    return Vector3(x, y, z)
+
+def create_translation(x: float, y: float, z: float) -> Matrix4:
+    return Matrix4([
+        1, 0, 0, x,
+        0, 1, 0, y,
+        0, 0, 1, z,
+        0, 0, 0, 1
+    ])

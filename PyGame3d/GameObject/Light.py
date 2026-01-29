@@ -19,15 +19,8 @@ class Light (ContainerComponent):
     def get_name (self) -> str :
         return "Camera"
     def add_child (self,object:ContainerComponent) -> None :
-        pr_pointer = object.get_parent()
-        if pr_pointer == None :
-            pr_pointer = self 
-            self.child.append(object)
-            return
-        else :
-            print(f"Already registered with other container :{pr_pointer}")
-            print("Registered faild.")
-            return
+        object.set_parent(self)
+        self.child.append(object)
     def get_child(self) -> list[ContainerComponent]:
         return self.child
     def remove_child(self, index: int) -> None:
@@ -38,7 +31,7 @@ class Light (ContainerComponent):
         return self.parent 
     def set_parent(self, parent: ContainerComponent) -> None:
         self.parent = parent
-        return 
+        return
     def start (self) :
         for c in self.child :
             c.start()
@@ -88,7 +81,7 @@ class Light (ContainerComponent):
         self.rotation = local_rotation
         return
     def look_at(self,target_position: Vector3) -> None:
-        dl = target_position - self.position
+        dl = target_position - self.get_position()
         distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
 
         # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆

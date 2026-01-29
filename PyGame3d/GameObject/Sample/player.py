@@ -26,7 +26,7 @@ class Player (Sprite3D) :
         mouse = pygame.mouse.get_pos()
         self._mouse = Vector2(*mouse)
         self._look_at = Vector3(0,0,1)
-        self.position += Vector3(0,4,0)
+        self.set_position( Vector3(0,4,0) )
         self.set_collide_enabled(True)
         self.set_velocity_enabled(True)
         self.xz_angle = 0
@@ -98,7 +98,7 @@ class Player (Sprite3D) :
         pygame.event.set_grab(False)
         pygame.mouse.set_visible(True)
 
-class FPSPlayer (Player,metaclass=Singleton) :
+class FPSPlayer (Player) :
     from PyGame3d.GameObject.Camera import Camera
     perspect : Camera
 
