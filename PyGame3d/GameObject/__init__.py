@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from PyGame3d.vector import Vector3
-from PyGame3d.Draw import MeshLike, Transform
-import math
+from PyGame3d.Draw import MeshLike
 
 
 # 描画など内部的な処理に使うUpdataとStart

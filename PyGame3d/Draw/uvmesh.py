@@ -1,5 +1,4 @@
 import moderngl
-import pygame
 import numpy as np
 from PyGame3d.Draw.texture import UVMaterial, UVTexture, UVTextureImage
 from PyGame3d.GameObject.Camera import Camera
@@ -17,9 +16,8 @@ import os
 from PyGame3d.Draw.shader_container import (
     ShaderContainaer3dComponent,
     ShaderContainer,
-    ShaderContainerComponent,
 )
-from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, Transform, TextureLike
+from PyGame3d.Draw import MaterialLike, MeshLike, MeshRender, Transform
 
 import PyGame3d.matrix as matrix
 import PyGame3d.matrix.rotation as rmatrix
