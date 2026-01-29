@@ -202,8 +202,9 @@ class Sprite3D(
 
     def draw_update(self) -> None:
         if self.mesh is not None:
+            world_matrix = self.get_world_matrix()
             self.mesh.render(
-                Transform(self.get_position(), self.get_rotation(), self.get_scale())
+                world_matrix
             )
         return super().draw_update()
 

@@ -16,7 +16,7 @@ class GameContainer(ContainerComponent):
     def __init__(self, name="GameContainerName") -> None:
         self.position = Vector3(0, 0, 0)
         self.scale = Vector3(1, 1, 1)
-        self.rotation = Vector3(0, 0, 1)
+        self.rotation = Vector3(0, 0, 0)
         self.child = []
         self.parent = None
         self.name = name

@@ -17,7 +17,7 @@ class Cube(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 1), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 0), scale=Vector3(1, 1, 1)
     ) -> Cube:
         f = Cube()
         f.set_position(position)
@@ -39,7 +39,7 @@ class VColorCube(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 1), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 0), scale=Vector3(1, 1, 1)
     ) -> VColorCube:
         f = VColorCube()
         f.set_position(position)
@@ -68,7 +68,7 @@ class VColorFloor(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 1), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 0), scale=Vector3(1, 1, 1)
     ) -> VColorFloor:
         f = VColorFloor()
         f.set_position(position)
@@ -94,7 +94,7 @@ class Floor(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 1), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 0), scale=Vector3(1, 1, 1)
     ) -> Floor:
         f = Floor()
         f.set_collide_enabled(True)
@@ -115,7 +115,7 @@ class CuttingBoad(Sprite3D):
     def transform(
         tex_filepath: str,
         position=Vector3(0, 0, 0),
-        rotation=Vector3(0, 0, 1),
+        rotation=Vector3(0, 0, 0),
         scale=Vector3(1, 1, 1),
     ) -> CuttingBoad:
         f = CuttingBoad(tex_filepath)

@@ -67,14 +67,8 @@ class UV3dShaderContainer(
         return
 
     def send_view_by_camera(self, camera: Camera) -> None:
-        view_mat: Matrix4
-        # 注意 カメラ行列はマイナスをかける。
-        c = camera.get_position()
-        cr = camera.get_rotation()
-        trans_mat = matrix.create_translation(-c.x, -c.y, -c.z)
-        rot_mat = rmatrix.create_camera(-cr.x, -cr.y, -cr.z)
-        view_mat = trans_mat * rot_mat
-        self.send_uniform("view", view_mat)
+        view = camera.get_world_matrix().inverse()
+        self.send_view(view)
         return
 
 

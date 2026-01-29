@@ -16,7 +16,7 @@ class DefaultObjectGenerater:
     def cube(
         self,
         position: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),
-        rotation: tuple[float, float, float] | Vector3 = (0.0, 0.0, 1.0),
+        rotation: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),
         scale: tuple[float, float, float] | Vector3 = (1.0, 1.0, 1.0),
         velocity_enabled: bool = False,
         velocity: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),

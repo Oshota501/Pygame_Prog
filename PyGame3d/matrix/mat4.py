@@ -84,6 +84,14 @@ class Matrix4:
                 result[j * 4 + i] = self.m[i * 4 + j]
         return Matrix4(result)
 
+    def inverse(self) -> "Matrix4":
+        """逆行列を計算して返す"""
+        matrix_2d = self.m.reshape(4, 4)
+        inv_2d = np.linalg.inv(matrix_2d)
+        result = Matrix4()
+        result.m = inv_2d.reshape(16).astype("f4")
+        return result
+
     def __repr__(self) -> str:
         res = "Matrix4 (\n"
         for i, m in enumerate(self.m):

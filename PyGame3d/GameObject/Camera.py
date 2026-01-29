@@ -15,7 +15,7 @@ class Camera(ContainerComponent):
 
     def __init__(self) -> None:
         self.position = Vector3(0, 0, 0)
-        self.rotation = Vector3(0, 0, 1)
+        self.rotation = Vector3(0, 0, 0)
         self.child = []
         self.parent = None
 
@@ -63,15 +63,12 @@ class Camera(ContainerComponent):
         """
         pos = self.get_localposition()
         rot = self.get_localrotation()
-        sca = self.get_localscale()
 
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
 
-        mat_r = rmatrix.create(rot.x, rot.y, rot.z)
-        
-        mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
+        mat_r = rmatrix.create_camera(rot.x, rot.y, rot.z)
 
-        return mat_t * mat_r * mat_s
+        return mat_t * mat_r
 
     def get_world_matrix(self) -> Matrix4:
         """
