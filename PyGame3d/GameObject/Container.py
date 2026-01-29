@@ -23,15 +23,8 @@ class GameContainer(ContainerComponent):
         return self.name
 
     def add_child(self, object: ContainerComponent) -> None:
-        pr_pointer = object.get_parent()
-        if pr_pointer == None:
-            object.set_parent(self)
-            self.child.append(object)
-            return
-        else:
-            print(f"Already registered with other container :{pr_pointer}")
-            print("Registered faild.")
-            return
+        object.set_parent(self)
+        self.child.append(object)
 
     def set_parent(self, parent: ContainerComponent) -> None:
         self.parent = parent

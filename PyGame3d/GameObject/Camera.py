@@ -20,15 +20,8 @@ class Camera(ContainerComponent):
         return "Camera"
 
     def add_child(self, object: ContainerComponent) -> None:
-        pr_pointer = object.get_parent()
-        if pr_pointer == None:
-            pr_pointer = self
-            self.child.append(object)
-            return
-        else:
-            print(f"Already registered with other container :{pr_pointer}")
-            print("Registered faild.")
-            return
+        object.set_parent(self)
+        self.child.append(object)
 
     def get_child(self) -> list[ContainerComponent]:
         return self.child
@@ -51,6 +44,8 @@ class Camera(ContainerComponent):
         return
 
     def draw_update(self) -> None:
+        for c in self.child :
+            c.draw_update()
         return None
 
     def update(self, delta_time: float):
@@ -120,7 +115,6 @@ class Camera(ContainerComponent):
         return
 
     def get_scale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
         return Vector3(1.0, 1.0, 1.0)
 
     def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
@@ -128,7 +122,6 @@ class Camera(ContainerComponent):
         return
 
     def get_localscale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
         return Vector3(1.0, 1.0, 1.0)
 
     def set_localscale(self, local_scale: Vector3) -> None:
