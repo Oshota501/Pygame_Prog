@@ -2,9 +2,8 @@ from typing import Union
 import PyGame3d.vector.vec_type as vector
 import math
 
-
 # signature : Gemini AI
-class Vector3:
+class Vector3():
     x: float
     y: float
     z: float
@@ -22,8 +21,8 @@ class Vector3:
         yield self.y
         yield self.z
 
-    def set(self, vec: vector.VectorLike) -> None:
-        self.x, self.y, self.z = vector.as_components(vec)
+    def set (self,vec:vector.VectorLike) -> None :
+        self.x ,self.y , self.z = vector.as_components(vec)
 
     def length(self) -> float:
         return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
@@ -91,23 +90,21 @@ class Vector3:
         if not isinstance(other, Vector3):
             return False
         return self.x == other.x and self.y == other.y and self.z == other.z
-
-    def __getitem__(self, index: int) -> float:
-        if index == 0:
+    def __getitem__ (self,index:int) -> float :
+        if index == 0 :
             return self.x
-        elif index == 1:
+        elif index == 1 :
             return self.y
-        elif index == 2:
+        elif index == 2 :
             return self.z
-        else:
+        else : 
             raise IndexError(f"index {index} is out of range")
-
-    def __setitem__(self, index: int, value: float) -> None:
-        if index == 0:
-            self.x = value
-        elif index == 1:
+    def __setitem__ (self,index:int,value:float) -> None :
+        if index == 0 :
+            self.x = value 
+        elif index == 1 : 
             self.y = value
-        elif index == 2:
+        elif index == 2 :
             self.z = value
-        else:
+        else :
             raise IndexError(f"index {index} is out of range")

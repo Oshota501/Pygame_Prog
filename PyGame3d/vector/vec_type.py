@@ -3,8 +3,7 @@ from typing import Iterable, Tuple, Union
 from PyGame3d.vector import Vector2, Vector3
 
 Number = Union[int, float]
-VectorLike = Union[Vector3, Vector2, Tuple[float, float, float], Iterable[float]]
-
+VectorLike = Union[Vector3,Vector2, Tuple[float, float, float], Iterable[float]]
 
 # signature : gemini AI
 def as_components(value: Union[Number, VectorLike]) -> tuple[float, float, float]:
