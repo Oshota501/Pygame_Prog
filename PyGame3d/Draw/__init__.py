@@ -3,55 +3,71 @@ from dataclasses import dataclass
 import moderngl
 from PyGame3d.vector import Vector3
 
+
 # signature : oshota
 @dataclass
-class Transform :
+class Transform:
     position: Vector3
     rotation: Vector3
     scale: Vector3
 
-class MeshRender (ABC) :
+
+class MeshRender(ABC):
     """
     MeshRender の Docstring
     ContextとProgramを保持
     """
+
     @abstractmethod
-    def get_render_obj (self) -> tuple[moderngl.Context,moderngl.Program] | None :
-        pass 
-class TextureLike (ABC) :
+    def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program] | None:
+        pass
+
+
+class TextureLike(ABC):
     """
     TextureLike の Docstring
     """
+
     @abstractmethod
-    def get (self) -> moderngl.Texture :
+    def get(self) -> moderngl.Texture:
         pass
+
     @abstractmethod
-    def use(self,location:int) -> None :
+    def use(self, location: int) -> None:
         pass
-class MaterialLike (ABC) :
+
+
+class MaterialLike(ABC):
     """
     MaterialLike の Docstring
     """
+
     @abstractmethod
-    def get_textures (self) -> dict[int,TextureLike] :
+    def get_textures(self) -> dict[int, TextureLike]:
         pass
+
     @abstractmethod
-    def use (self) -> None :
+    def use(self) -> None:
         pass
+
     @abstractmethod
-    def add_texture (self,texture:TextureLike,location:int,uniform_name:str) :
+    def add_texture(self, texture: TextureLike, location: int, uniform_name: str):
         pass
-class MeshLike (ABC) :
+
+
+class MeshLike(ABC):
     """
     MeshLike の Docstring
     """
+
     @abstractmethod
-    def render (self,transform:Transform, model_matrix=None) -> None:
-        pass
-    @abstractmethod
-    def destroy (self) -> None:
-        pass
-    @abstractmethod
-    def get_material (self) -> MaterialLike | None :
+    def render(self, transform: Transform, model_matrix=None) -> None:
         pass
 
+    @abstractmethod
+    def destroy(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_material(self) -> MaterialLike | None:
+        pass
