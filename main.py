@@ -42,7 +42,6 @@ class StartScene (Scene) :
         super().start()
         
     def update(self, delta_time: float):
-        self.camera.look_at(self.player.position)
         super().update(delta_time)
 
 game.set_scene(StartScene())
