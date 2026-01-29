@@ -1,15 +1,9 @@
-import math
-
 from PyGame3d import (
     Application,
     Sprite3D,
     Floor,
-    Cube,
-    CuttingBoad,
     Scene,
     Vector3,
-    Vector2,
-    GameContainer,
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
@@ -23,7 +17,6 @@ game.init()
 class StartScene (Scene) :
     floor : Floor
     ui : UI_2d
-    
 
     def __init__(self) -> None:
         super().__init__()
@@ -32,7 +25,7 @@ class StartScene (Scene) :
         self.player = FPSPlayer(self.get_camera())
         self.player.perspect.add_child(self.gun)
         self.gun.set_localposition(Vector3(0.3,0.3,1))
-        
+
         self.add_children(
             Floor.transform(position=Vector3(0,-3,0)) ,
             self.player
@@ -40,7 +33,7 @@ class StartScene (Scene) :
 
     def start(self):
         super().start()
-        
+
     def update(self, delta_time: float):
         super().update(delta_time)
 

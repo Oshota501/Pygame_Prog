@@ -8,8 +8,8 @@ class Camera (ContainerComponent):
     child : list[ContainerComponent]
     parent : ContainerComponent | None
     def __init__(self) -> None:
-        self.position = Vector3(0,0,3)
-        self.rotation = Vector3(0,0,0)
+        self.position = Vector3(0,0,0)
+        self.rotation = Vector3(0,0,1)
         self.child = []
         self.parent = None
     def get_name (self) -> str :
@@ -84,7 +84,8 @@ class Camera (ContainerComponent):
         self.rotation = local_rotation
         return
     def look_at(self,target_position: Vector3) -> None:
-        dl = target_position - self.position
+        print(target_position,self.get_position())
+        dl = target_position - self.get_position()
         distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
 
         # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
