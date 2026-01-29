@@ -47,7 +47,9 @@ class Light (ContainerComponent):
         for c in self.child :
             c.update(delta_time)
         return
-    
+    def draw_update(self) -> None:
+        return None 
+
     # Position
     def add_position(self, delta_position: Vector3) -> None:
         self.position += delta_position

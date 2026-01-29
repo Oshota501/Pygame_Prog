@@ -6,6 +6,9 @@ import math
 # 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
     @abstractmethod
+    def draw_update (self) -> None :
+        pass
+    @abstractmethod
     def update (self,delta_time:float) -> None :
         return
     @abstractmethod

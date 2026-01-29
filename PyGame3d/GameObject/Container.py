@@ -50,7 +50,11 @@ class GameContainer (ContainerComponent) :
         for c in self.child :
             c.update(delta_time)
         return
-    
+    def draw_update(self) -> None:
+        for c in self.child :
+            c.draw_update()
+        return
+
     # Position
     def add_position(self, delta_position: Vector3) -> None:
         self.position += delta_position

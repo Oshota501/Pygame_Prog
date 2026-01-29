@@ -39,6 +39,8 @@ class Camera (ContainerComponent):
         for c in self.child :
             c.start()
         return
+    def draw_update(self) -> None:
+        return None 
     def update (self,delta_time:float) :
         for c in self.child :
             c.update(delta_time)

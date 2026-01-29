@@ -30,9 +30,9 @@ class StartScene (Scene) :
         self.angle = 0
         self.gun = Sprite3D.obj("./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj")
         self.player = FPSPlayer(self.get_camera())
-        self.camera.add_child(self.gun)
-        self.gun.set_localposition(Vector3(-0.3,-0.3,0))
-
+        self.player.perspect.add_child(self.gun)
+        self.gun.set_localposition(Vector3(0.3,0.3,1))
+        
         self.add_children(
             Floor.transform(position=Vector3(0,-3,0)) ,
             self.player
@@ -42,6 +42,7 @@ class StartScene (Scene) :
         super().start()
         
     def update(self, delta_time: float):
+        self.camera.look_at(self.player.position)
         super().update(delta_time)
 
 game.set_scene(StartScene())

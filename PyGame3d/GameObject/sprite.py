@@ -180,15 +180,17 @@ class Sprite3D (
             self._double_collide = 0 
         if self.physics is not None and self._double_collide <= 3:
             self.add_position( self.physics.cal_position(delta_time, self.position) )
+        self.is_collide = False
+        # else :
+        #     print("not set mesh")
+    def draw_update(self) -> None:
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),
                 self.get_rotation(),
                 self.get_scale()
             ))
-        self.is_collide = False
-        # else :
-        #     print("not set mesh")
+        return super().draw_update()
     def get_mesh(self) -> MeshLike|None:
         return self.mesh 
     def set_transform (self,
