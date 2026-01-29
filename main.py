@@ -30,7 +30,7 @@ class StartScene (Scene) :
         self.angle = 0
         self.gun = Sprite3D.obj("./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj")
         self.player = FPSPlayer(self.get_camera())
-        self.player.add_child(self.gun)
+        self.camera.add_child(self.gun)
         self.gun.set_localposition(Vector3(-0.3,-0.3,0))
 
         self.add_children(
