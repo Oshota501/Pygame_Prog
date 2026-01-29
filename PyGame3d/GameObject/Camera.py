@@ -8,8 +8,8 @@ class Camera (ContainerComponent):
     child : list[ContainerComponent]
     parent : ContainerComponent | None
     def __init__(self) -> None:
-        self.position = Vector3(0,0,3)
-        self.rotation = Vector3(0,0,0)
+        self.position = Vector3(0,0,0)
+        self.rotation = Vector3(0,0,1)
         self.child = []
         self.parent = None
     def get_name (self) -> str :
@@ -26,6 +26,9 @@ class Camera (ContainerComponent):
             return
     def get_child(self) -> list[ContainerComponent]:
         return self.child
+    def set_parent(self, parent: ContainerComponent) -> None:
+        self.parent = parent
+        return 
     def remove_child(self, index: int) -> None:
         pr_pointer = self.child[index].get_parent()
         pr_pointer = None
@@ -36,6 +39,8 @@ class Camera (ContainerComponent):
         for c in self.child :
             c.start()
         return
+    def draw_update(self) -> None:
+        return None
     def update (self,delta_time:float) :
         for c in self.child :
             c.update(delta_time)
@@ -45,43 +50,42 @@ class Camera (ContainerComponent):
     def add_position(self, delta_position: Vector3) -> None:
         self.position += delta_position
     def get_position(self) -> Vector3:
-        return self.position
-    def set_position(self, absolute_position: Vector3) -> None:
-        self.position = absolute_position
-        return
-    def get_localposition(self) -> Vector3:
         if self.parent == None :
             return self.position
-        else :
-            return self.position - self.parent.get_localposition() 
-    def set_localposition(self, local_position: Vector3) -> None:
+        return self.parent.get_position() + self.position
+    def set_position(self, absolute_position: Vector3) -> None:
         if self.parent == None :
-            self.set_position(local_position) 
+            self.position = absolute_position
         else :
-            self.set_position(self.parent.get_position() + local_position)
+            self.position = absolute_position - self.parent.get_position()
+        return
+    def get_localposition(self) -> Vector3:
+        return self.position
+    def set_localposition(self, local_position: Vector3) -> None:
+        self.position = local_position
         return
     
     # Rotation
     def add_rotation(self, delta_rotation: Vector3) -> None:
         self.rotation += delta_rotation
     def get_rotation(self) -> Vector3:
-        return self.rotation
-    def set_rotation(self, absolute_rotation: Vector3) -> None:
-        self.rotation = absolute_rotation
-        return
-    def get_localrotation(self) -> Vector3:
         if self.parent == None :
             return self.rotation
-        else :
-            return self.rotation - self.parent.get_localrotation() 
-    def set_localrotation(self, local_rotation: Vector3) -> None:
+        return self.parent.get_rotation() + self.rotation
+    def set_rotation(self, absolute_rotation: Vector3) -> None:
         if self.parent == None :
-            self.set_rotation(local_rotation) 
+            self.rotation = absolute_rotation
         else :
-            self.set_rotation(self.parent.get_rotation() + local_rotation)
+            self.rotation = absolute_rotation - self.parent.get_rotation()
+        return
+    def get_localrotation(self) -> Vector3:
+        return self.rotation
+    def set_localrotation(self, local_rotation: Vector3) -> None:
+        self.rotation = local_rotation
         return
     def look_at(self,target_position: Vector3) -> None:
-        dl = target_position - self.position
+        print(target_position,self.get_position())
+        dl = target_position - self.get_position()
         distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
 
         # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆

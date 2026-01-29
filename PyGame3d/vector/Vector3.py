@@ -90,5 +90,21 @@ class Vector3():
         if not isinstance(other, Vector3):
             return False
         return self.x == other.x and self.y == other.y and self.z == other.z
-
-
+    def __getitem__ (self,index:int) -> float :
+        if index == 0 :
+            return self.x
+        elif index == 1 :
+            return self.y
+        elif index == 2 :
+            return self.z
+        else : 
+            raise IndexError(f"index {index} is out of range")
+    def __setitem__ (self,index:int,value:float) -> None :
+        if index == 0 :
+            self.x = value 
+        elif index == 1 : 
+            self.y = value
+        elif index == 2 :
+            self.z = value
+        else :
+            raise IndexError(f"index {index} is out of range")

@@ -6,6 +6,9 @@ import math
 # 描画など内部的な処理に使うUpdataとStart 
 class SimpleGameObject (ABC) :
     @abstractmethod
+    def draw_update (self) -> None :
+        pass
+    @abstractmethod
     def update (self,delta_time:float) -> None :
         return
     @abstractmethod
@@ -91,6 +94,9 @@ class ContainerComponent (
         pass
     @abstractmethod
     def get_parent (self) -> ContainerComponent | None :
+        pass
+    @abstractmethod
+    def set_parent (self,parent:ContainerComponent) -> None :
         pass
 
 

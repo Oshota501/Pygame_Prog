@@ -87,6 +87,8 @@ class Floor (Sprite3D) :
             scale=Vector3(1,1,1)
     )-> Floor :
         f = Floor()
+        f.set_collide_enabled(True)
+        
         f.set_position(position)
         f.set_rotation(rotation)
         f.set_scale(scale)

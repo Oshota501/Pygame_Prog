@@ -156,6 +156,7 @@ class Application (
                 self._clock.tick(self.fps)
             
             self.stage.update(deltatime)
+            self.stage.draw_update()
 
             pygame.display.flip()
 

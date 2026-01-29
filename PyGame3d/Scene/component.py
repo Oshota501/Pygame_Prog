@@ -22,6 +22,11 @@ class SceneComponent (ABC) :
         return self.container
     def add_child(self,object:ContainerComponent) -> None :
         self.container.add_child(object)
+    def add_children (self,*objects:ContainerComponent) -> None :
+        for object in objects :
+            self.add_child(object)
+    def draw_update (self) -> None :
+        self.container.draw_update()
     @abstractmethod
     def start (self) -> None :
         pass

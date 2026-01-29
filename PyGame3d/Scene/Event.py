@@ -1,6 +1,5 @@
 from warnings import deprecated
 from PyGame3d.vector.Vector2 import Vector2
-from abc import ABC,abstractmethod
 
 # signature : oshota
 @deprecated("PyGame3ds event depends pygame event. This class not yet Implementation .")
