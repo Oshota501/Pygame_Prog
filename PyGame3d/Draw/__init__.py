@@ -13,12 +13,21 @@ class Transform:
 
 
 class MeshRender(ABC):
+    """
+    MeshRender の Docstring
+    ContextとProgramを保持
+    """
+
     @abstractmethod
     def get_render_obj(self) -> tuple[moderngl.Context, moderngl.Program] | None:
         pass
 
 
 class TextureLike(ABC):
+    """
+    TextureLike の Docstring
+    """
+
     @abstractmethod
     def get(self) -> moderngl.Texture:
         pass
@@ -29,6 +38,10 @@ class TextureLike(ABC):
 
 
 class MaterialLike(ABC):
+    """
+    MaterialLike の Docstring
+    """
+
     @abstractmethod
     def get_textures(self) -> dict[int, TextureLike]:
         pass
@@ -43,6 +56,10 @@ class MaterialLike(ABC):
 
 
 class MeshLike(ABC):
+    """
+    MeshLike の Docstring
+    """
+
     @abstractmethod
     def render(self, transform: Transform, model_matrix=None) -> None:
         pass

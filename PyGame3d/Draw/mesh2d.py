@@ -145,35 +145,17 @@ class Mesh2d(MeshRender, MeshLike):
             l, r, t, b = 0, w, 0, h
 
         # 頂点データ (x, y, u, v)
-        vertices = np.array(
-            [
-                l,
-                t,
-                0.0,
-                1.0,
-                l,
-                b,
-                0.0,
-                0.0,
-                r,
-                t,
-                1.0,
-                1.0,
-                l,
-                b,
-                0.0,
-                0.0,
-                r,
-                b,
-                1.0,
-                0.0,
-                r,
-                t,
-                1.0,
-                1.0,
-            ],
-            dtype="f4",
-        )
+        # fmt: off
+        vertices = np.array([
+            l, t, 0.0, 1.0,
+            l, b, 0.0, 0.0,
+            r, t, 1.0, 1.0,
+
+            l, b, 0.0, 0.0,
+            r, b, 1.0, 0.0,
+            r, t, 1.0, 1.0,
+        ], dtype='f4')
+        # fmt: on
 
         self.vbo = self.ctx.buffer(vertices.tobytes())
         content = [(self.vbo, "2f 2f", "in_vert", "in_uv")]
