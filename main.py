@@ -13,29 +13,31 @@ from PyGame3d.performance import PerformanceInspectator
 game = Application(fps=60)
 game.init()
 
+
 # ゲームのシーン設定
-class StartScene (Scene) :
-    floor : Floor
-    ui : UI_2d
+class StartScene(Scene):
+    floor: Floor
+    ui: UI_2d
 
     def __init__(self) -> None:
         super().__init__()
         self.angle = 0
-        self.gun = Sprite3D.obj("./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj")
-        self.player = FPSPlayer(self.get_camera())
-        self.player.perspect.add_child(self.gun)
-        self.gun.set_localposition(Vector3(0.3,0.3,1))
-
-        self.add_children(
-            Floor.transform(position=Vector3(0,-3,0)) ,
-            self.player
+        self.gun = Sprite3D.obj(
+            "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
+        self.player = FPSPlayer(self.get_camera())
+        self.player.jump_power = 0.6
+        self.add_child(self.gun)
+        self.gun.set_localposition(Vector3(0.3, 0.3, 1))
+
+        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.player)
 
     def start(self):
         super().start()
 
     def update(self, delta_time: float):
         super().update(delta_time)
+
 
 game.set_scene(StartScene())
 PerformanceInspectator(game)

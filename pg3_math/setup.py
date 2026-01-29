@@ -4,16 +4,13 @@ import pybind11
 # pybind11.get_include() でヘッダーファイルの場所を教えてあげる
 ext_modules = [
     Extension(
-        "vector",        # モジュール名
+        "vector",  # モジュール名
         ["vector.cc"],  # ソースファイル
         include_dirs=[pybind11.get_include()],
-        language='c++'
+        language="c++",
     ),
     Extension(
-        "matrix",
-        ["matrix.cc"],
-        include_dirs=[pybind11.get_include()],
-        language='c++'
+        "matrix", ["matrix.cc"], include_dirs=[pybind11.get_include()], language="c++"
     ),
 ]
 
