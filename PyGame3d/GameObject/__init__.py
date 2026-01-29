@@ -92,6 +92,9 @@ class ContainerComponent (
     @abstractmethod
     def get_parent (self) -> ContainerComponent | None :
         pass
+    @abstractmethod
+    def set_parent (self,parent:ContainerComponent) -> None :
+        pass
 
 
 class DrawableContainerComponent (ContainerComponent,ABC) :
