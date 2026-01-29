@@ -1,3 +1,4 @@
+import numpy as np
 from PyGame3d.vector import Vector3
 from PyGame3d.matrix import Matrix4
 

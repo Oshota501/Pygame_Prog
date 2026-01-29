@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 from PyGame3d.matrix import Matrix4
 

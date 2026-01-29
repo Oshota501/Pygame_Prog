@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Callable
 
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
