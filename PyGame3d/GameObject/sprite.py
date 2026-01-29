@@ -179,7 +179,7 @@ class Sprite3D (
         else : 
             self._double_collide = 0 
         if self.physics is not None and self._double_collide <= 3:
-            self.position += self.physics.cal_position(delta_time, self.position)
+            self.add_position( self.physics.cal_position(delta_time, self.position) )
         if self.mesh is not None :
             self.mesh.render(Transform(
                 self.get_position(),

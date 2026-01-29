@@ -1,3 +1,5 @@
+import math
+
 from PyGame3d import (
     Application,
     Sprite3D,
@@ -6,11 +8,12 @@ from PyGame3d import (
     CuttingBoad,
     Scene,
     Vector3,
+    Vector2,
     GameContainer,
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
-from PyGame3d.vector import Vector2
+from PyGame3d.performance import PerformanceInspectator
 
 # おまじない
 game = Application(fps=60)
@@ -18,42 +21,30 @@ game.init()
 
 # ゲームのシーン設定
 class StartScene (Scene) :
-    sprite : Sprite3D
     floor : Floor
-    cube : Cube
-    sign : CuttingBoad
-    angle : float
-    player : FPSPlayer
     ui : UI_2d
+    
 
     def __init__(self) -> None:
         super().__init__()
-        self.sprite = Sprite3D.obj("./Assets/u.obj")
-        self.sprite.position = Vector3(0,0,0)
-        self.floor = Floor.transform(position=Vector3(0,-3,0))
-        self.cube = Cube()
-        self.sign = CuttingBoad("./Assets/py.png")
-        self.ui = game.add_object.ui_text(
-            "hello",
-            "/System/Library/Fonts/ヒラギノ角ゴシック W0.ttc",
-            position=game.add_object.get_ui_center()
-        )
-        self.floor.set_collide_enabled(True)
-        container = GameContainer()
-        # Player needs to be registered as a child so its update() runs every frame
-        self.player = FPSPlayer(self.get_camera())
-        container.add_children([self.sprite,self.floor,self.cube,self.sign,self.player,self.ui])
-        self.add_child(container)
-        self.camera.set_position(Vector3(0,0,10))
-        self.sign.position = Vector3(0,5,-10)
-        self.sign.scale.x = 2.6
-        self.sign.scale *= 5
         self.angle = 0
+        self.gun = Sprite3D.obj("./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj")
+        self.player = FPSPlayer(self.get_camera())
+        self.camera.add_child(self.gun)
+        self.gun.set_localposition(Vector3(-0.3,-0.3,0))
+
+        self.add_children(
+            Floor.transform(position=Vector3(0,-3,0)) ,
+            self.player
+        )
+
+    def start(self):
+        super().start()
         
     def update(self, delta_time: float):
         super().update(delta_time)
-        self.angle += delta_time
 
 game.set_scene(StartScene())
+PerformanceInspectator(game)
 # おまじない（while文スタート ）
 game.start_rendering()

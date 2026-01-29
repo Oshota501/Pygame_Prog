@@ -2,14 +2,15 @@
 
 import math
 import pygame
-from PyGame3d.GameObject.sprite import Sprite3D
+from PyGame3d.Draw import MeshLike
+from PyGame3d.Draw.texture import UVTexture
+from PyGame3d.Draw.uvmesh import UV3dMeshSub
+from PyGame3d.GameObject.sprite import Sprite3D, Sprite3DBoundingObject, Sprite3DPhysicsComponent
 from PyGame3d.vector import Vector2, Vector3
 
-
-class FPSPlayer (Sprite3D) :
+class Player (Sprite3D) :
     # pointer
     _look_at : Vector3
-    perspect : Camera
     _mouse : Vector2
     _screen_center : tuple[int,int] | None
     xz_angle : float
@@ -17,15 +18,14 @@ class FPSPlayer (Sprite3D) :
     sensitibity : float
     is_mouse_rock : bool 
     _esc_was_down : bool
-    from PyGame3d.GameObject.Camera import Camera
-    def __init__(self,camera:Camera,sensitibity=1/200,is_mouse_rock=True) -> None:
+    
+    def __init__(self,sensitibity=1/200,is_mouse_rock=True) -> None:
         super().__init__(
             name="player"
         )
         mouse = pygame.mouse.get_pos()
         self._mouse = Vector2(*mouse)
         self._look_at = Vector3(0,0,1)
-        self.perspect = camera
         self.position += Vector3(0,4,0)
         self.set_collide_enabled(True)
         self.set_velocity_enabled(True)
@@ -62,9 +62,6 @@ class FPSPlayer (Sprite3D) :
         self._look_at.x = math.sin(self.xz_angle)*c
         self._look_at.z = math.cos(self.xz_angle)*c
         self._look_at.y = math.sin(self.y_angle)
-        
-        self.perspect.position = self.position
-        self.perspect.look_at(self._look_at+self.position)
 
         keys = pygame.key.get_pressed()
         # 前後方向ベクトル（Y成分は0にして水平移動のみ）
@@ -91,6 +88,7 @@ class FPSPlayer (Sprite3D) :
                 self._mouse = Vector2(*pygame.mouse.get_pos())
         self._esc_was_down = esc_now
         if keys[pygame.K_SPACE] :
+            self.is_collide = False
             if abs(self.physics.velocity.y) <= 0.001 :
                 print("jump")
                 self.physics.velocity.y += 9.81
@@ -112,3 +110,15 @@ class FPSPlayer (Sprite3D) :
     def _unlock_mouse(self) -> None:
         pygame.event.set_grab(False)
         pygame.mouse.set_visible(True)
+
+class FPSPlayer (Player) :
+    from PyGame3d.GameObject.Camera import Camera
+    perspect : Camera
+    def __init__(self, camera : Camera ,sensitibity=1 / 200, is_mouse_rock=True) -> None:
+        super().__init__(sensitibity, is_mouse_rock)
+        self.perspect = camera
+    def update(self, delta_time: float):
+        super().update(delta_time)
+        self.perspect.position = self.position
+        self.perspect.look_at(self._look_at+self.position)
+    

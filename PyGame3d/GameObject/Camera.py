@@ -26,6 +26,9 @@ class Camera (ContainerComponent):
             return
     def get_child(self) -> list[ContainerComponent]:
         return self.child
+    def set_parent(self, parent: ContainerComponent) -> None:
+        self.parent = parent
+        return 
     def remove_child(self, index: int) -> None:
         pr_pointer = self.child[index].get_parent()
         pr_pointer = None

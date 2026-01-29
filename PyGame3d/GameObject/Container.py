@@ -22,21 +22,23 @@ class GameContainer (ContainerComponent) :
     def add_child (self,object:ContainerComponent) -> None :
         pr_pointer = object.get_parent()
         if pr_pointer == None :
-            pr_pointer = self 
+            object.set_parent( self )
             self.child.append(object)
             return
         else :
             print(f"Already registered with other container :{pr_pointer}")
             print("Registered faild.")
             return
+    def set_parent(self, parent: ContainerComponent) -> None:
+        self.parent = parent
     def add_children(self,children:list[ContainerComponent]) -> None :
         for child in children :
             self.add_child(child)
     def get_child(self) -> list[ContainerComponent]:
         return self.child
     def remove_child(self, index: int) -> None:
-        pr_pointer = self.child[index].get_parent()
-        pr_pointer = None
+        # pr_pointer = self.child[index].get_parent()
+        # pr_pointer = None
         del self.child[index]
     def get_parent(self) -> ContainerComponent | None:
         return self.parent 
@@ -53,43 +55,41 @@ class GameContainer (ContainerComponent) :
     def add_position(self, delta_position: Vector3) -> None:
         self.position += delta_position
     def get_position(self) -> Vector3:
-        return self.position
-    def set_position(self, absolute_position: Vector3) -> None:
-        self.position = absolute_position
-        return
-    def get_localposition(self) -> Vector3:
         if self.parent == None :
             return self.position
-        else :
-            return self.position - self.parent.get_localposition() 
-    def set_localposition(self, local_position: Vector3) -> None:
+        return self.parent.get_position() + self.position
+    def set_position(self, absolute_position: Vector3) -> None:
         if self.parent == None :
-            self.set_position(local_position) 
+            self.position = absolute_position
         else :
-            self.set_position(self.parent.get_position() + local_position)
+            self.position = absolute_position - self.parent.get_position()
+        return
+    def get_localposition(self) -> Vector3:
+        return self.position
+    def set_localposition(self, local_position: Vector3) -> None:
+        self.position = local_position
         return
     
     # Rotation
     def add_rotation(self, delta_rotation: Vector3) -> None:
         self.rotation += delta_rotation
     def get_rotation(self) -> Vector3:
-        return self.rotation
-    def set_rotation(self, absolute_rotation: Vector3) -> None:
-        self.rotation = absolute_rotation
-        return
-    def get_localrotation(self) -> Vector3:
         if self.parent == None :
             return self.rotation
-        else :
-            return self.rotation - self.parent.get_localrotation() 
-    def set_localrotation(self, local_rotation: Vector3) -> None:
+        return self.parent.get_rotation() + self.rotation
+    def set_rotation(self, absolute_rotation: Vector3) -> None:
         if self.parent == None :
-            self.set_rotation(local_rotation) 
+            self.rotation = absolute_rotation
         else :
-            self.set_rotation(self.parent.get_rotation() + local_rotation)
+            self.rotation = absolute_rotation - self.parent.get_rotation()
+        return
+    def get_localrotation(self) -> Vector3:
+        return self.rotation
+    def set_localrotation(self, local_rotation: Vector3) -> None:
+        self.rotation = local_rotation
         return
     def look_at(self, target_position: Vector3) -> None:
-        dx,dy,dz = target_position - self.position
+        dx,dy,dz = target_position - self.get_position()
         distance_xz = math.sqrt(dx**2 + dz**2)
         # 注意: 座標系によっては dy の符号を変える必要があります
         pitch = -math.degrees(math.atan2(dy, distance_xz))
@@ -100,23 +100,22 @@ class GameContainer (ContainerComponent) :
     def add_scale(self, delta_scale: Vector3) -> None:
         self.scale += delta_scale
     def get_scale(self) -> Vector3:
-        return self.scale
+        if self.parent == None :
+            return self.scale
+        return self.parent.get_scale() * self.scale
     def set_scale(self, absolute_scale: Vector3|int|float) -> None:
         if isinstance(absolute_scale,Vector3) :
-            self.scale = absolute_scale
+            if self.parent == None :
+                self.scale = absolute_scale
+            else :
+                self.scale = absolute_scale / self.parent.get_scale()
         else :
             self.scale *= absolute_scale
         return
     def get_localscale(self) -> Vector3:
-        if self.parent == None :
-            return self.scale
-        else :
-            return self.scale - self.parent.get_localscale() 
+        return self.scale
     def set_localscale(self, local_scale: Vector3) -> None:
-        if self.parent == None :
-            self.set_scale(local_scale) 
-        else :
-            self.set_scale(self.parent.get_scale() + local_scale)
+        self.scale = local_scale
         return
     @staticmethod
     def include_transform (
@@ -129,3 +128,4 @@ class GameContainer (ContainerComponent) :
         g.set_rotation(rotation)
         g.set_scale(scale)
         return g
+    

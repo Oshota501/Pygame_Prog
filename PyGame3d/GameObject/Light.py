@@ -36,6 +36,9 @@ class Light (ContainerComponent):
         del self.child[index]
     def get_parent(self) -> ContainerComponent | None:
         return self.parent 
+    def set_parent(self, parent: ContainerComponent) -> None:
+        self.parent = parent
+        return 
     def start (self) :
         for c in self.child :
             c.start()
