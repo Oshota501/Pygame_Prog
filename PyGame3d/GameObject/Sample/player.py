@@ -133,7 +133,7 @@ class FPSPlayer(Player):
         self._look_at.y = math.sin(self.y_angle)
 
         # カメラの位置と向きを更新
-        self.perspect.look_at(self._look_at)
+        self.perspect.look_at(self._look_at+self.get_position())
 
         self._keypress(delta_time)
 
