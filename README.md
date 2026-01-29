@@ -18,6 +18,8 @@
 
 # 環境構築
 
+手元にWindowsが都合よくなかったのでMac版のみです。
+
 ```sh
 python3.14 -m venv .venv
 source ./.venv/bin/activate
