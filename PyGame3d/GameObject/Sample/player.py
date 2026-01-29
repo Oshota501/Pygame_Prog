@@ -91,6 +91,7 @@ class FPSPlayer (Sprite3D) :
                 self._mouse = Vector2(*pygame.mouse.get_pos())
         self._esc_was_down = esc_now
         if keys[pygame.K_SPACE] :
+            self.is_collide = False
             if abs(self.physics.velocity.y) <= 0.001 :
                 print("jump")
                 self.physics.velocity.y += 9.81
