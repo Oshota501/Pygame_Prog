@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Vector3
 from PyGame3d.Draw import MeshLike
 
@@ -117,7 +118,13 @@ class ContainerComponent(
     """
     ContainerComponent の Docstring
     """
-
+    @abstractmethod
+    def get_local_matrix (self) -> Matrix4 :
+        pass
+    @abstractmethod
+    def get_world_matrix (self) -> Matrix4 :
+        pass
+    # coded by oshota
     @abstractmethod
     def get_name(self) -> str:
         pass

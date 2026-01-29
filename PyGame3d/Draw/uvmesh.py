@@ -52,12 +52,10 @@ class UV3dShaderContainer(
         self.program["light_color"].value = scene.get_light().get_color()  # type: ignore # 白色の光
 
     def send_model(
-        self, position: Matrix4, rotation: Matrix4, scale: Matrix4, model_opt: Matrix4
+        self, position: Matrix4, rotation: Matrix4, scale: Matrix4
     ) -> None:
-        self.send_uniform("position", position)
-        self.send_uniform("rotation", rotation)
-        self.send_uniform("scale", scale)
-        self.send_uniform("model_opt", model_opt)
+        model = position * rotation * scale 
+        self.send_uniform("model", model)
         return
 
     def send_perspective(self, projection_matrix: Matrix4) -> None:
@@ -279,23 +277,22 @@ class UV3dMeshSub(MeshRender, MeshLike):
         program = self.material.program
         return (self.ctx, program)
 
-    def render(self, transform: Transform, model_matrix: Matrix4 | None = None) -> None:
-        if model_matrix is None:
-            model_matrix = matrix.get_i()
-
+    def render(self, transform: Transform|Matrix4) -> None:
         self.material.use()
-        self.shader.send_model(
-            position=matrix.create_translation(
-                transform.position.x, transform.position.y, transform.position.z
-            ),
-            rotation=rmatrix.create(
-                transform.rotation.x, transform.rotation.y, transform.rotation.z
-            ),
-            scale=matrix.create_scale(
-                transform.scale.x, transform.scale.y, transform.scale.z
-            ),
-            model_opt=model_matrix,
-        )
+        if isinstance (transform ,Transform) :
+            self.shader.send_model(
+                position=matrix.create_translation(
+                    transform.position.x, transform.position.y, transform.position.z
+                ),
+                rotation=rmatrix.create(
+                    transform.rotation.x, transform.rotation.y, transform.rotation.z
+                ),
+                scale=matrix.create_scale(
+                    transform.scale.x, transform.scale.y, transform.scale.z
+                ),
+            )
+        else :
+            self.shader.send_uniform("model",transform)
         self.vao.render()
 
     def destroy(self) -> None:
@@ -421,12 +418,9 @@ class UV3dMesh(MeshRender, MeshLike):
             m = self.sub_mesh[0]
             return (m.ctx, m.material.program)
 
-    def render(self, transform: Transform, model_matrix: Matrix4 | None = None) -> None:
+    def render(self, transform: Transform|Matrix4) -> None:
         for sub in self.sub_mesh:
-            if model_matrix is None:
-                sub.render(transform, Matrix4.get_identity())
-            else:
-                sub.render(transform, model_matrix)
+            sub.render(transform)
 
     def destroy(self) -> None:
         for sub in self.sub_mesh:

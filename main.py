@@ -28,7 +28,7 @@ class StartScene(Scene):
         self.player = FPSPlayer(self.get_camera())
         self.player.jump_power = 2
         self.player.perspect.add_child(self.gun)
-        self.gun.set_localposition(Vector3(0.3, 0.3, 1))
+        self.gun.set_localposition(Vector3(0, -0.3, 0))
 
         self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.player)
 

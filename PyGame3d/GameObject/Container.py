@@ -1,7 +1,9 @@
 import math
 from PyGame3d.GameObject import ContainerComponent
+from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Vector3
-
+from PyGame3d import matrix
+from PyGame3d.matrix import rotation as rmatrix
 
 class GameContainer(ContainerComponent):
     position: Vector3
@@ -18,6 +20,46 @@ class GameContainer(ContainerComponent):
         self.child = []
         self.parent = None
         self.name = name
+
+    # coded by gemini
+    def get_local_matrix(self) -> Matrix4:
+        """
+        自分自身の Position, Rotation, Scale からローカル行列を作成する
+        Order: Translate * Rotate * Scale (T * R * S)
+        """
+        pos = self.get_localposition()
+        rot = self.get_localrotation()
+        sca = self.get_localscale()
+        # 1. 平行移動行列
+        mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
+        
+        # 2. 回転行列 (X, Y, Zの順序は実装依存ですが、rmatrix.createがオイラー角対応と仮定)
+        mat_r = rmatrix.create(rot.x, rot.y, rot.z)
+        
+        # 3. 拡大縮小行列
+        mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
+        
+        # 行列の掛け算 T * R * S
+        # ※ライブラリの仕様によりますが、通常は 左側にある変換が「後」に適用されます。
+        #   「拡大してから、回転して、移動する」のが一般的なので T * R * S の順です。
+        return mat_t * mat_r * mat_s
+
+    def get_world_matrix(self) -> Matrix4:
+        """
+        親の行列を含めた最終的なワールド座標行列を再帰的に計算する
+        """
+        # まず自分のローカル行列を取得
+        local_mat = self.get_local_matrix()
+        
+        # 親がいるなら、親のワールド行列に自分のローカル行列を掛ける
+        parent = self.get_parent()
+        if parent is not None:
+            parent_world_mat = parent.get_world_matrix()
+            # 【重要】 行列の掛け算順序: Parent * Child
+            return parent_world_mat * local_mat
+        
+        # 親がいなければ（ルートなら）、ローカル行列がそのままワールド行列
+        return local_mat
 
     def get_name(self) -> str:
         return self.name

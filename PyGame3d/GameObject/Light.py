@@ -1,4 +1,7 @@
 from PyGame3d.GameObject import ContainerComponent
+from PyGame3d.matrix.mat4 import Matrix4
+from PyGame3d import matrix
+from PyGame3d.matrix import rotation as rmatrix
 from PyGame3d.vector import Vector3
 import math
 
@@ -57,6 +60,36 @@ class Light(ContainerComponent):
         for c in self.child:
             c.draw_update()
         return None
+
+    def get_local_matrix(self) -> Matrix4:
+        """
+        自分自身の Position, Rotation, Scale からローカル行列を作成する
+        Order: Translate * Rotate * Scale (T * R * S)
+        """
+        pos = self.get_localposition()
+        rot = self.get_localrotation()
+        sca = self.get_localscale()
+
+        mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
+
+        mat_r = rmatrix.create(rot.x, rot.y, rot.z)
+        
+        mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
+
+        return mat_t * mat_r * mat_s
+
+    def get_world_matrix(self) -> Matrix4:
+        """
+        親の行列を含めた最終的なワールド座標行列を再帰的に計算する
+        """
+        local_mat = self.get_local_matrix()
+        
+        parent = self.get_parent()
+        if parent is not None:
+            parent_world_mat = parent.get_world_matrix()
+            return parent_world_mat * local_mat
+        
+        return local_mat
 
     # Position
     def add_position(self, delta_position: Vector3) -> None:
