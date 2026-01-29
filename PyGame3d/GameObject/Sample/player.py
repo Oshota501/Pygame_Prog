@@ -38,8 +38,8 @@ class Player(Sprite3D):
         self.set_bounding_obj(Vector3(-0.5, -1, -0.5), Vector3(0.5, 0, 0.5))
         self.physics.coefficient = 0
         # 環境設定
-        self.speed = 5
-        self.jump_power = 0.25
+        self.speed = 1
+        self.jump_power = 1
 
     def update(self, delta_time: float):
         if self.is_mouse_rock:
@@ -133,7 +133,7 @@ class FPSPlayer(Player):
         self._look_at.y = math.sin(self.y_angle)
 
         # カメラの位置と向きを更新
-        self.perspect.look_at(self._look_at + self.get_position())
+        self.perspect.look_at(self._look_at)
 
         self._keypress(delta_time)
 
@@ -147,9 +147,9 @@ class FPSPlayer(Player):
         """FPS視点での移動（プレイヤーの向きに依存）"""
         keys = pygame.key.get_pressed()
         # 前後方向ベクトル（Y成分は0にして水平移動のみ）
-        forward = Vector3(self._look_at.x, 0, self._look_at.z).normalized() * self.speed
+        forward = Vector3(self._look_at.x, 0, self._look_at.z).normalized()
         # 右方向ベクトル（前方向を90度右に回転）
-        right = Vector3(self._look_at.z, 0, -self._look_at.x).normalized() * self.speed
+        right = Vector3(self._look_at.z, 0, -self._look_at.x).normalized()
 
         if keys[pygame.K_w]:
             self.add_position(forward * delta_time)
