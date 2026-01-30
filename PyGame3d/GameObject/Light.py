@@ -64,7 +64,6 @@ class Light(ContainerComponent):
         Order: Translate * Rotate * Scale (T * R * S)
         """
         pos = self.get_localposition()
-        rot = self.get_localrotation()
         sca = self.get_localscale()
 
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)

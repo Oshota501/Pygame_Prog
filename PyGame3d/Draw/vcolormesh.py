@@ -62,6 +62,11 @@ class VColorShaderContainer(
         return
 
     def send_view_by_camera(self, camera: Camera) -> None:
+        """
+        send_view_by_camera の Docstring
+        
+        自動でinverseしてくれるので逆行列を生成しなくて大丈夫です。
+        """
         view = camera.get_world_matrix().inverse()
         self.send_view(view)
         return

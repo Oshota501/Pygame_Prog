@@ -67,6 +67,11 @@ class UV3dShaderContainer(
         return
 
     def send_view_by_camera(self, camera: Camera) -> None:
+        """
+        send_view_by_camera の Docstring
+        
+        自動でinverseしてくれるのでinverseをする必要はありアセン。
+        """
         view = camera.get_world_matrix().inverse()
         self.send_view(view)
         return

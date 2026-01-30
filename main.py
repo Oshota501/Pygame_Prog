@@ -4,7 +4,8 @@ from PyGame3d import (
     Floor,
     Scene,
     Vector3,
-    Quaternion
+    Quaternion,
+    Cube
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
@@ -27,10 +28,17 @@ class StartScene(Scene):
         self.gun = Sprite3D.obj(
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
+        self.cube = Cube()
+        self.cube.set_collide_enabled(True)
+        self.cube.set_velocity_enabled(True)
+        self.cube.set_position(Vector3(0,20,0))
+
         self.gun.set_localposition(Vector3(0, -0.3, 0))
         self.gun.set_localrotation(Quaternion(0,0,0,1))
 
-        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.gun,self.player)
+        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.gun, self.cube,self.player)
+
+        self.player.set_position(Vector3(0,10,3))
 
     def start(self):
         super().start()

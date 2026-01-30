@@ -41,12 +41,12 @@ class Quaternion:
         """
         x, y, z, w = self.x, self.y, self.z, self.w
 
-        # クォータニオンから回転行列への変換公式
+        # クォータニオンから回転行列への変換公式（列優先）
         # fmt: off
         m = Matrix4([
-            1 - 2*(y*y + z*z),  2*(x*y - z*w),      2*(x*z + y*w),      0,
-            2*(x*y + z*w),      1 - 2*(x*x + z*z),  2*(y*z - x*w),      0,
-            2*(x*z - y*w),      2*(y*z + x*w),      1 - 2*(x*x + y*y),  0,
+            1 - 2*(y*y + z*z),  2*(x*y + z*w),      2*(x*z - y*w),      0,
+            2*(x*y - z*w),      1 - 2*(x*x + z*z),  2*(y*z + x*w),      0,
+            2*(x*z + y*w),      2*(y*z - x*w),      1 - 2*(x*x + y*y),  0,
             0,                  0,                  0,                  1
         ])
         # fmt: on

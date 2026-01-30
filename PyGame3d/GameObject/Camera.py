@@ -60,7 +60,6 @@ class Camera(ContainerComponent):
         Order: Translate * Rotate * Scale (T * R * S)
         """
         pos = self.get_localposition()
-        rot = self.get_localrotation()
 
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
 
