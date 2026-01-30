@@ -1,34 +1,28 @@
-from PyGame3d.GameObject import ContainerComponent
-from PyGame3d.vector import Vector3
 import math
+from PyGame3d.GameObject import ContainerComponent
+from PyGame3d.matrix.mat4 import Matrix4
+from PyGame3d.vector import Quaternion, Vector3
+import numpy as np
 
+from PyGame3d import matrix
+from PyGame3d.matrix import rotation as rmatrix
 
 # signature : Oshota
 class Camera(ContainerComponent):
-    position: Vector3
-    rotation: Vector3
     child: list[ContainerComponent]
     parent: ContainerComponent | None
 
     def __init__(self) -> None:
-        self.position = Vector3(0, 0, 0)
-        self.rotation = Vector3(0, 0, 1)
         self.child = []
         self.parent = None
+        super().__init__()
 
     def get_name(self) -> str:
         return "Camera"
 
     def add_child(self, object: ContainerComponent) -> None:
-        pr_pointer = object.get_parent()
-        if pr_pointer == None:
-            pr_pointer = self
-            self.child.append(object)
-            return
-        else:
-            print(f"Already registered with other container :{pr_pointer}")
-            print("Registered faild.")
-            return
+        object.set_parent(self)
+        self.child.append(object)
 
     def get_child(self) -> list[ContainerComponent]:
         return self.child
@@ -51,6 +45,8 @@ class Camera(ContainerComponent):
         return
 
     def draw_update(self) -> None:
+        for c in self.child :
+            c.draw_update()
         return None
 
     def update(self, delta_time: float):
@@ -58,10 +54,32 @@ class Camera(ContainerComponent):
             c.update(delta_time)
         return
 
-    # Position
-    def add_position(self, delta_position: Vector3) -> None:
-        self.position += delta_position
+    def get_local_matrix(self) -> Matrix4:
+        """
+        自分自身の Position, Rotation, Scale からローカル行列を作成する
+        Order: Translate * Rotate * Scale (T * R * S)
+        """
+        pos = self.get_localposition()
 
+        mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
+
+        mat_r = self.rotation.to_matrix()
+
+        return mat_r * mat_t 
+
+    def get_world_matrix(self) -> Matrix4:
+        """
+        親の行列を含めた最終的なワールド座標行列を再帰的に計算する
+        """
+        local_mat = self.get_local_matrix()
+        
+        parent = self.get_parent()
+        if parent is not None:
+            parent_world_mat = parent.get_world_matrix()
+            return local_mat * parent_world_mat 
+        
+        return local_mat
+    # Position
     def get_position(self) -> Vector3:
         if self.parent == None:
             return self.position
@@ -74,63 +92,43 @@ class Camera(ContainerComponent):
             self.position = absolute_position - self.parent.get_position()
         return
 
-    def get_localposition(self) -> Vector3:
-        return self.position
-
-    def set_localposition(self, local_position: Vector3) -> None:
-        self.position = local_position
-        return
-
     # Rotation
-    def add_rotation(self, delta_rotation: Vector3) -> None:
-        self.rotation += delta_rotation
+    def add_rotation(self, delta_rotation: Quaternion) -> None:
+        self.rotation *= delta_rotation
 
-    def get_rotation(self) -> Vector3:
+    def get_rotation(self) -> Quaternion:
         if self.parent == None:
             return self.rotation
-        return self.parent.get_rotation() + self.rotation
+        return self.parent.get_rotation() * self.rotation
 
-    def set_rotation(self, absolute_rotation: Vector3) -> None:
+    def set_rotation(self, absolute_rotation: Quaternion) -> None:
         if self.parent == None:
             self.rotation = absolute_rotation
         else:
-            self.rotation = absolute_rotation - self.parent.get_rotation()
+            self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-    def get_localrotation(self) -> Vector3:
-        return self.rotation
 
-    def set_localrotation(self, local_rotation: Vector3) -> None:
-        self.rotation = local_rotation
-        return
-
-    def look_at(self, target_position: Vector3) -> None:
-        dl = target_position - self.get_position()
-        distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
-
-        # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
-        pitch = -math.degrees(math.atan2(dl.y, distance_xz))
-
-        yaw = math.degrees(math.atan2(dl.x, -dl.z))
-        self.set_rotation(Vector3(pitch, yaw, 0.0))
+    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+        forward = Vector3(
+            target.x - self.position.x,
+            target.y - self.position.y,
+            target.z - self.position.z
+        )
+        self.rotation = Quaternion.look_rotation(forward, up)
 
     # Scale
-    def add_scale(self, delta_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return
-
     def get_scale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0, 1.0, 1.0)
+        if self.parent == None:
+            return self.scale
+        return self.parent.get_scale() * self.scale
 
     def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return
-
-    def get_localscale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0, 1.0, 1.0)
-
-    def set_localscale(self, local_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
+        if isinstance(absolute_scale, Vector3):
+            if self.parent == None:
+                self.scale = absolute_scale
+            else:
+                self.scale = absolute_scale / self.parent.get_scale()
+        else:
+            self.scale *= absolute_scale
         return

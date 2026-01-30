@@ -1,11 +1,18 @@
+"""
+PyGame3d.GameObject.Sample.player の Docstring
+
+FPSプレイヤー型を当たり判定なども含めて実装しています。
+"""
 import math
 import pygame
+from pygame.key import ScancodeWrapper
 from PyGame3d.GameObject.sprite import Sprite3D
-from PyGame3d.vector import Vector2, Vector3
+from PyGame3d.vector import Quaternion, Vector2, Vector3
+from PyGame3d.GameObject.Camera import Camera
 
 # coding by oshota
 # pylint で 5 点は悲しい
-# Too many 祖先 は無理すぎる。Componentを持つクラスを作っただけじゃないですか〜
+# Too many 祖先 は無理すぎる。Pythonにもinterfaceがあったらな〜〜〜とか思うわけです。
 
 
 class Player(Sprite3D):
@@ -70,13 +77,13 @@ class Player(Sprite3D):
     def _keypress(self, delta_time: float) -> None:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            self.add_position(Vector3(0, 0, delta_time * self.speed))
+            self.set_velocity(Vector3(0, 0, self.speed))
         if keys[pygame.K_s]:
-            self.add_position(Vector3(0, 0, -delta_time * self.speed))
+            self.set_velocity(Vector3(0, 0, -self.speed))
         if keys[pygame.K_a]:
-            self.add_position(Vector3(delta_time * self.speed, 0, 0))
+            self.set_velocity(Vector3(self.speed, 0, 0))
         if keys[pygame.K_d]:
-            self.add_position(Vector3(-delta_time * self.speed, 0, 0))
+            self.set_velocity(Vector3(self.speed, 0, 0))
         if keys[pygame.K_SPACE]:
             self.is_collide = False
             self.set_velocity(Vector3(0, self.jump_power, 0))
@@ -98,14 +105,17 @@ class Player(Sprite3D):
 
 
 class FPSPlayer(Player):
-    from PyGame3d.GameObject.Camera import Camera
-
     perspect: Camera
+
+    _pitch: float
+    _yaw: float
 
     def __init__(self, camera: Camera, sensitibity=1 / 200, is_mouse_rock=True) -> None:
         super().__init__(sensitibity, is_mouse_rock)
         self.perspect = camera
         self.add_child(camera)
+        self._pitch = 0
+        self._yaw = 0
 
     def update(self, delta_time: float):
         # 親クラスのマウス処理とlook_at計算を実行
@@ -118,47 +128,79 @@ class FPSPlayer(Player):
             self._unlock_mouse()
             delta = Vector2(0, 0)
 
-        self.xz_angle -= delta.x * self.sensitibity
-        self.y_angle -= delta.y * self.sensitibity
+        self._yaw -= delta.x * self.sensitibity
+        self._pitch -= delta.y * self.sensitibity
+
         max_pitch = 3.14159265 * 0.49
-        if self.y_angle >= max_pitch:
-            self.y_angle = max_pitch
-        elif self.y_angle <= -max_pitch:
-            self.y_angle = -max_pitch
+        if self._pitch > max_pitch: self._pitch = max_pitch
+        if self._pitch < -max_pitch: self._pitch = -max_pitch
 
-        c = math.cos(self.y_angle)
-        self._look_at.x = math.sin(self.xz_angle) * c
-        self._look_at.z = math.cos(self.xz_angle) * c
-        self._look_at.y = math.sin(self.y_angle)
+        q_yaw = Quaternion.from_euler(0, self._yaw, 0)
+        q_pitch = Quaternion.from_euler(self._pitch, 0, 0)
 
-        # カメラの位置と向きを更新
-        self.perspect.look_at(self._look_at + self.get_position())
-
+        self.rotation = q_yaw
+        self.perspect.rotation = q_pitch
         self._keypress(delta_time)
 
-        if self.position.y <= -50:
-            self.set_position(Vector3(0, 4, 0))
-        # Sprite3D.update()を直接呼ぶ（Player.update()をスキップ）
         return Sprite3D.update(self, delta_time)
 
     # override
     def _keypress(self, delta_time: float) -> None:
         """FPS視点での移動（プレイヤーの向きに依存）"""
         keys = pygame.key.get_pressed()
-        # 前後方向ベクトル（Y成分は0にして水平移動のみ）
-        forward = Vector3(self._look_at.x, 0, self._look_at.z).normalized()
-        # 右方向ベクトル（前方向を90度右に回転）
-        right = Vector3(self._look_at.z, 0, -self._look_at.x).normalized()
+        sin_y = math.sin(self._yaw)
+        cos_y = math.cos(self._yaw)
+        # エンジンが「-Z」を前方とする場合:
+        forward = Vector3(-sin_y, 0, -cos_y).normalized()
+        right = Vector3(cos_y, 0, -sin_y).normalized() # Forwardの右90度
 
+        self._mv_keypress(keys,forward,right,delta_time)
+
+        self._esc_keypress(keys)
+        self._jump_keypress(keys)
+
+    def _mv_keypress(self,
+                    keys: ScancodeWrapper,
+                    forward: Vector3,
+                    right: Vector3,
+                    delta_time:float) -> None:
+        if keys[pygame.K_w] :
+            self.add_position(forward*delta_time)
+        if keys[pygame.K_s] :
+            self.add_position(-forward*delta_time)
+        if keys[pygame.K_d] :
+            self.add_position(right*delta_time)
+        if keys[pygame.K_a] :
+            self.add_position(-right*delta_time)
+
+    def _mv_keypress_v(self,
+                    keys:pygame.key.ScancodeWrapper,
+                    forward:Vector3,
+                    right:Vector3,
+                    delta_time:float) -> None :
+        move = Vector3(0, 0, 0)
         if keys[pygame.K_w]:
-            self.add_position(forward * delta_time)
+            move += forward
         if keys[pygame.K_s]:
-            self.add_position(-forward * delta_time)
+            move -= forward
         if keys[pygame.K_d]:
-            self.add_position(-right * delta_time)
+            move += right
         if keys[pygame.K_a]:
-            self.add_position(right * delta_time)
+            move -= right
 
+        if move.length() > 0:
+            move = move.normalized() * self.speed
+
+        current_y = self.physics.velocity.y
+        self.physics.velocity = Vector3(move.x, current_y, move.z)
+
+    def _jump_keypress (self,keys:pygame.key.ScancodeWrapper) -> None :
+        if keys[pygame.K_SPACE]:
+            self.is_collide = False
+            if abs(self.physics.velocity.y) <= 0.001:
+                self.physics.velocity.y += 9.81 * self.jump_power
+
+    def _esc_keypress (self,keys:pygame.key.ScancodeWrapper) -> None :
         esc_now = keys[pygame.K_ESCAPE]
         if esc_now and not self._esc_was_down:
             self.is_mouse_rock = not self.is_mouse_rock
@@ -170,7 +212,4 @@ class FPSPlayer(Player):
                 self._mouse = Vector2(*pygame.mouse.get_pos())
         self._esc_was_down = esc_now
 
-        if keys[pygame.K_SPACE]:
-            self.is_collide = False
-            if abs(self.physics.velocity.y) <= 0.001:
-                self.physics.velocity.y += 9.81 * self.jump_power
+

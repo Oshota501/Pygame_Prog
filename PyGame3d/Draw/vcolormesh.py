@@ -47,12 +47,10 @@ class VColorShaderContainer(
         return
 
     def send_model(
-        self, position: Matrix4, rotation: Matrix4, scale: Matrix4, model_opt: Matrix4
+        self, position: Matrix4, rotation: Matrix4, scale: Matrix4
     ) -> None:
-        self.send_uniform("position", position)
-        self.send_uniform("rotation", rotation)
-        self.send_uniform("scale", scale)
-        self.send_uniform("model_opt", model_opt)
+        model = position * rotation * scale
+        self.send_uniform("model",model)
         return
 
     def send_perspective(self, projection_matrix: Matrix4) -> None:
@@ -64,14 +62,13 @@ class VColorShaderContainer(
         return
 
     def send_view_by_camera(self, camera: Camera) -> None:
-        view_mat: Matrix4
-        # 注意 カメラ行列はマイナスをかける。
-        c = camera.get_position()
-        cr = camera.get_rotation()
-        trans_mat = matrix.create_translation(-c.x, -c.y, -c.z)
-        rot_mat = rmatrix.create_camera(-cr.x, -cr.y, -cr.z)
-        view_mat = trans_mat * rot_mat
-        self.send_uniform("view", view_mat)
+        """
+        send_view_by_camera の Docstring
+        
+        自動でinverseしてくれるので逆行列を生成しなくて大丈夫です。
+        """
+        view = camera.get_world_matrix().inverse()
+        self.send_view(view)
         return
 
 
@@ -102,21 +99,23 @@ class VertColorMesh(MeshLike, MeshRender):
         return self.rend
 
     def render(
-        self, transform: Transform, model_matrix: Matrix4 = matrix.get_i()
+        self, transform: Transform|Matrix4
     ) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
-        self.rend.send_model(
-            position=matrix.create_translation(
-                transform.position.x, transform.position.y, transform.position.z
-            ),
-            rotation=rmatrix.create(
-                transform.rotation.x, transform.rotation.y, transform.rotation.z
-            ),
-            scale=matrix.create_scale(
-                transform.scale.x, transform.scale.y, transform.scale.z
-            ),
-            model_opt=model_matrix,
-        )
+        if isinstance (transform,Transform) :
+            self.rend.send_model(
+                position=matrix.create_translation(
+                    transform.position.x, transform.position.y, transform.position.z
+                ),
+                rotation=rmatrix.create(
+                    transform.rotation.x, transform.rotation.y, transform.rotation.z
+                ),
+                scale=matrix.create_scale(
+                    transform.scale.x, transform.scale.y, transform.scale.z
+                )
+            )
+        else :
+            self.rend.send_uniform("model",transform)
         self.vao.render()
 
     def destroy(self) -> None:

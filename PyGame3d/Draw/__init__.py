@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import moderngl
-from PyGame3d.vector import Vector3
+from PyGame3d.matrix.mat4 import Matrix4
+from PyGame3d.vector import Quaternion, Vector3
 
 
 # signature : oshota
 @dataclass
 class Transform:
     position: Vector3
-    rotation: Vector3
+    rotation: Quaternion
     scale: Vector3
 
 
@@ -61,7 +62,7 @@ class MeshLike(ABC):
     """
 
     @abstractmethod
-    def render(self, transform: Transform, model_matrix=None) -> None:
+    def render(self, model_matrix:Matrix4|Transform) -> None:
         pass
 
     @abstractmethod

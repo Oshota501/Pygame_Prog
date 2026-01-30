@@ -1,3 +1,8 @@
+"""
+PyGame3d.game の Docstring
+Application型
+"""
+
 import pygame
 import moderngl
 from PyGame3d.GameObject.generater import DefaultObjectGenerater

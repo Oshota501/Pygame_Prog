@@ -3,6 +3,7 @@ from .game import Application
 # 数値型
 from .vector import Vector3
 from .vector import Vector2
+from .vector import Quaternion
 from .matrix.mat4 import Matrix4
 
 # c++ を使う場合は "sh setup.sh" を実行
@@ -37,4 +38,5 @@ __all__ = [
     "Cube",
     "CuttingBoad",
     "Floor",
+    "Quaternion"
 ]

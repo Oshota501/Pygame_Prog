@@ -4,13 +4,15 @@ from PyGame3d import (
     Floor,
     Scene,
     Vector3,
+    CuttingBoad,
+    Cube
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
 from PyGame3d.performance import PerformanceInspectator
 
 # おまじない
-game = Application(fps=60)
+game = Application()
 game.init()
 
 
@@ -22,15 +24,27 @@ class StartScene(Scene):
     def __init__(self) -> None:
         super().__init__()
         self.angle = 0
+        self.player = FPSPlayer(self.camera)
         self.gun = Sprite3D.obj(
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
-        self.player = FPSPlayer(self.get_camera())
-        self.player.jump_power = 2
-        self.add_child(self.gun)
-        self.gun.set_localposition(Vector3(0.3, 0.3, 1))
+        self.cube = Cube()
+        self.cube.set_collide_enabled(True)
+        self.cube.set_velocity_enabled(True)
+        self.cube.set_position(Vector3(0,20,0))
 
-        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.player)
+        self.pygamedenanishitendayo = CuttingBoad("./Assets/py.png")
+        self.pygamedenanishitendayo.set_scale(Vector3(20,4,1))
+        self.pygamedenanishitendayo.set_position(Vector3(0,0,-10))
+
+        self.gun.look_at(Vector3(0,0,-1))
+        self.gun.set_localposition(Vector3(0.4, -0.3, -0.9))
+        
+        self.camera.add_child(self.gun)
+
+        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.cube,self.player,self.pygamedenanishitendayo)
+
+        self.player.set_position(Vector3(0,10,3))
 
     def start(self):
         super().start()

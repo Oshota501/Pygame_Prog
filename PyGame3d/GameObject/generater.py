@@ -1,4 +1,4 @@
-from PyGame3d.vector import Vector2, Vector3
+from PyGame3d.vector import Quaternion, Vector2, Vector3
 from PyGame3d.GameObject.Sample import Cube, Floor
 from PyGame3d.Scene import Scene
 
@@ -16,14 +16,14 @@ class DefaultObjectGenerater:
     def cube(
         self,
         position: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),
-        rotation: tuple[float, float, float] | Vector3 = (0.0, 0.0, 1.0),
+        rotation: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),
         scale: tuple[float, float, float] | Vector3 = (1.0, 1.0, 1.0),
         velocity_enabled: bool = False,
         velocity: tuple[float, float, float] | Vector3 = (0.0, 0.0, 0.0),
         coefficient: float = 0.5,
         collide_enabled: bool = False,
     ) -> Cube:
-        cube = Cube.transform(Vector3(*position), Vector3(*rotation), Vector3(*scale))
+        cube = Cube.transform(Vector3(*position), Quaternion(*rotation), Vector3(*scale))
         cube.set_collide_enabled(collide_enabled)
         cube.set_collide_enabled(velocity_enabled)
         cube.set_velocity(Vector3(*velocity))
@@ -39,7 +39,7 @@ class DefaultObjectGenerater:
     ) -> Floor:
         floor = Floor.transform(
             position=Vector3(*position),
-            rotation=Vector3(*rotation),
+            rotation=Quaternion(*rotation),
             scale=Vector3(*scale),
         )
         return floor
