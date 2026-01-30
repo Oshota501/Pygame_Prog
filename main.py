@@ -4,7 +4,7 @@ from PyGame3d import (
     Floor,
     Scene,
     Vector3,
-    Quaternion,
+    CuttingBoad,
     Cube
 )
 from PyGame3d.GameObject.Sample.player import FPSPlayer
@@ -33,10 +33,16 @@ class StartScene(Scene):
         self.cube.set_velocity_enabled(True)
         self.cube.set_position(Vector3(0,20,0))
 
-        self.gun.set_localposition(Vector3(0, -0.3, 0))
-        self.gun.set_localrotation(Quaternion(0,0,0,1))
+        self.pygamedenanishitendayo = CuttingBoad("./Assets/py.png")
+        self.pygamedenanishitendayo.set_scale(Vector3(20,4,1))
+        self.pygamedenanishitendayo.set_position(Vector3(0,0,-10))
 
-        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.gun, self.cube,self.player)
+        self.gun.look_at(Vector3(0,0,-1))
+        self.gun.set_localposition(Vector3(0.4, -0.3, -0.9))
+        
+        self.camera.add_child(self.gun)
+
+        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.cube,self.player,self.pygamedenanishitendayo)
 
         self.player.set_position(Vector3(0,10,3))
 

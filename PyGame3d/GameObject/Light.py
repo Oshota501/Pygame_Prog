@@ -72,7 +72,7 @@ class Light(ContainerComponent):
         
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
-        return mat_t * mat_r * mat_s
+        return mat_s * mat_r * mat_t
 
     def get_world_matrix(self) -> Matrix4:
         """
@@ -83,7 +83,7 @@ class Light(ContainerComponent):
         parent = self.get_parent()
         if parent is not None:
             parent_world_mat = parent.get_world_matrix()
-            return parent_world_mat * local_mat
+            return local_mat * parent_world_mat
         
         return local_mat
     # Position

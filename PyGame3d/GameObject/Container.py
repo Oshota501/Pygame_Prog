@@ -36,7 +36,7 @@ class GameContainer(ContainerComponent):
         # 行列の掛け算 T * R * S
         # ※ライブラリの仕様によりますが、通常は 左側にある変換が「後」に適用されます。
         #   「拡大してから、回転して、移動する」のが一般的なので T * R * S の順です。
-        return mat_t * mat_r * mat_s
+        return mat_s * mat_r * mat_t
 
     def get_world_matrix(self) -> Matrix4:
         """
@@ -50,7 +50,7 @@ class GameContainer(ContainerComponent):
         if parent is not None:
             parent_world_mat = parent.get_world_matrix()
             # 【重要】 行列の掛け算順序: Parent * Child
-            return parent_world_mat * local_mat
+            return local_mat * parent_world_mat
         
         # 親がいなければ（ルートなら）、ローカル行列がそのままワールド行列
         return local_mat

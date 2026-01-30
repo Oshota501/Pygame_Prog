@@ -4,18 +4,6 @@
 
 画面とイベント処理は完全にpygameに依存していますが、描画のプロセスにpygameは一切関与しておらず、modernglに依存しています。
 
-### 弱点・修正すべき点
-
-- オイラー角
-
-  - Unityなどと違ってオイラー角を採用しているので向けない方向があります。つまり、飛行機操縦ゲームとかを作りたかったら、UnityとかThree.jsをおとなしく使って下さい。
-
-- 物理演算
-
-  - 適当に実装しているから精度は悪いと思われます。
-
-そもそも学部一回生が作っている時点で察して下さい。
-
 # 環境構築
 
 手元にWindowsが都合よくなかったのでMac版のみです。
@@ -51,27 +39,6 @@ python3.14 main.py
 ```
 
 ## 使い方
-
-### パフォーマンスについて
-
-numpyのndarrayを使用したMatrix4とcppで自作したMatrix4が存在しています。（どちらも全く同じ実装です。）
-
-デフォルトで前者を使用するようにしていますが、後者の方が若干パフォーマンス的に速度が出るかもしれません。
-
-- コンパイル
-```sh
-sh setup.sh
-```
-- 変更
-`/PyGame3d/__init__.py`
-```py
-from .matrix.mat4 import Matrix4
-```
-を
-```py
-from .pg3_math.matrix import Matrix4
-```
-に変更
 
 ### 簡単な使い方
 
@@ -181,16 +148,37 @@ game.start_rendering()
 
 ```
 
+### ~~パフォーマンスについて~~
+
+numpyのndarrayを使用したMatrix4とcppで自作したMatrix4が存在しています。（どちらも全く同じ実装です。）
+
+デフォルトで前者を使用するようにしていますが、後者の方が若干パフォーマンス的に速度が出るかもしれません。
+
+- コンパイル
+```sh
+sh setup.sh
+```
+- 変更
+`/PyGame3d/__init__.py`
+```py
+from .matrix.mat4 import Matrix4
+```
+を
+```py
+from .pg3_math.matrix import Matrix4
+```
+に変更
+
 ## 実装したいことlist
 
 - [x] Mesh型作成
 - [x] シングルトン
 - [x] Cube型作成
-- [ ] GUI操作実装
+- [x] GUI操作実装
 - [ ] カスタムシェーダー実装
 - [x] 衝突判定実装
-- [ ] 物理演算実装 (NEXT)
-- [ ] 2d ui を使えるGameContainer型の実装
+- [x] 物理演算実装 (NEXT)
+- [x] 2d ui を使えるGameContainer型の実装
 
 ## よく使うclass一覧
 
