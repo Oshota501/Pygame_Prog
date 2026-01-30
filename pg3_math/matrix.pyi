@@ -1,5 +1,7 @@
 from typing import Iterable, Sequence, List, Optional, overload
+from warnings import deprecated
 
+@deprecated("この行列型は使わないでください。\nQuaternion型実装に伴って廃止しました。")
 class Matrix4:
     """
     4x4 行列（内部は 4x4 のリストまたは長さ16のフラットリストを扱う想定）

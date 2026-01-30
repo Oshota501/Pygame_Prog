@@ -1,7 +1,8 @@
+import math
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Vector3
-import math
+import numpy as np
 
 from PyGame3d import matrix
 from PyGame3d.matrix import rotation as rmatrix
@@ -128,15 +129,32 @@ class Camera(ContainerComponent):
         self.rotation = local_rotation
         return
 
-    def look_at(self, target_position: Vector3) -> None:
-        dl = target_position - self.get_position()
-        distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
+    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+        eye = np.array([self.position.x, self.position.y, self.position.z])
+        tgt = np.array([target.x, target.y, target.z])
 
-        # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
-        pitch = -math.degrees(math.atan2(dl.y, distance_xz))
+        z_axis = eye - tgt  # 手前方向 (Forwardの逆)
+        z_len = np.linalg.norm(z_axis)
+        if z_len < 1e-6: return # 近すぎる場合は無視
+        z_axis /= z_len
 
-        yaw = math.degrees(math.atan2(dl.x, -dl.z))
-        self.set_rotation(Vector3(pitch, yaw, 0.0))
+        # Right (X軸): Up x Z
+        up_arr = np.array([up.x, up.y, up.z])
+        x_axis = np.cross(up_arr, z_axis)
+        x_len = np.linalg.norm(x_axis)
+        if x_len < 1e-6: x_axis = np.array([1, 0, 0]) # 万が一並行ならX軸とする
+        else: x_axis /= x_len
+
+        # Up (Y軸): Z x X
+        y_axis = np.cross(z_axis, x_axis)
+
+        pitch = math.asin(y_axis[2])  # Y軸ベクトルのZ成分がピッチに関連
+        yaw = math.atan2(-z_axis[0], -z_axis[2])
+        roll = 0.0
+
+        self.rotation.x = pitch
+        self.rotation.y = yaw
+        self.rotation.z = roll
 
     # Scale
     def add_scale(self, delta_scale: Vector3) -> None:

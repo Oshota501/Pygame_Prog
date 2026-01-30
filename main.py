@@ -22,13 +22,14 @@ class StartScene(Scene):
     def __init__(self) -> None:
         super().__init__()
         self.angle = 0
+        self.player = FPSPlayer(self.camera)
         self.gun = Sprite3D.obj(
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
         self.gun.set_localposition(Vector3(0, -0.3, 0))
         self.gun.set_localrotation(Vector3(10,0,0))
 
-        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.gun)
+        self.add_children(Floor.transform(position=Vector3(0, -3, 0)), self.gun,self.player)
 
     def start(self):
         super().start()
