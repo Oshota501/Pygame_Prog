@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import moderngl
 from PyGame3d.matrix.mat4 import Matrix4
-from PyGame3d.vector import Vector3
+from PyGame3d.vector import Quaternion, Vector3
 
 
 # signature : oshota
 @dataclass
 class Transform:
     position: Vector3
-    rotation: Vector3
+    rotation: Quaternion
     scale: Vector3
 
 

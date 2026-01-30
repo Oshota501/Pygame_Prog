@@ -2,24 +2,21 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d import matrix
 from PyGame3d.matrix import rotation as rmatrix
-from PyGame3d.vector import Vector3
+from PyGame3d.vector import Quaternion, Vector3
 import math
 
 
 # signature : Oshota
 class Light(ContainerComponent):
-    position: Vector3
-    rotation: Vector3
     child: list[ContainerComponent]
     parent: ContainerComponent | None
     color: Vector3
 
     def __init__(self) -> None:
-        self.position = Vector3(0, 10, 0)
-        self.rotation = Vector3(0, -1, 0)
         self.child = []
         self.parent = None
         self.color = Vector3(1.0, 1.0, 1.0)
+        super().__init__()
 
     def get_color(self) -> Vector3:
         return self.color
@@ -72,7 +69,7 @@ class Light(ContainerComponent):
 
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
 
-        mat_r = rmatrix.create(rot.x, rot.y, rot.z)
+        mat_r = self.rotation.to_matrix()
         
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
@@ -90,11 +87,7 @@ class Light(ContainerComponent):
             return parent_world_mat * local_mat
         
         return local_mat
-
     # Position
-    def add_position(self, delta_position: Vector3) -> None:
-        self.position += delta_position
-
     def get_position(self) -> Vector3:
         if self.parent == None:
             return self.position
@@ -107,63 +100,43 @@ class Light(ContainerComponent):
             self.position = absolute_position - self.parent.get_position()
         return
 
-    def get_localposition(self) -> Vector3:
-        return self.position
-
-    def set_localposition(self, local_position: Vector3) -> None:
-        self.position = local_position
-        return
-
     # Rotation
-    def add_rotation(self, delta_rotation: Vector3) -> None:
-        self.rotation += delta_rotation
+    def add_rotation(self, delta_rotation: Quaternion) -> None:
+        self.rotation *= delta_rotation
 
-    def get_rotation(self) -> Vector3:
+    def get_rotation(self) ->Quaternion:
         if self.parent == None:
             return self.rotation
-        return self.parent.get_rotation() + self.rotation
+        return self.parent.get_rotation() * self.rotation
 
-    def set_rotation(self, absolute_rotation: Vector3) -> None:
+    def set_rotation(self, absolute_rotation: Quaternion) -> None:
         if self.parent == None:
             self.rotation = absolute_rotation
         else:
-            self.rotation = absolute_rotation - self.parent.get_rotation()
+            self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-    def get_localrotation(self) -> Vector3:
-        return self.rotation
 
-    def set_localrotation(self, local_rotation: Vector3) -> None:
-        self.rotation = local_rotation
-        return
-
-    def look_at(self, target_position: Vector3) -> None:
-        dl = target_position - self.position
-        distance_xz = math.sqrt(dl.x**2 + dl.y**2 + dl.z**2)
-
-        # OpenGLのカメラ行列の実装によっては、上下の回転方向が逆
-        pitch = -math.degrees(math.atan2(dl.y, distance_xz))
-
-        yaw = math.degrees(math.atan2(dl.x, -dl.z))
-        self.set_rotation(Vector3(pitch, yaw, 0.0))
+    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+        forward = Vector3(
+            target.x - self.position.x,
+            target.y - self.position.y,
+            target.z - self.position.z
+        )
+        self.rotation = Quaternion.look_rotation(forward, up)
 
     # Scale
-    def add_scale(self, delta_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return
-
     def get_scale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0, 1.0, 1.0)
+        if self.parent == None:
+            return self.scale
+        return self.parent.get_scale() * self.scale
 
     def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return
-
-    def get_localscale(self) -> Vector3:
-        print("\033[33mWarning : Camera doesn't have scale .")
-        return Vector3(1.0, 1.0, 1.0)
-
-    def set_localscale(self, local_scale: Vector3) -> None:
-        print("\033[33mWarning : Camera doesn't have scale .")
+        if isinstance(absolute_scale, Vector3):
+            if self.parent == None:
+                self.scale = absolute_scale
+            else:
+                self.scale = absolute_scale / self.parent.get_scale()
+        else:
+            self.scale *= absolute_scale
         return

@@ -12,7 +12,7 @@ from PyGame3d.GameObject.Collide import (
     SimpleBoundingObject,
 )
 from PyGame3d.GameObject.Container import GameContainer
-from PyGame3d.vector import Vector3
+from PyGame3d.vector import Quaternion, Vector3
 
 
 # signature : oshota
@@ -214,7 +214,7 @@ class Sprite3D(
     def set_transform(
         self,
         position: Vector3 | None = None,
-        rotation: Vector3 | None = None,
+        rotation: Quaternion | None = None,
         scale: Vector3 | None = None,
         velocity: Vector3 | None = None,
         mass: float | None = None,
@@ -282,7 +282,7 @@ class Sprite3D(
     # static method
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Vector3(0, 0, 1), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)
     ) -> Sprite3D:
         g = Sprite3D()
         g.set_position(position)

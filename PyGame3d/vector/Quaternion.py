@@ -1,6 +1,7 @@
 """
 Quauternion
 The only realize rotation .
+sign : Gemini AI
 """
 
 import math
@@ -27,6 +28,12 @@ class Quaternion:
     def identity() -> "Quaternion":
         return Quaternion(0, 0, 0, 1)
 
+    def conjugate(self) -> "Quaternion":
+        """共役（xyzを反転、wはそのまま）を返す"""
+        return Quaternion(-self.x, -self.y, -self.z, self.w)
+
+    def inverse(self) -> "Quaternion":
+        return self.conjugate()
     # --- 行列への変換 (超重要) ---
     def to_matrix(self) -> Matrix4:
         """
