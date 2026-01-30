@@ -149,6 +149,33 @@ class GameContainer(ContainerComponent):
             self.scale *= absolute_scale
         return
 
+    def __repr__(self) -> str:
+        result = (
+            f"{self.__class__.__name__} : {self.get_name()}\n"\
+            f"├--pos : {self.get_position()}\n"\
+            f"├--rot : {self.get_rotation()}\n"\
+            f"├--scale : {self.get_scale()}\n"\
+            f"├--children : {len(self.child)}\n"\
+        )
+        return result
+    
+    def __getitem__(self,index:int) -> ContainerComponent :
+        if index >= 0 and index < len(self.child) :
+            return self.child[index]
+        else :
+            raise IndexError(f"Index ${index} is out of range .")
+
+    def __setitem__(self,index:int,value:ContainerComponent) :
+        if index >= 0 and index < len(self.child) :
+            self.child[index] = value
+            value.set_parent(self)
+        else :
+            raise IndexError(f"Index ${index} is out of range .")
+
+    def __len__(self) -> int :
+        return len(self.child)
+
+
     @staticmethod
     def include_transform(
         position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)

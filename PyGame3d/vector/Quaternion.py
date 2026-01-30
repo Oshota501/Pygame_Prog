@@ -35,6 +35,10 @@ class Quaternion:
     def inverse(self) -> "Quaternion":
         return self.conjugate()
     # --- 行列への変換 (超重要) ---
+
+    def __repr__(self) -> str:
+        return f"Quaternion({self.x},{self.y},{self.z},{self.w})"
+
     def to_matrix(self) -> Matrix4:
         """
         クォータニオンを回転行列(Matrix4)に変換する。
