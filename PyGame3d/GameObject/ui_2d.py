@@ -52,3 +52,14 @@ class UI_2d(GameContainer, DrawableContainerComponent):
     ) -> UI_2d:
         mesh = Mesh2d.text(text, font_size, color, font_path)
         return UI_2d(mesh, resolution_pointer)
+    @staticmethod
+    def image(
+        resolution: tuple[int, int],
+        image_path: str,
+        size : Vector2 | tuple[float,float]
+    ) -> UI_2d:
+        if isinstance (size,Vector2) :
+            mesh = Mesh2d.image_rect(image_path,size)
+        else :
+            mesh = Mesh2d.image_rect(image_path,Vector2(size[0],size[1]))
+        return UI_2d(mesh,resolution)

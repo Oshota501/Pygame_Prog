@@ -171,6 +171,7 @@ class Sprite3D(
     is_collide: bool
     _double_collide: int
     _changed: bool
+    _start_frag: bool
 
     def __init__(
         self,
@@ -190,6 +191,7 @@ class Sprite3D(
         self._bounding_obj = bounding
         self.is_collide = False
         self._double_collide = 0
+        self._start_frag = True
         # デフォルト引数の問題を回避：Noneの場合は新しいインスタンスを作成
         if physics is None:
             self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
@@ -200,6 +202,9 @@ class Sprite3D(
     def update(self, delta_time: float):
         super().update(delta_time)
         # 物理演算で位置を更新
+        if self._start_frag :
+            self._start_frag = False
+            return
         if self.is_collide:
             self._double_collide += 1
             self._changed = True

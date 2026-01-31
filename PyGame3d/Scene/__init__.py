@@ -52,16 +52,19 @@ class Scene(SceneComponent):
             c.start()
 
     def update(self, delta_time: float):
-        for shader in self.shader:
-            shader.update(self)
-        for e in self.exe:
-            e.update(delta_time)
-        for c in self.container.get_child():
-            c.update(delta_time)
         for t in self.ticker.items():
             t[1](delta_time)
+        for e in self.exe:
+            e.update(delta_time)
+        self.container.update(delta_time)
+
         # CollideManager
         self._manager.check_all_collisions()
+
+    def draw_update(self) -> None:
+        self.container.draw_update()
+        for shader in self.shader:
+            shader.update(self)
 
     def get_camera(self) -> Camera:
         return self.camera

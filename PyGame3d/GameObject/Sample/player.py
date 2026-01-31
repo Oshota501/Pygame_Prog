@@ -33,6 +33,7 @@ class Player(Sprite3D):
         self._mouse = Vector2(*mouse)
         self._look_at = Vector3(0, 0, 1)
         self.position += Vector3(0, 4, 0)
+        self.set_velocity(Vector3(0,0,0))
         self.set_collide_enabled(True)
         self.set_velocity_enabled(True)
         self.xz_angle = 0
@@ -75,6 +76,9 @@ class Player(Sprite3D):
         self._keypress(delta_time)
         return super().update(delta_time)
 
+    def jump (self) -> None :
+        return
+
     def _keypress(self, delta_time: float) -> None:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
@@ -88,6 +92,7 @@ class Player(Sprite3D):
         if keys[pygame.K_SPACE]:
             self.is_collide = False
             self.set_velocity(Vector3(0, self.jump_power, 0))
+            self.jump()
 
     def _lock_mouse_to_center(self) -> None:
         surface = pygame.display.get_surface()
@@ -166,13 +171,13 @@ class FPSPlayer(Player):
         self, keys: ScancodeWrapper, forward: Vector3, right: Vector3, delta_time: float
     ) -> None:
         if keys[pygame.K_w]:
-            self.add_position(forward * delta_time)
+            self.add_position(forward * delta_time * self.speed)
         if keys[pygame.K_s]:
-            self.add_position(-forward * delta_time)
+            self.add_position(-forward * delta_time * self.speed)
         if keys[pygame.K_d]:
-            self.add_position(right * delta_time)
+            self.add_position(right * delta_time * self.speed)
         if keys[pygame.K_a]:
-            self.add_position(-right * delta_time)
+            self.add_position(-right * delta_time * self.speed)
 
     def _mv_keypress_v(
         self,
@@ -202,6 +207,7 @@ class FPSPlayer(Player):
             self.is_collide = False
             if abs(self.physics.velocity.y) <= 0.001:
                 self.physics.velocity.y += 9.81 * self.jump_power
+                self.jump()
 
     def _esc_keypress(self, keys: pygame.key.ScancodeWrapper) -> None:
         esc_now = keys[pygame.K_ESCAPE]

@@ -21,9 +21,11 @@ from .GameObject.Camera import Camera
 # from .GameObject.Collide import
 from .GameObject.Container import GameContainer
 from .GameObject.sprite import Sprite3D
+from .GameObject.ui_2d import UI_2d
 
 # サンプル
 from .GameObject.Sample import Cube, CuttingBoad, Floor
+from .GameObject.Sample.player import Player , FPSPlayer
 
 __all__ = [
     "Application",
@@ -38,5 +40,8 @@ __all__ = [
     "Cube",
     "CuttingBoad",
     "Floor",
+    "UI_2d",
     "Quaternion",
+    "Player",
+    "FPSPlayer"
 ]

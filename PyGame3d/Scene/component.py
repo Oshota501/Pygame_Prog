@@ -34,8 +34,9 @@ class SceneComponent(ABC):
         for object in objects:
             self.add_child(object)
 
+    @abstractmethod
     def draw_update(self) -> None:
-        self.container.draw_update()
+        pass
 
     @abstractmethod
     def start(self) -> None:

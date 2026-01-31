@@ -106,6 +106,7 @@ class Floor(Sprite3D):
     ) -> Floor:
         f = Floor()
         f.set_collide_enabled(True)
+        f.set_velocity_enabled(False)
 
         f.set_position(position if position is not None else Vector3(0, 0, 0))
         f.set_rotation(rotation if rotation is not None else Quaternion.identity())
