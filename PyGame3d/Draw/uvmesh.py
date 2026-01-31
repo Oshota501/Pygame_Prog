@@ -51,10 +51,8 @@ class UV3dShaderContainer(
         self.program["view_pos"].value = scene.get_camera().get_position()  # type: ignore # 現在のカメラ座標
         self.program["light_color"].value = scene.get_light().get_color()  # type: ignore # 白色の光
 
-    def send_model(
-        self, position: Matrix4, rotation: Matrix4, scale: Matrix4
-    ) -> None:
-        model = position * rotation * scale 
+    def send_model(self, position: Matrix4, rotation: Matrix4, scale: Matrix4) -> None:
+        model = position * rotation * scale
         self.send_uniform("model", model)
         return
 
@@ -69,7 +67,7 @@ class UV3dShaderContainer(
     def send_view_by_camera(self, camera: Camera) -> None:
         """
         send_view_by_camera の Docstring
-        
+
         自動でinverseしてくれるのでinverseをする必要はありアセン。
         """
         view = camera.get_world_matrix().inverse()
@@ -276,9 +274,9 @@ class UV3dMeshSub(MeshRender, MeshLike):
         program = self.material.program
         return (self.ctx, program)
 
-    def render(self, transform: Transform|Matrix4) -> None:
+    def render(self, transform: Transform | Matrix4) -> None:
         self.material.use()
-        if isinstance (transform ,Transform) :
+        if isinstance(transform, Transform):
             self.shader.send_model(
                 position=matrix.create_translation(
                     transform.position.x, transform.position.y, transform.position.z
@@ -290,8 +288,8 @@ class UV3dMeshSub(MeshRender, MeshLike):
                     transform.scale.x, transform.scale.y, transform.scale.z
                 ),
             )
-        else :
-            self.shader.send_uniform("model",transform)
+        else:
+            self.shader.send_uniform("model", transform)
         self.vao.render()
 
     def destroy(self) -> None:
@@ -417,7 +415,7 @@ class UV3dMesh(MeshRender, MeshLike):
             m = self.sub_mesh[0]
             return (m.ctx, m.material.program)
 
-    def render(self, transform: Transform|Matrix4) -> None:
+    def render(self, transform: Transform | Matrix4) -> None:
         for sub in self.sub_mesh:
             sub.render(transform)
 

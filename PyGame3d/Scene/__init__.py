@@ -39,7 +39,7 @@ class Scene(SceneComponent):
         self._interval_id_top = 0
         self._manager = CollisionManager()
         self.light = Light()
-        self.light.set_localposition(Vector3(0,30,0))
+        self.light.set_localposition(Vector3(0, 30, 0))
         self.shader = shaders
 
     def script_add(self, game_script: GameScript) -> None:
@@ -78,9 +78,7 @@ class Scene(SceneComponent):
         return self.light
 
     def __repr__(self) -> str:
-        result = (
-            "Scene\n"\
-        )
+        result = "Scene\n"
         return result
 
     @staticmethod

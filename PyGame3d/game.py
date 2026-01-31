@@ -5,18 +5,20 @@ Application型
 
 import pygame
 import moderngl
+import time
+
+from PyGame3d import matrix
+from PyGame3d import test
+from PyGame3d import static
+
 from PyGame3d.GameObject.generater import DefaultObjectGenerater
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
-import PyGame3d.matrix as matrix
 from abc import ABC, abstractmethod
-import PyGame3d.test as test
 from PyGame3d.Draw.shader_container import (
     ShaderContainaer3dComponent,
     ShaderContainerComponent,
 )
-import PyGame3d.static as static
-import time
 
 # signature : oshota , gemini AI
 
@@ -126,7 +128,7 @@ class Application(ApplicationComponent):
 
         return
 
-    def _send_perspective_matrix (self) -> None :
+    def _send_perspective_matrix(self) -> None:
         proj_mat = matrix.create_perspective(
             self._viewing_angle,
             self.screen_size[0] / self.screen_size[1],

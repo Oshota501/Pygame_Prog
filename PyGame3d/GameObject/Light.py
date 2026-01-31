@@ -67,7 +67,7 @@ class Light(ContainerComponent):
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
 
         mat_r = self.rotation.to_matrix()
-        
+
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
         return mat_s * mat_r * mat_t
@@ -77,13 +77,14 @@ class Light(ContainerComponent):
         親の行列を含めた最終的なワールド座標行列を再帰的に計算する
         """
         local_mat = self.get_local_matrix()
-        
+
         parent = self.get_parent()
         if parent is not None:
             parent_world_mat = parent.get_world_matrix()
             return local_mat * parent_world_mat
-        
+
         return local_mat
+
     # Position
     def get_position(self) -> Vector3:
         if self.parent == None:
@@ -101,7 +102,7 @@ class Light(ContainerComponent):
     def add_rotation(self, delta_rotation: Quaternion) -> None:
         self.rotation *= delta_rotation
 
-    def get_rotation(self) ->Quaternion:
+    def get_rotation(self) -> Quaternion:
         if self.parent == None:
             return self.rotation
         return self.parent.get_rotation() * self.rotation
@@ -113,12 +114,11 @@ class Light(ContainerComponent):
             self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-
-    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
         forward = Vector3(
             target.x - self.position.x,
             target.y - self.position.y,
-            target.z - self.position.z
+            target.z - self.position.z,
         )
         self.rotation = Quaternion.look_rotation(forward, up)
 

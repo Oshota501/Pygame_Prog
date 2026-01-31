@@ -23,7 +23,9 @@ class DefaultObjectGenerater:
         coefficient: float = 0.5,
         collide_enabled: bool = False,
     ) -> Cube:
-        cube = Cube.transform(Vector3(*position), Quaternion(*rotation), Vector3(*scale))
+        cube = Cube.transform(
+            Vector3(*position), Quaternion(*rotation), Vector3(*scale)
+        )
         cube.set_collide_enabled(collide_enabled)
         cube.set_collide_enabled(velocity_enabled)
         cube.set_velocity(Vector3(*velocity))

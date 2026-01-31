@@ -2,6 +2,8 @@
 PyGame3d.test の Docstring
 codeのテストを行う領域ですので、好きに使って下さい。（gitignoreしておきます。)
 """
+
+
 # コードテスト用関数。
 def start():
     return
@@ -12,8 +14,8 @@ def update():
 
 
 def performance_test():
-    import time # pylint: disable=C0415
-    import vector.FragList as vec # pylint: disable=C0415
+    import time  # pylint: disable=C0415
+    import vector.FragList as vec  # pylint: disable=C0415
 
     a: vec.FragList[int] = vec.FragList([])
     t = time.time()
@@ -33,8 +35,8 @@ def performance_test():
 
 
 def vec3test():
-    from pg3_math.vector import Vector3 # pylint: disable=C0415
-    import math # pylint: disable=C0415
+    from pg3_math.vector import Vector3  # pylint: disable=C0415
+    import math  # pylint: disable=C0415
 
     v1 = Vector3(0, 0, 0)
     v2 = Vector3(0, 0, 0)
@@ -54,7 +56,7 @@ def vec3test():
 
 
 def mat4text():
-    from pg3_math.matrix import Matrix4 # pylint: disable=C0415
+    from pg3_math.matrix import Matrix4  # pylint: disable=C0415
 
     m = Matrix4.get_identity()
     m[2] = [0, 10, 10, 0]

@@ -163,13 +163,14 @@ class Sprite3D(
     - change frag
     - physics calc
     """
+
     mesh: MeshLike | None
     _collide_enabled: bool
     _bounding_obj: list[Sprite3DBoundingObject]
     physics: Sprite3DPhysicsComponent
     is_collide: bool
     _double_collide: int
-    _changed : bool
+    _changed: bool
 
     def __init__(
         self,
@@ -213,12 +214,10 @@ class Sprite3D(
         #     print("not set mesh")
 
     def draw_update(self) -> None:
-        if self.mesh is not None and self._changed :
+        if self.mesh is not None and self._changed:
             self._changed = False
             world_matrix = self.get_world_matrix()
-            self.mesh.render(
-                world_matrix
-            )
+            self.mesh.render(world_matrix)
         return super().draw_update()
 
     def get_mesh(self) -> MeshLike | None:
@@ -312,7 +311,7 @@ class Sprite3D(
         self._changed = True
         return super().set_localrotation(local_rotation)
 
-    def look_at(self, target: Vector3, up: Vector3 = Vector3(0,1,0)) -> None:
+    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
         self._changed = True
         return super().look_at(target, up)
 
@@ -336,8 +335,8 @@ class Sprite3D(
     def __repr__(self) -> str:
         result = super().__repr__()
         result += (
-            "├--Physics\n"\
-            f"   ├--Velocity : {self.physics.velocity}\n"\
+            "├--Physics\n"
+            f"   ├--Velocity : {self.physics.velocity}\n"
             f"   ├--Mass : {self.physics.mass}\n"
         )
         return result
@@ -345,7 +344,9 @@ class Sprite3D(
     # static method
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0),
+        rotation=Quaternion.identity(),
+        scale=Vector3(1, 1, 1),
     ) -> Sprite3D:
         g = Sprite3D()
         g.set_position(position)

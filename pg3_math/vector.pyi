@@ -5,7 +5,9 @@ import PyGame3d.vector.vec_type as vector
 Number = Union[int, float]
 
 # signature : github copilot
-@deprecated("このベクトル型は使わないでください。\nQuaternion型実装に伴って廃止しました。")
+@deprecated(
+    "このベクトル型は使わないでください。\nQuaternion型実装に伴って廃止しました。"
+)
 class Vector3:
     x: float
     y: float

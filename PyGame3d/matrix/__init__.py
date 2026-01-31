@@ -1,10 +1,12 @@
 import math
+
 # from pg3_math.matrix import Matrix4
 from PyGame3d.matrix.mat4 import Matrix4
+
 # signature : oshota , gemini ai
 # 転置済み(Transposed)の配列定義
 # 数学的な行列の「行」と「列」を入れ替えて定義しています
-    
+
 # fmt: off
 def get_i () -> Matrix4 :
     return Matrix4([

@@ -1,12 +1,4 @@
-from PyGame3d import (
-    Application,
-    Sprite3D,
-    Floor,
-    Scene,
-    Vector3,
-    CuttingBoad,
-    Cube
-)
+from PyGame3d import Application, Sprite3D, Floor, Scene, Vector3, CuttingBoad, Cube
 from PyGame3d.GameObject.Sample.player import FPSPlayer
 from PyGame3d.GameObject.ui_2d import UI_2d
 from PyGame3d.performance import PerformanceInspectator
@@ -31,13 +23,13 @@ class StartScene(Scene):
         self.cube = Cube()
         self.cube.set_collide_enabled(True)
         self.cube.set_velocity_enabled(True)
-        self.cube.set_position(Vector3(0,20,0))
+        self.cube.set_position(Vector3(0, 20, 0))
 
         self.pygamedenanishitendayo = CuttingBoad("./Assets/py.png")
-        self.pygamedenanishitendayo.set_scale(Vector3(20,4,1))
-        self.pygamedenanishitendayo.set_position(Vector3(0,0,-10))
+        self.pygamedenanishitendayo.set_scale(Vector3(20, 4, 1))
+        self.pygamedenanishitendayo.set_position(Vector3(0, 0, -10))
 
-        self.gun.look_at(Vector3(0,0,-1))
+        self.gun.look_at(Vector3(0, 0, -1))
         self.gun.set_localposition(Vector3(0.4, -0.3, -0.9))
 
         self.camera.add_child(self.gun)
@@ -46,13 +38,13 @@ class StartScene(Scene):
             Floor.transform(position=Vector3(0, -3, 0)),
             self.cube,
             self.player,
-            self.pygamedenanishitendayo
+            self.pygamedenanishitendayo,
         )
 
         print(self.container)
         print(self.cube)
 
-        self.player.set_position(Vector3(0,10,3))
+        self.player.set_position(Vector3(0, 10, 3))
 
     def start(self):
         super().start()
