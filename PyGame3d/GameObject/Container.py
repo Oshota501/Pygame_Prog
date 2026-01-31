@@ -1,9 +1,13 @@
-import math
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# Container
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# signature : Oshota
+# date : 2026/1/31
+
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Quaternion, Vector3
 from PyGame3d import matrix
-from PyGame3d.matrix import rotation as rmatrix
 
 class GameContainer(ContainerComponent):
     child: list[ContainerComponent]
@@ -157,6 +161,11 @@ class GameContainer(ContainerComponent):
             f"├--scale : {self.get_scale()}\n"\
             f"├--children : {len(self.child)}\n"\
         )
+        repeat = min(len(self.child),3)
+        for i in range(repeat) :
+            result += f"   ├--{self.child[i].__class__.__name__} : {self.child[i].get_name()}\n"
+        if len(self.child) > 3 :
+            result += "etc ...\n"
         return result
     
     def __getitem__(self,index:int) -> ContainerComponent :
