@@ -344,14 +344,14 @@ class Sprite3D(
     # static method
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> Sprite3D:
         g = Sprite3D()
-        g.set_position(position)
-        g.set_rotation(rotation)
-        g.set_scale(scale)
+        g.set_position(position if position is not None else Vector3(0, 0, 0))
+        g.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        g.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return g
 
     @staticmethod

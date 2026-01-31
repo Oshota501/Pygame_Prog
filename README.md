@@ -57,12 +57,11 @@ PyGame3d.PerformanceInspectator (game)
 angle = 0.0
 # ゲーム内オブジェクトを定義
 cube = PyGame3d.Cube()
-cube.name = "move_obj"
-cube.position = PyGame3d.Vector3(0,10,0)
+cube.set_position(PyGame3d.Vector3(0,10,0))
 floor = PyGame3d.Floor()
 floor.set_position(PyGame3d.Vector3(0,-10,0))
-useTextureObj = PyGame3d.Sprite3D.obj("./Assets/test.obj")
-game.stage.get_camera().position = PyGame3d.Vector3(0,0,10)
+useTextureObj = PyGame3d.Sprite3D("./Assets/test.obj")
+camera.set_position(PyGame3d.Vector3(0,0,10))
 cutting = PyGame3d.CuttingBoad("./Assets/py.png")
 cutting.position = PyGame3d.Vector3(0,5,-5)
 cutting.scale = PyGame3d.Vector3(10,5,5)
@@ -81,7 +80,7 @@ def update (delta_time:float) -> None :
     global angle
     
     angle += delta_time
-    camera.position = PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10
+    camera.set_position(PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10)
     camera.look_at(PyGame3d.Vector3(0,0,0))
 # tickerに追加
 func_id = game.stage.ticker_add(update)
@@ -97,52 +96,63 @@ game.start_rendering()
 **注意：仕様を変更したため、サポートされていません**
 
 ```py
-import math
-from PyGame3d import (
-    Application,
-    Sprite3D,
-    Floor,
-    Cube,
-    CuttingBoad,
-    Scene,
-    Vector3,
-    GameContainer,
-)
+from PyGame3d import Application, Sprite3D, Floor, Scene, Vector3, CuttingBoad, Cube
+from PyGame3d.GameObject.Sample.player import FPSPlayer
+from PyGame3d.GameObject.ui_2d import UI_2d
+from PyGame3d.performance import PerformanceInspectator
 
 # おまじない
 game = Application()
-game.init() 
+game.init()
+
 
 # ゲームのシーン設定
-class StartScene (Scene) :
-    sprite : Sprite3D
-    floor : Floor
-    cube : Cube
-    sign : CuttingBoad
-    angle : float
+class StartScene(Scene):
+    floor: Floor
+    ui: UI_2d
 
     def __init__(self) -> None:
         super().__init__()
-        self.sprite = Sprite3D.obj("./Assets/u.obj")
-        self.sprite.position = Vector3(0,0,0)
-        self.floor = Floor.transform(position=Vector3(0,-3,0))
-        self.cube = Cube()
-        self.sign = CuttingBoad("./Assets/py.png")
-        container = GameContainer()
-        container.add_children([self.sprite,self.floor,self.cube,self.sign])
-        self.add_child(container)
-        self.camera.set_position(Vector3(0,0,10))
-        self.sign.position = Vector3(0,5,-10)
-        self.sign.scale.x = 2.6
-        self.sign.scale *= 5
         self.angle = 0
+        self.player = FPSPlayer(self.camera)
+        self.gun = Sprite3D.obj(
+            "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
+        )
+        self.cube = Cube()
+        self.cube.set_collide_enabled(True)
+        self.cube.set_velocity_enabled(True)
+        self.cube.set_position(Vector3(0, 20, 0))
+
+        self.pygamedenanishitendayo = CuttingBoad("./Assets/py.png")
+        self.pygamedenanishitendayo.set_scale(Vector3(20, 4, 1))
+        self.pygamedenanishitendayo.set_position(Vector3(0, 0, -10))
+
+        self.gun.look_at(Vector3(0, 0, -1))
+        self.gun.set_localposition(Vector3(0.4, -0.3, -0.9))
+
+        self.camera.add_child(self.gun)
+
+        self.add_children(
+            Floor.transform(position=Vector3(0, -3, 0)),
+            self.cube,
+            self.player,
+            self.pygamedenanishitendayo,
+        )
+
+        print(self.container)
+        print(self.cube)
+
+        self.player.set_position(Vector3(0, 10, 3))
+
+    def start(self):
+        super().start()
+
     def update(self, delta_time: float):
         super().update(delta_time)
-        self.angle += delta_time
-        self.camera.position = Vector3(math.sin(self.angle),0.5,math.cos(self.angle))*10
-        self.camera.look_at (Vector3(0,0,0))
-        
+
+
 game.set_scene(StartScene())
+PerformanceInspectator(game)
 # おまじない（while文スタート ）
 game.start_rendering()
 

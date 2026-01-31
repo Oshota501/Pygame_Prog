@@ -17,14 +17,14 @@ class Cube(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> Cube:
         f = Cube()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f
 
 
@@ -41,14 +41,14 @@ class VColorCube(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> VColorCube:
         f = VColorCube()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f
 
 
@@ -72,14 +72,14 @@ class VColorFloor(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> VColorFloor:
         f = VColorFloor()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f
 
 
@@ -100,16 +100,16 @@ class Floor(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> Floor:
         f = Floor()
         f.set_collide_enabled(True)
 
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f
 
 
@@ -122,12 +122,12 @@ class CuttingBoad(Sprite3D):
     @staticmethod
     def transform(
         tex_filepath: str,
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> CuttingBoad:
         f = CuttingBoad(tex_filepath)
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f

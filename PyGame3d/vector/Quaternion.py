@@ -84,21 +84,20 @@ class Quaternion:
         指定した方向(forward)を向くクォータニオンを作成する。
         """
         # 1. ベクトルの正規化
-        f = forward.normalized()
+        # f = forward.normalized()
+        f = -forward.normalized()
         u = up.normalized()
 
         # 2. 直交基底ベクトルを作る (LookAt行列作成と同じロジック)
-        # OpenGLは「-Z」が前方なので注意。
-        # ここでは「Z+が前方」として計算し、エンジンの規約に合わせます。
-        # もし逆を向くなら f = f * -1 してください。
-
         right = u.cross(f).normalized()
         new_up = f.cross(right).normalized()
+        # right = f.cross(u).normalized()
+        # new_up = u.cross(right).normalized()
 
-        # 3. 回転行列の要素 (m00 ~ m22)
-        m00, m01, m02 = right.x, new_up.x, f.x
-        m10, m11, m12 = right.y, new_up.y, f.y
-        m20, m21, m22 = right.z, new_up.z, f.z
+        # 3. 回転行列の要素 (m00 ~ m22)（列優先: 列に基底を配置）
+        m00, m10, m20 = right.x, new_up.x, f.x    # 第1列（right）
+        m01, m11, m21 = right.y, new_up.y, f.y    # 第2列（new_up）
+        m02, m12, m22 = right.z, new_up.z, f.z    # 第3列（forward）
 
         # 4. 行列からクォータニオンへの変換 (一番難しいところ)
         # トレース（対角成分の和）を使って分岐計算します
@@ -108,27 +107,30 @@ class Quaternion:
         if trace > 0:
             s = 0.5 / math.sqrt(trace + 1.0)
             q.w = 0.25 / s
-            q.x = (m21 - m12) * s
-            q.y = (m02 - m20) * s
-            q.z = (m10 - m01) * s
+            q.x = (m12 - m21) * s
+            q.y = (m20 - m02) * s
+            q.z = (m01 - m10) * s
         else:
             if m00 > m11 and m00 > m22:
                 s = 2.0 * math.sqrt(1.0 + m00 - m11 - m22)
-                q.w = (m21 - m12) / s
+                s_inv = 1/s
+                q.w = (m12 - m21) * s_inv
                 q.x = 0.25 * s
-                q.y = (m01 + m10) / s
-                q.z = (m02 + m20) / s
+                q.y = (m10 + m01) * s_inv
+                q.z = (m20 + m02) * s_inv
             elif m11 > m22:
                 s = 2.0 * math.sqrt(1.0 + m11 - m00 - m22)
-                q.w = (m02 - m20) / s
-                q.x = (m01 + m10) / s
+                s_inv = 1/s
+                q.w = (m20 - m02) * s_inv
+                q.x = (m10 + m01) * s_inv
                 q.y = 0.25 * s
-                q.z = (m12 + m21) / s
+                q.z = (m21 + m12) * s_inv
             else:
                 s = 2.0 * math.sqrt(1.0 + m22 - m00 - m11)
-                q.w = (m10 - m01) / s
-                q.x = (m02 + m20) / s
-                q.y = (m12 + m21) / s
+                s_inv = 1/s
+                q.w = (m01 - m10) * s_inv
+                q.x = (m20 + m02) * s_inv
+                q.y = (m21 + m12) * s_inv
                 q.z = 0.25 * s
 
         return q

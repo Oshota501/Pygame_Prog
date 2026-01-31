@@ -30,18 +30,11 @@ class GameContainer(ContainerComponent):
         """
         pos = self.get_localposition()
         sca = self.get_localscale()
-        # 1. 平行移動行列
+
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
-
-        # 2. 回転行列 (X, Y, Zの順序は実装依存ですが、rmatrix.createがオイラー角対応と仮定)
         mat_r = self.rotation.to_matrix()
-
-        # 3. 拡大縮小行列
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
-        # 行列の掛け算 T * R * S
-        # ※ライブラリの仕様によりますが、通常は 左側にある変換が「後」に適用されます。
-        #   「拡大してから、回転して、移動する」のが一般的なので T * R * S の順です。
         return mat_s * mat_r * mat_t
 
     def get_world_matrix(self) -> Matrix4:
@@ -198,12 +191,12 @@ class GameContainer(ContainerComponent):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> GameContainer:
         g = GameContainer()
-        g.set_position(position)
-        g.set_rotation(rotation)
-        g.set_scale(scale)
+        g.set_position(position if position is not None else Vector3(0, 0, 0))
+        g.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        g.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return g
