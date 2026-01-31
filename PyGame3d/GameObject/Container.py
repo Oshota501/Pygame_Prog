@@ -205,3 +205,4 @@ class GameContainer(ContainerComponent):
         g.set_rotation(rotation)
         g.set_scale(scale)
         return g
+

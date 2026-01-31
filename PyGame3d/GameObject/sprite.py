@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from PyGame3d import static
-from PyGame3d.Draw import MeshLike, Transform
+from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject import (
     DrawableContainerComponent,
 )

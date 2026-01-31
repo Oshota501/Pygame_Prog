@@ -1,11 +1,8 @@
-import math
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Quaternion, Vector3
-import numpy as np
 
 from PyGame3d import matrix
-from PyGame3d.matrix import rotation as rmatrix
 
 # signature : Oshota
 class Camera(ContainerComponent):
