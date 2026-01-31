@@ -8,6 +8,7 @@ from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Quaternion, Vector3
 from PyGame3d import matrix
+import copy
 
 class GameContainer(ContainerComponent):
     child: list[ContainerComponent]
@@ -99,6 +100,12 @@ class GameContainer(ContainerComponent):
             c.draw_update()
         return
 
+    def shallow_copy (self) -> GameContainer :
+        return copy.copy(self)
+
+    def deep_copy (self) -> GameContainer :
+        return copy.deepcopy(self)
+
     # Position
     def get_position(self) -> Vector3:
         if self.parent == None:
@@ -165,7 +172,7 @@ class GameContainer(ContainerComponent):
         for i in range(repeat) :
             result += f"   ├--{self.child[i].__class__.__name__} : {self.child[i].get_name()}\n"
         if len(self.child) > 3 :
-            result += "etc ...\n"
+            result += "   etc ...\n"
         return result
     
     def __getitem__(self,index:int) -> ContainerComponent :
@@ -184,9 +191,13 @@ class GameContainer(ContainerComponent):
     def __len__(self) -> int :
         return len(self.child)
 
+    def __add__(self,other:ContainerComponent) -> GameContainer :
+        container = self.deep_copy()
+        container.child.extend(other.get_child())
+        return container
 
     @staticmethod
-    def include_transform(
+    def transform(
         position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)
     ) -> GameContainer:
         g = GameContainer()

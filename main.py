@@ -50,6 +50,7 @@ class StartScene(Scene):
         )
 
         print(self.container)
+        print(self.cube)
 
         self.player.set_position(Vector3(0,10,3))
 

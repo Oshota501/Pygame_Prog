@@ -156,6 +156,13 @@ class Sprite3D(
     CollisionDetectionContainer,
     PhysicsObject,
 ):
+    """
+    # Sprite3D Docstring
+    This object is normal 3d object .
+    - mesh
+    - change frag
+    - physics calc
+    """
     mesh: MeshLike | None
     _collide_enabled: bool
     _bounding_obj: list[Sprite3DBoundingObject]
@@ -325,6 +332,15 @@ class Sprite3D(
     def set_localscale(self, local_position: Vector3) -> None:
         self._changed = True
         return super().set_localscale(local_position)
+
+    def __repr__(self) -> str:
+        result = super().__repr__()
+        result += (
+            "├--Physics\n"\
+            f"   ├--Velocity : {self.physics.velocity}\n"\
+            f"   ├--Mass : {self.physics.mass}\n"
+        )
+        return result
 
     # static method
     @staticmethod

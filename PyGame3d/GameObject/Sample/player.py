@@ -211,5 +211,3 @@ class FPSPlayer(Player):
                 # reset delta baseline when unlocked
                 self._mouse = Vector2(*pygame.mouse.get_pos())
         self._esc_was_down = esc_now
-
-

@@ -1,9 +1,7 @@
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d import matrix
-from PyGame3d.matrix import rotation as rmatrix
 from PyGame3d.vector import Quaternion, Vector3
-import math
 
 
 # signature : Oshota
@@ -22,7 +20,7 @@ class Light(ContainerComponent):
         return self.color
 
     def get_name(self) -> str:
-        return "Camera"
+        return "Light1"
 
     def add_child(self, object: ContainerComponent) -> None:
         object.set_parent(self)
@@ -32,8 +30,8 @@ class Light(ContainerComponent):
         return self.child
 
     def remove_child(self, index: int) -> None:
-        pr_pointer = self.child[index].get_parent()
-        pr_pointer = None
+        c = self.child[index].get_parent()
+        c = None
         del self.child[index]
 
     def get_parent(self) -> ContainerComponent | None:
@@ -139,3 +137,7 @@ class Light(ContainerComponent):
         else:
             self.scale *= absolute_scale
         return
+
+    def __repr__(self) -> str:
+        result = super().__repr__()
+        return result
