@@ -40,6 +40,23 @@ python3.14 main.py
 
 ## 使い方
 
+### 概要
+
+1.[class Application](./PyGame3d/game.py) を呼び出してWindowを表示
+2.[implements ContainerComponent](./PyGame3d/GameObject/__init__.py)をインスタンス化
+- あなたの作る部分
+  - [GameContainer](./PyGame3d/GameObject/Container.py)
+  - [Sprite3d](./PyGame3d/GameObject/sprite.py)
+  - Sample
+    - [Cube](./PyGame3d/GameObject/Sample/__init__.py)
+    - [Floor](./PyGame3d/GameObject/Sample/__init__.py)
+    - [CuttingBoad](./PyGame3d/GameObject/Sample/__init__.py)
+    - [FPSPlayer](./PyGame3d/GameObject/Sample/player.py)
+- 自動でインスタンスされる
+  - [Camera](./PyGame3d/GameObject/Camera.py)
+  - [Light](./PyGame3d/GameObject/Light.py)
+3.start_rendering()
+
 ### 簡単な使い方
 
 main.py
@@ -95,8 +112,6 @@ game.start_rendering()
 なお`GameScript`を継承した関数をstageに追加することでもupdateとstart関数を使うことができます。
 
 ### ゲームの画面を使い分けたい場合
-
-**注意：仕様を変更したため、サポートされていません**
 
 ```py
 from PyGame3d import Application, Sprite3D, Floor, Scene, Vector3, CuttingBoad, Cube
@@ -195,7 +210,11 @@ from .pg3_math.matrix import Matrix4
 
 ## よく使うclass一覧
 
-### class Application
+### [class Vector3](./PyGame3d/vector/Vector3.py)
+
+### [class Quaternion](./PyGame3d/vector/Quaternion.py)
+
+### [class Application](./PyGame3d/game.py)
 
 - __init__ () -> None
   - 変数の初期化
@@ -208,7 +227,7 @@ from .pg3_math.matrix import Matrix4
 
 - def
 
-### class Scene
+### [class Scene](./PyGame3d/Scene/__init__.py)
 
 - container
 - camera
@@ -222,47 +241,48 @@ containerの大元となるオブジェクトです。
 
 このオブジェクトをインスタンス化することで、全く別のゲーム画面を実装可能です。
 
-### class GameContainer
+### [class GameContainer](./PyGame3d/GameObject/Container.py)
 
 - position
 - rotation
 - scale
-  
-子要素の追加・削除
 
-- def remove_child (ContainerComponent)
+- remove_child (ContainerComponent) -> None
   - 計算量O(n)で実装されているので覚悟して下さい。
-- def add_child (Game)
+- def add_child (ContainerComponent)
+- update (float delta_time) -> None
+- start () -> None
+- look_at () -> None
 
 localな値を使用する場合に対応するため、全てのTransform系のComponentはGameContainerで実装されています。
 
-### class Sprite3D extends GameContainer
+### [class Sprite3D extends GameContainer](./PyGame3d/GameObject/sprite.py)
 
 - mesh
 
-描画するためのポリゴンデータを持っています。
 
-### class Cube extends Sprite3D
+## より低レイヤー Class
 
-コンストラクタにてmeshに立方体のポリゴンを渡しています。
+### [Mesh](./PyGame3d/Draw/__init__.py)
 
-### class Sprite3D_obj_format extends Sprite3D
+- [UVMesh](./PyGame3d/Draw/uvmesh.py)
+- [VColorMesh](./PyGame3d/Draw/vcolormesh.py)
+- [Mesh2d](./PyGame3d/Draw/mesh2d.py)
 
-コンストラクタにて.obj形式で渡した値を読み込んで描画できるように実装されています。
+### [ShaderContainer](./PyGame3d/Draw/shader_container.py)
 
-## 内部的な処理として使いたい Class
+- Mesh型の上に記載
+- [UVMesh](./PyGame3d/Draw/uvmesh.py)
+- [VColorMesh](./PyGame3d/Draw/vcolormesh.py)
+- [Mesh2d](./PyGame3d/Draw/mesh2d.py)
 
-- class VertColorMesh
-  - 保持する行列が [x,y,z,r,g,b] の行列
-  - .objファイルの形のデータにだけ対応
-- class ShaderContainer
-  - moderngl の Context と Program を保持
-  - 使用するメッシュによって使い分けるための class
+### [Texture](./PyGame3d/Draw/texture.py)
 
-class UV3dMesh
+- UVTexture
 
-- 保持する行列が [x,y,z,u,v] の行列
-- .objのTextureに対応
+### [Material](./PyGame3d/Draw/texture.py)
+
+-UVMaterial
 
 ## 開発中
 
