@@ -47,9 +47,9 @@ class UV3dShaderContainer(
         return
 
     def update(self, scene: SceneComponent) -> None:
-        self.program["light_pos"].value = scene.get_light().get_position()  # type: ignore # 斜め上など
+        self.program["light_pos"].value = scene.get_light()[0].get_position()  # type: ignore # 斜め上など
         self.program["view_pos"].value = scene.get_camera().get_position()  # type: ignore # 現在のカメラ座標
-        self.program["light_color"].value = scene.get_light().get_color()  # type: ignore # 白色の光
+        self.program["light_color"].value = scene.get_light()[0].get_color()  # type: ignore # 白色の光
 
     def send_model(self, position: Matrix4, rotation: Matrix4, scale: Matrix4) -> None:
         model = position * rotation * scale

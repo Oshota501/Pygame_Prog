@@ -63,5 +63,5 @@ class SceneComponent(ABC):
         pass
 
     @abstractmethod
-    def get_light(self) -> Light:
+    def get_light(self) -> list[Light]:
         pass

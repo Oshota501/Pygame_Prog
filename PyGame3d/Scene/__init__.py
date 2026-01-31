@@ -77,8 +77,8 @@ class Scene(SceneComponent):
     def ticker_remove(self, func_id: int) -> None:
         del self.ticker[func_id]
 
-    def get_light(self) -> Light:
-        return self.light
+    def get_light(self) -> list[Light]:
+        return [self.light]
 
     def __repr__(self) -> str:
         result = "Scene\n"

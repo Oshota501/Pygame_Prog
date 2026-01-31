@@ -197,28 +197,26 @@ from .pg3_math.matrix import Matrix4
 
 ### class Application
 
-- scene
-- shader_program
-- context (ctx)
+- __init__ () -> None
+  - 変数の初期化
 
-pygameのセットアップとツリー構造の大元の生成を担うクラスです。
+- init () -> None
+  - setupをします。
 
-最も最初に呼び出して下さい。
+- start_rendering () -> None
+  - renderingをstartします。これ以降のコードは読み取られないことに気をつけて下さい。
 
-- def init
-
-最後にメインループを開始するときに呼び出して下さい。
-
-この関数の実行後は以降の処理が読み込まれないことに注意して下さい。
-
-- def start_rendering
+- def
 
 ### class Scene
 
-- execute_objects (exe)
 - container
-- event
 - camera
+- get_camera () -> Camera
+- light
+- get_light () -> list[Light]
+- start () -> None
+- update () -> None
 
 containerの大元となるオブジェクトです。
 

@@ -182,11 +182,6 @@ class Application(ApplicationComponent):
 
             self.ctx.clear(0.1, 0.1, 0.1)
 
-            camera = self.get_scene().get_camera()
-            for prog in self._shader3ds:
-                if prog is not None:
-                    prog.send_view_by_camera(camera)
-
             now = time.time()
             deltatime = now - a_time
             a_time = now
@@ -194,6 +189,12 @@ class Application(ApplicationComponent):
                 self._clock.tick(self.fps)
 
             self.stage.update(deltatime)
+
+            camera = self.get_scene().get_camera()
+            for prog in self._shader3ds:
+                if prog is not None:
+                    prog.send_view_by_camera(camera)
+
             self.stage.draw_update()
 
             pygame.display.flip()
