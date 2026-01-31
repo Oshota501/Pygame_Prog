@@ -1,9 +1,7 @@
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d import matrix
-from PyGame3d.matrix import rotation as rmatrix
 from PyGame3d.vector import Quaternion, Vector3
-import math
 
 
 # signature : Oshota
@@ -22,7 +20,7 @@ class Light(ContainerComponent):
         return self.color
 
     def get_name(self) -> str:
-        return "Camera"
+        return "Light1"
 
     def add_child(self, object: ContainerComponent) -> None:
         object.set_parent(self)
@@ -32,8 +30,8 @@ class Light(ContainerComponent):
         return self.child
 
     def remove_child(self, index: int) -> None:
-        pr_pointer = self.child[index].get_parent()
-        pr_pointer = None
+        c = self.child[index].get_parent()
+        c = None
         del self.child[index]
 
     def get_parent(self) -> ContainerComponent | None:
@@ -69,7 +67,7 @@ class Light(ContainerComponent):
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
 
         mat_r = self.rotation.to_matrix()
-        
+
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
         return mat_s * mat_r * mat_t
@@ -79,13 +77,14 @@ class Light(ContainerComponent):
         親の行列を含めた最終的なワールド座標行列を再帰的に計算する
         """
         local_mat = self.get_local_matrix()
-        
+
         parent = self.get_parent()
         if parent is not None:
             parent_world_mat = parent.get_world_matrix()
             return local_mat * parent_world_mat
-        
+
         return local_mat
+
     # Position
     def get_position(self) -> Vector3:
         if self.parent == None:
@@ -103,7 +102,7 @@ class Light(ContainerComponent):
     def add_rotation(self, delta_rotation: Quaternion) -> None:
         self.rotation *= delta_rotation
 
-    def get_rotation(self) ->Quaternion:
+    def get_rotation(self) -> Quaternion:
         if self.parent == None:
             return self.rotation
         return self.parent.get_rotation() * self.rotation
@@ -115,12 +114,11 @@ class Light(ContainerComponent):
             self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-
-    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
         forward = Vector3(
             target.x - self.position.x,
             target.y - self.position.y,
-            target.z - self.position.z
+            target.z - self.position.z,
         )
         self.rotation = Quaternion.look_rotation(forward, up)
 
@@ -139,3 +137,7 @@ class Light(ContainerComponent):
         else:
             self.scale *= absolute_scale
         return
+
+    def __repr__(self) -> str:
+        result = super().__repr__()
+        return result

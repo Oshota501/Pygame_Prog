@@ -46,11 +46,9 @@ class VColorShaderContainer(
     def update(self, scene: SceneComponent) -> None:
         return
 
-    def send_model(
-        self, position: Matrix4, rotation: Matrix4, scale: Matrix4
-    ) -> None:
+    def send_model(self, position: Matrix4, rotation: Matrix4, scale: Matrix4) -> None:
         model = position * rotation * scale
-        self.send_uniform("model",model)
+        self.send_uniform("model", model)
         return
 
     def send_perspective(self, projection_matrix: Matrix4) -> None:
@@ -64,7 +62,7 @@ class VColorShaderContainer(
     def send_view_by_camera(self, camera: Camera) -> None:
         """
         send_view_by_camera の Docstring
-        
+
         自動でinverseしてくれるので逆行列を生成しなくて大丈夫です。
         """
         view = camera.get_world_matrix().inverse()
@@ -98,11 +96,9 @@ class VertColorMesh(MeshLike, MeshRender):
     def get_render_obj(self) -> ShaderContainerComponent:
         return self.rend
 
-    def render(
-        self, transform: Transform|Matrix4
-    ) -> None:
+    def render(self, transform: Transform | Matrix4) -> None:
         # もし位置や回転の行列が渡されたら、シェーダーに送る
-        if isinstance (transform,Transform) :
+        if isinstance(transform, Transform):
             self.rend.send_model(
                 position=matrix.create_translation(
                     transform.position.x, transform.position.y, transform.position.z
@@ -112,10 +108,10 @@ class VertColorMesh(MeshLike, MeshRender):
                 ),
                 scale=matrix.create_scale(
                     transform.scale.x, transform.scale.y, transform.scale.z
-                )
+                ),
             )
-        else :
-            self.rend.send_uniform("model",transform)
+        else:
+            self.rend.send_uniform("model", transform)
         self.vao.render()
 
     def destroy(self) -> None:

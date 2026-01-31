@@ -8,15 +8,18 @@ import math
 from PyGame3d.vector import Vector3
 from PyGame3d.matrix.mat4 import Matrix4
 
+
 class Quaternion:
     """
     Quaternion
     to_ matrix -> Matrix4
     """
-    x : float
-    y : float
-    z : float
-    w : float
+
+    x: float
+    y: float
+    z: float
+    w: float
+
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0, w: float = 1.0):
         # w=1, xyz=0 が「無回転（Identity）」の状態です
         self.x = x
@@ -34,7 +37,12 @@ class Quaternion:
 
     def inverse(self) -> "Quaternion":
         return self.conjugate()
+
     # --- 行列への変換 (超重要) ---
+
+    def __repr__(self) -> str:
+        return f"Quaternion({self.x},{self.y},{self.z},{self.w})"
+
     def to_matrix(self) -> Matrix4:
         """
         クォータニオンを回転行列(Matrix4)に変換する。
@@ -62,10 +70,10 @@ class Quaternion:
         x2, y2, z2, w2 = other.x, other.y, other.z, other.w
 
         return Quaternion(
-            w1*x2 + x1*w2 + y1*z2 - z1*y2,
-            w1*y2 - x1*z2 + y1*w2 + z1*x2,
-            w1*z2 + x1*y2 - y1*x2 + z1*w2,
-            w1*w2 - x1*x2 - y1*y2 - z1*z2
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
         )
 
     # --- LookAtの実装 (本丸) ---
@@ -142,5 +150,5 @@ class Quaternion:
             sx * cy * cz - cx * sy * sz,
             cx * sy * cz + sx * cy * sz,
             cx * cy * sz - sx * sy * cz,
-            cx * cy * cz + sx * sy * sz
+            cx * cy * cz + sx * sy * sz,
         )

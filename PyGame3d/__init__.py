@@ -38,5 +38,5 @@ __all__ = [
     "Cube",
     "CuttingBoad",
     "Floor",
-    "Quaternion"
+    "Quaternion",
 ]

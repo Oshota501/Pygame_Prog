@@ -31,13 +31,16 @@ class PositionComponent(ABC):
     """
     PositionComponent の Docstring
     """
-    position : Vector3
-    def __init__(self,position:Vector3|None=None) -> None:
-        if position is None :
-            self.position = Vector3(0,0,0)
-        else :
+
+    position: Vector3
+
+    def __init__(self, position: Vector3 | None = None) -> None:
+        if position is None:
+            self.position = Vector3(0, 0, 0)
+        else:
             self.position = position
-        super().__init__() 
+        super().__init__()
+
     # position
     @abstractmethod
     def get_position(self) -> Vector3:
@@ -61,13 +64,16 @@ class RotationComponent(ABC):
     """
     RotationComponent の Docstring
     """
-    rotation : Quaternion
-    def __init__(self,rotation:Quaternion|None=None) -> None:
-        if rotation is None :
-            self.rotation = Quaternion(0,0,0,1)
-        else :
-            self.rotation = rotation 
+
+    rotation: Quaternion
+
+    def __init__(self, rotation: Quaternion | None = None) -> None:
+        if rotation is None:
+            self.rotation = Quaternion(0, 0, 0, 1)
+        else:
+            self.rotation = rotation
         super().__init__()
+
     # rotation
     @abstractmethod
     def get_rotation(self) -> Quaternion:
@@ -96,12 +102,13 @@ class ScaleComponent(ABC):
     """
     ScaleComponent の Docstring
     """
-    scale : Vector3
 
-    def __init__(self,scale:Vector3|None=None) -> None:
-        if scale is None :
-            self.scale = Vector3(1,1,1)
-        else :
+    scale: Vector3
+
+    def __init__(self, scale: Vector3 | None = None) -> None:
+        if scale is None:
+            self.scale = Vector3(1, 1, 1)
+        else:
             self.scale = scale
         super().__init__()
 
@@ -125,24 +132,23 @@ class ScaleComponent(ABC):
 
 
 class ContainerComponent(
-    SimpleGameObject,
-    PositionComponent,
-    RotationComponent,
-    ScaleComponent,
-    ABC
+    SimpleGameObject, PositionComponent, RotationComponent, ScaleComponent, ABC
 ):
     """
     ContainerComponent の Docstring
     """
+
     def __init__(self, position=Vector3(0, 0, 0)) -> None:
         super().__init__(position)
 
     @abstractmethod
-    def get_local_matrix (self) -> Matrix4 :
+    def get_local_matrix(self) -> Matrix4:
         pass
+
     @abstractmethod
-    def get_world_matrix (self) -> Matrix4 :
+    def get_world_matrix(self) -> Matrix4:
         pass
+
     # coded by oshota
     @abstractmethod
     def get_name(self) -> str:

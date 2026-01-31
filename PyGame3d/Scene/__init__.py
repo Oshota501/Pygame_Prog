@@ -1,5 +1,7 @@
 from typing import Callable
 
+from PyGame3d.vector import Vector3
+
 from PyGame3d.Draw.shader_container import ShaderContainerComponent
 
 from PyGame3d.GameObject.Camera import Camera
@@ -37,6 +39,7 @@ class Scene(SceneComponent):
         self._interval_id_top = 0
         self._manager = CollisionManager()
         self.light = Light()
+        self.light.set_localposition(Vector3(0, 30, 0))
         self.shader = shaders
 
     def script_add(self, game_script: GameScript) -> None:
@@ -74,13 +77,17 @@ class Scene(SceneComponent):
     def get_light(self) -> Light:
         return self.light
 
+    def __repr__(self) -> str:
+        result = "Scene\n"
+        return result
+
     @staticmethod
     def default() -> Scene:
         from PyGame3d.GameObject.Sample import Floor
         from PyGame3d.vector import Vector3
 
         s = Scene()
-        floor = Floor.include_transform(position=Vector3(0, 0, 0))
+        floor = Floor.transform(position=Vector3(0, 0, 0))
         background = GameContainer()
         background.add_child(floor)
         s.camera.position = Vector3(0, 1, 0)

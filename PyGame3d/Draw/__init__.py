@@ -62,7 +62,7 @@ class MeshLike(ABC):
     """
 
     @abstractmethod
-    def render(self, model_matrix:Matrix4|Transform) -> None:
+    def render(self, model_matrix: Matrix4 | Transform) -> None:
         pass
 
     @abstractmethod

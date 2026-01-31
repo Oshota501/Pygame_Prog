@@ -5,18 +5,20 @@ Application型
 
 import pygame
 import moderngl
+import time
+
+from PyGame3d import matrix
+from PyGame3d import test
+from PyGame3d import static
+
 from PyGame3d.GameObject.generater import DefaultObjectGenerater
 from PyGame3d.Scene import Scene
 from PyGame3d.Scene.component import SceneComponent
-import PyGame3d.matrix as matrix
 from abc import ABC, abstractmethod
-import PyGame3d.test as test
 from PyGame3d.Draw.shader_container import (
     ShaderContainaer3dComponent,
     ShaderContainerComponent,
 )
-import PyGame3d.static as static
-import time
 
 # signature : oshota , gemini AI
 
@@ -116,21 +118,26 @@ class Application(ApplicationComponent):
         if self.ctx is None:
             raise RuntimeError("\033[31mModernGL context is not initialized")
 
+        for prog in self._shader_program:
+            if prog is not None:
+                prog.compile(self.ctx)
+
+        self._send_perspective_matrix()
+
+        self.is_init = True
+
+        return
+
+    def _send_perspective_matrix(self) -> None:
         proj_mat = matrix.create_perspective(
             self._viewing_angle,
             self.screen_size[0] / self.screen_size[1],
             0.1,
             self.perspective,
         )
-        for prog in self._shader_program:
-            if prog is not None:
-                prog.compile(self.ctx)
         for prog in self._shader3ds:
             if prog is not None:
                 prog.send_perspective(proj_mat)
-        self.is_init = True
-
-        return
 
     def set_resolution(self, resolution: tuple[int, int]) -> None:
         if self._screen is None:
@@ -164,6 +171,12 @@ class Application(ApplicationComponent):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if event.type == pygame.VIDEORESIZE:
+                    self._screen = pygame.display.set_mode(
+                        (event.w, event.h),
+                        pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE,
+                    )
+                    self.set_resolution((event.w, event.h))
 
             test.update()
 

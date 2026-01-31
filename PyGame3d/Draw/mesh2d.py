@@ -161,17 +161,17 @@ class Mesh2d(MeshRender, MeshLike):
         content = [(self.vbo, "2f 2f", "in_vert", "in_uv")]
         self.vao = self.ctx.vertex_array(self.shader.program, content)
 
-    def render(self, transform:Transform|Matrix4) -> None:
+    def render(self, transform: Transform | Matrix4) -> None:
         # マテリアルを適用 (テクスチャバインド等)
         # しんどテスト無効
         self.ctx.disable(moderngl.DEPTH_TEST)
         self.ctx.disable(moderngl.CULL_FACE)
         self.material.use()
-        if isinstance(transform,Transform) :
+        if isinstance(transform, Transform):
             model_mat = matrix.create_translation(
                 transform.position.x, transform.position.y, 0
             ) * matrix.create_scale(transform.scale.x, transform.scale.y, 1)
-        else :
+        else:
             model_mat = transform
         # シェーダーへの送信
         if "model" in self.shader.program:  # type: ignore

@@ -1,9 +1,15 @@
-import math
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# Container
+# ------ ------ ------ ------ ------ ------ ------ ------ ------
+# signature : Oshota
+# date : 2026/1/31
+
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
 from PyGame3d.vector import Quaternion, Vector3
 from PyGame3d import matrix
-from PyGame3d.matrix import rotation as rmatrix
+import copy
+
 
 class GameContainer(ContainerComponent):
     child: list[ContainerComponent]
@@ -26,13 +32,13 @@ class GameContainer(ContainerComponent):
         sca = self.get_localscale()
         # 1. 平行移動行列
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
-        
+
         # 2. 回転行列 (X, Y, Zの順序は実装依存ですが、rmatrix.createがオイラー角対応と仮定)
         mat_r = self.rotation.to_matrix()
-        
+
         # 3. 拡大縮小行列
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
-        
+
         # 行列の掛け算 T * R * S
         # ※ライブラリの仕様によりますが、通常は 左側にある変換が「後」に適用されます。
         #   「拡大してから、回転して、移動する」のが一般的なので T * R * S の順です。
@@ -44,14 +50,14 @@ class GameContainer(ContainerComponent):
         """
         # まず自分のローカル行列を取得
         local_mat = self.get_local_matrix()
-        
+
         # 親がいるなら、親のワールド行列に自分のローカル行列を掛ける
         parent = self.get_parent()
         if parent is not None:
             parent_world_mat = parent.get_world_matrix()
             # 【重要】 行列の掛け算順序: Parent * Child
             return local_mat * parent_world_mat
-        
+
         # 親がいなければ（ルートなら）、ローカル行列がそのままワールド行列
         return local_mat
 
@@ -95,6 +101,12 @@ class GameContainer(ContainerComponent):
             c.draw_update()
         return
 
+    def shallow_copy(self) -> GameContainer:
+        return copy.copy(self)
+
+    def deep_copy(self) -> GameContainer:
+        return copy.deepcopy(self)
+
     # Position
     def get_position(self) -> Vector3:
         if self.parent == None:
@@ -112,7 +124,7 @@ class GameContainer(ContainerComponent):
     def add_rotation(self, delta_rotation: Quaternion) -> None:
         self.rotation *= delta_rotation
 
-    def get_rotation(self) ->Quaternion:
+    def get_rotation(self) -> Quaternion:
         if self.parent == None:
             return self.rotation
         return self.parent.get_rotation() * self.rotation
@@ -124,12 +136,11 @@ class GameContainer(ContainerComponent):
             self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-
-    def look_at(self, target: Vector3,up:Vector3=Vector3(0,1,0)) -> None:
+    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
         forward = Vector3(
             target.x - self.position.x,
             target.y - self.position.y,
-            target.z - self.position.z
+            target.z - self.position.z,
         )
         self.rotation = Quaternion.look_rotation(forward, up)
 
@@ -149,9 +160,47 @@ class GameContainer(ContainerComponent):
             self.scale *= absolute_scale
         return
 
+    def __repr__(self) -> str:
+        result = (
+            f"{self.__class__.__name__} : {self.get_name()}\n"
+            f"├--pos : {self.get_position()}\n"
+            f"├--rot : {self.get_rotation()}\n"
+            f"├--scale : {self.get_scale()}\n"
+            f"├--children : {len(self.child)}\n"
+        )
+        repeat = min(len(self.child), 3)
+        for i in range(repeat):
+            result += f"   ├--{self.child[i].__class__.__name__} : {self.child[i].get_name()}\n"
+        if len(self.child) > 3:
+            result += "   etc ...\n"
+        return result
+
+    def __getitem__(self, index: int) -> ContainerComponent:
+        if index >= 0 and index < len(self.child):
+            return self.child[index]
+        else:
+            raise IndexError(f"Index ${index} is out of range .")
+
+    def __setitem__(self, index: int, value: ContainerComponent):
+        if index >= 0 and index < len(self.child):
+            self.child[index] = value
+            value.set_parent(self)
+        else:
+            raise IndexError(f"Index ${index} is out of range .")
+
+    def __len__(self) -> int:
+        return len(self.child)
+
+    def __add__(self, other: ContainerComponent) -> GameContainer:
+        container = self.deep_copy()
+        container.child.extend(other.get_child())
+        return container
+
     @staticmethod
-    def include_transform(
-        position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)
+    def transform(
+        position=Vector3(0, 0, 0),
+        rotation=Quaternion.identity(),
+        scale=Vector3(1, 1, 1),
     ) -> GameContainer:
         g = GameContainer()
         g.set_position(position)

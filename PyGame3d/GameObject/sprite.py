@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from PyGame3d import static
-from PyGame3d.Draw import MeshLike, Transform
+from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject import (
     DrawableContainerComponent,
 )
@@ -156,12 +156,21 @@ class Sprite3D(
     CollisionDetectionContainer,
     PhysicsObject,
 ):
+    """
+    # Sprite3D Docstring
+    This object is normal 3d object .
+    - mesh
+    - change frag
+    - physics calc
+    """
+
     mesh: MeshLike | None
     _collide_enabled: bool
     _bounding_obj: list[Sprite3DBoundingObject]
     physics: Sprite3DPhysicsComponent
     is_collide: bool
     _double_collide: int
+    _changed: bool
 
     def __init__(
         self,
@@ -171,6 +180,7 @@ class Sprite3D(
         bounding: list[Sprite3DBoundingObject] = [],
         physics: Sprite3DPhysicsComponent | None = None,
     ) -> None:
+        self._changed = True
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
         # CollisionDetectionContainerの__init__を明示的に呼ぶ（CollisionManagerへの登録）
@@ -192,20 +202,22 @@ class Sprite3D(
         # 物理演算で位置を更新
         if self.is_collide:
             self._double_collide += 1
+            self._changed = True
         else:
             self._double_collide = 0
+            self._changed = True
         if self.physics is not None and self._double_collide <= 3:
             self.add_position(self.physics.cal_position(delta_time, self.position))
+            self._changed = True
         self.is_collide = False
         # else :
         #     print("not set mesh")
 
     def draw_update(self) -> None:
-        if self.mesh is not None:
+        if self.mesh is not None and self._changed:
+            self._changed = False
             world_matrix = self.get_world_matrix()
-            self.mesh.render(
-                world_matrix
-            )
+            self.mesh.render(world_matrix)
         return super().draw_update()
 
     def get_mesh(self) -> MeshLike | None:
@@ -221,6 +233,7 @@ class Sprite3D(
         is_collide: bool | None = None,
         use_velocity: bool | None = None,
     ) -> None:
+        self._changed = True
         if position is not None:
             self.set_position(position)
         if rotation is not None:
@@ -275,14 +288,65 @@ class Sprite3D(
 
     # override
     # spriteオブジェクトはset命令でvelocityをリセットする仕様にします。
+    # position
     def set_position(self, absolute_position: Vector3) -> None:
         super().set_position(absolute_position)
+        self._changed = True
         self.set_velocity(Vector3(0, 0, 0))
+
+    def add_position(self, delta_position: Vector3) -> None:
+        self._changed = True
+        return super().add_position(delta_position)
+
+    def set_localposition(self, local_position: Vector3) -> None:
+        self._changed = True
+        return super().set_localposition(local_position)
+
+    # rotation
+    def set_rotation(self, absolute_rotation: Quaternion) -> None:
+        self._changed = True
+        return super().set_rotation(absolute_rotation)
+
+    def set_localrotation(self, local_rotation: Quaternion) -> None:
+        self._changed = True
+        return super().set_localrotation(local_rotation)
+
+    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
+        self._changed = True
+        return super().look_at(target, up)
+
+    def add_rotation(self, delta_rotation: Quaternion) -> None:
+        self._changed = True
+        return super().add_rotation(delta_rotation)
+
+    # scale
+    def add_scale(self, delta_position: Vector3) -> None:
+        self._changed = True
+        return super().add_scale(delta_position)
+
+    def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
+        self._changed = True
+        return super().set_scale(absolute_scale)
+
+    def set_localscale(self, local_position: Vector3) -> None:
+        self._changed = True
+        return super().set_localscale(local_position)
+
+    def __repr__(self) -> str:
+        result = super().__repr__()
+        result += (
+            "├--Physics\n"
+            f"   ├--Velocity : {self.physics.velocity}\n"
+            f"   ├--Mass : {self.physics.mass}\n"
+        )
+        return result
 
     # static method
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0), rotation=Quaternion.identity(), scale=Vector3(1, 1, 1)
+        position=Vector3(0, 0, 0),
+        rotation=Quaternion.identity(),
+        scale=Vector3(1, 1, 1),
     ) -> Sprite3D:
         g = Sprite3D()
         g.set_position(position)
