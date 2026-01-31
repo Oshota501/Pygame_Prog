@@ -170,7 +170,6 @@ class Sprite3D(
     physics: Sprite3DPhysicsComponent
     is_collide: bool
     _double_collide: int
-    _changed: bool
     _start_frag: bool
 
     def __init__(
@@ -181,7 +180,6 @@ class Sprite3D(
         bounding: list[Sprite3DBoundingObject] = [],
         physics: Sprite3DPhysicsComponent | None = None,
     ) -> None:
-        self._changed = True
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
         # CollisionDetectionContainerの__init__を明示的に呼ぶ（CollisionManagerへの登録）
@@ -197,6 +195,7 @@ class Sprite3D(
             self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
         else:
             self.physics = physics
+        super().__init__()
 
     # @override
     def update(self, delta_time: float):
@@ -205,12 +204,10 @@ class Sprite3D(
         if self._start_frag :
             self._start_frag = False
             return
-        if self.is_collide:
+        if self._changed and self.is_collide:
             self._double_collide += 1
-            self._changed = True
         else:
             self._double_collide = 0
-            self._changed = True
         if self.physics is not None and self._double_collide <= 3:
             self.add_position(self.physics.cal_position(delta_time, self.position))
             self._changed = True
@@ -296,46 +293,7 @@ class Sprite3D(
     # position
     def set_position(self, absolute_position: Vector3) -> None:
         super().set_position(absolute_position)
-        self._changed = True
         self.set_velocity(Vector3(0, 0, 0))
-
-    def add_position(self, delta_position: Vector3) -> None:
-        self._changed = True
-        return super().add_position(delta_position)
-
-    def set_localposition(self, local_position: Vector3) -> None:
-        self._changed = True
-        return super().set_localposition(local_position)
-
-    # rotation
-    def set_rotation(self, absolute_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().set_rotation(absolute_rotation)
-
-    def set_localrotation(self, local_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().set_localrotation(local_rotation)
-
-    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
-        self._changed = True
-        return super().look_at(target, up)
-
-    def add_rotation(self, delta_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().add_rotation(delta_rotation)
-
-    # scale
-    def add_scale(self, delta_position: Vector3) -> None:
-        self._changed = True
-        return super().add_scale(delta_position)
-
-    def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
-        self._changed = True
-        return super().set_scale(absolute_scale)
-
-    def set_localscale(self, local_position: Vector3) -> None:
-        self._changed = True
-        return super().set_localscale(local_position)
 
     def __repr__(self) -> str:
         result = super().__repr__()

@@ -1,14 +1,14 @@
 import math
-from PyGame3d.game import Application
+from PyGame3d.Scene import Scene
 
 
 class PerformanceInspectator:
-    def __init__(self, app: Application) -> None:
+    def __init__(self, scene: Scene) -> None:
         self.performance_sec = 0
         self.fps = 0
         self.fpss = []
         self.ffpss = []
-        app.get_scene().ticker_add(self.update)
+        scene.ticker_add(self.update)
 
     @staticmethod
     def ave(ff):

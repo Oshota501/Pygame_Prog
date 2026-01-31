@@ -1,4 +1,5 @@
 import math
+import random
 from PyGame3d import (
     Application ,
     Scene ,
@@ -8,12 +9,14 @@ from PyGame3d import (
     Floor ,
     FPSPlayer,
     Sprite3D,
-    Quaternion
+    GameContainer,
+    Cube,
+    PerformanceInspectator
 )
 import pygame
 
 
-game = Application(fps=60)
+game = Application()
 
 def main () -> None :
     game.init() 
@@ -92,14 +95,25 @@ class StartScene(Scene):
 
 class Stage1 (Scene) :
     player : FPSPlayer
-    # gun : Sprite3D
+    gun : Sprite3D
+    blocks : GameContainer
 
     def __init__(self) -> None:
         super().__init__()
         # player初期化時は物理演算を無効化
+        PerformanceInspectator(self)
         self.player = FPSPlayer(self.get_camera())
         self.player.set_velocity_enabled(False)  # 物理演算OFF
         self.player.speed = 10
+        self.blocks = GameContainer("Blocks Container")
+        for i in range(600) :
+            cube = Cube.transform(Vector3(
+                random.random()*40 - 20 ,
+                random.random()*10 - 5 ,
+                random.random()*40 - 20
+            ))
+            cube.set_collide_enabled(True)
+            self.blocks.add_child(cube)
         self.gun = Sprite3D.obj(
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
         )
@@ -109,6 +123,7 @@ class Stage1 (Scene) :
         self.add_children(
             Floor.transform(Vector3(0,-5,0)) ,
             self.player,
+            self.blocks
         )
         # playerの物理演算を有効化
         self.player.set_velocity_enabled(True)
