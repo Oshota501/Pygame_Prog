@@ -99,7 +99,8 @@ class StartScene(Scene):
             UI_2d.color_rect((0.2, 0.2, 0.2, 1.0), Vector2(*resolution), resolution),
             self.title,
             normal_font(
-                "操作方法：WASDで移動、Spaceでジャンプ", (resolution[0] * 0.5, resolution[1] * 0.8)
+                "操作方法：WASDで移動、Spaceでジャンプ",
+                (resolution[0] * 0.5, resolution[1] * 0.8),
             ),
             normal_font(
                 "Start to Press Enter key", (resolution[0] * 0.5, resolution[1] * 0.5)
@@ -165,10 +166,10 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         self.player.jump_power = 0.7
         self.blocks = GameContainer("Blocks Container")
         self.explain = CuttingBoad.transform(
-                "./SampleGame/Assets/explain.png",
-                position=Vector3(12, 0, 0),
-                scale=Vector3(30, 10, 1),
-            )
+            "./SampleGame/Assets/explain.png",
+            position=Vector3(12, 0, 0),
+            scale=Vector3(30, 10, 1),
+        )
         self.add_children(
             Floor.transform(Vector3(0, -5, 0)),
             self.player,
@@ -177,9 +178,9 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
                 "./SampleGame/Assets/unity_3hours.png",
                 position=Vector3(0, 0, -12),
                 scale=Vector3(20, 10, 1),
-                rotation=Quaternion.look_rotation(Vector3(0,0,12))
+                rotation=Quaternion.look_rotation(Vector3(0, 0, 12)),
             ),
-            self.explain ,
+            self.explain,
             Goal(self.player),
         )
         # playerの物理演算を有効化
