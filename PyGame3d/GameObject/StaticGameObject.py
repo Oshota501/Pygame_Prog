@@ -53,10 +53,10 @@ class StaticGameObject (
         self._bounding_obj = bounding_object if bounding_object is not None else []
 
     # override
-    def start(self):
+    def draw_update(self) -> None:
         if self.mesh is not None :
             self.mesh.render(self.get_world_matrix())
-        return super().start()
+        super().draw_update()
 
     def update(self, delta_time: float):
         return

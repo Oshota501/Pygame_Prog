@@ -6,14 +6,16 @@ from PyGame3d import (
     UI_2d ,
     Vector3 ,
     Vector2 ,
+    Quaternion,
     Floor ,
     FPSPlayer,
     Sprite3D,
     GameContainer,
-    Cube,
+    StaticCube,
     PerformanceInspectator
 )
 import pygame
+
 
 
 game = Application()
@@ -107,12 +109,15 @@ class Stage1 (Scene) :
         self.player.speed = 10
         self.blocks = GameContainer("Blocks Container")
         for i in range(100) :
-            cube = Cube.transform(Vector3(
-                random.random()*40 - 20 ,
-                random.random()*10 - 5 ,
-                random.random()*40 - 20
-            ))
-            cube.set_collide_enabled(True)
+            cube = StaticCube(
+                position=Vector3(
+                    random.random()*40 - 20 ,
+                    random.random()*10 - 5 ,
+                    random.random()*40 - 20
+                ),
+                rotation=Quaternion.identity(),
+                scale=Vector3(1,1,1)
+            )
             self.blocks.add_child(cube)
         self.gun = Sprite3D.obj(
             "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
