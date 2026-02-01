@@ -154,6 +154,7 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
     player: FPSPlayer
     gun: Sprite3D
     blocks: GameContainer
+    explain: CuttingBoad
 
     def __init__(self) -> None:
         super().__init__()
@@ -163,6 +164,11 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         self.player.speed = 10
         self.player.jump_power = 0.7
         self.blocks = GameContainer("Blocks Container")
+        self.explain = CuttingBoad.transform(
+                "./SampleGame/Assets/explain.png",
+                position=Vector3(12, 0, 0),
+                scale=Vector3(30, 10, 1),
+            )
         self.add_children(
             Floor.transform(Vector3(0, -5, 0)),
             self.player,
@@ -171,7 +177,9 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
                 "./SampleGame/Assets/unity_3hours.png",
                 position=Vector3(0, 0, -12),
                 scale=Vector3(20, 10, 1),
+                rotation=Quaternion.look_rotation(Vector3(0,0,12))
             ),
+            self.explain ,
             Goal(self.player),
         )
         # playerの物理演算を有効化
@@ -199,6 +207,7 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         super().update(delta_time)
         if self.player.position.y <= -10:
             set_game_scene(LoadingScene(GameOver))
+        self.explain.look_at(self.player.get_position())
 
 
 class GameOver(Scene):
