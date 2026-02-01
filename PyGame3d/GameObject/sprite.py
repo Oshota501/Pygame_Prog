@@ -208,7 +208,7 @@ class Sprite3D(
             self._double_collide += 1
         else:
             self._double_collide = 0
-        if self.physics is not None and self._double_collide <= 3:
+        if self.physics is not None and self._double_collide <= 1 and not self.is_collide:
             self.add_position(self.physics.cal_position(delta_time, self.position))
             self._changed = True
         self.is_collide = False

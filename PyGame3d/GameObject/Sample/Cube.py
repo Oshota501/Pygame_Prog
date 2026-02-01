@@ -62,13 +62,14 @@ class StaticCube (StaticGameObject) :
                 color : tuple[float,float,float,float] = (1,1,1,1)
                 ) -> None :
         scale_v = scale if scale is not None else Vector3(1,1,1)
+        position_v = position if position is not None else Vector3 (0,0,0)
         super().__init__ (
             mesh=UV3dMeshSub.get_cube_data(UVTexture.color(color)),
             position=position,
             rotation=rotation,
             scale=scale,
             bounding_object=[StaticBoundingObject(AxisAlignedBoundingBox(
-                min_point=-scale_v*0.5,
-                max_point=scale_v*0.5,
+                min_point=-scale_v*0.5+position_v,
+                max_point=scale_v*0.5+position_v,
             ))]
         )

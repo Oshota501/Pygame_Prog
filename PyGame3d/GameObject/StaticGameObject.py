@@ -85,14 +85,15 @@ class StaticGameObject (
             rotation:Quaternion|None = None,
             scale:Vector3|None = None ) -> StaticGameObject :
         scale_v = scale if scale is not None else Vector3(1,1,1)
+        position_v = position if position is not None else Vector3 (0,0,0)
         result = StaticGameObject (
             mesh=UV3dMeshSub.get_cube_data(UVTexture.color(color)),
             position=position,
             rotation=rotation,
             scale=scale,
             bounding_object=[StaticBoundingObject(AxisAlignedBoundingBox(
-                min_point=-scale_v*0.5,
-                max_point=scale_v*0.5,
+                min_point=-scale_v*0.5+position_v,
+                max_point=scale_v*0.5+position_v,
             ))]
         )
         return result
