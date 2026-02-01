@@ -52,16 +52,19 @@ class Scene(SceneComponent):
             c.start()
 
     def update(self, delta_time: float):
-        for shader in self.shader:
-            shader.update(self)
-        for e in self.exe:
-            e.update(delta_time)
-        for c in self.container.get_child():
-            c.update(delta_time)
         for t in self.ticker.items():
             t[1](delta_time)
+        for e in self.exe:
+            e.update(delta_time)
+        self.container.update(delta_time)
+
         # CollideManager
         self._manager.check_all_collisions()
+
+    def draw_update(self) -> None:
+        self.container.draw_update()
+        for shader in self.shader:
+            shader.update(self)
 
     def get_camera(self) -> Camera:
         return self.camera
@@ -74,8 +77,8 @@ class Scene(SceneComponent):
     def ticker_remove(self, func_id: int) -> None:
         del self.ticker[func_id]
 
-    def get_light(self) -> Light:
-        return self.light
+    def get_light(self) -> list[Light]:
+        return [self.light]
 
     def __repr__(self) -> str:
         result = "Scene\n"

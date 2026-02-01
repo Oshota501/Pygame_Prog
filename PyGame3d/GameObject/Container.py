@@ -15,11 +15,13 @@ class GameContainer(ContainerComponent):
     child: list[ContainerComponent]
     parent: ContainerComponent | None
     name: str
+    _changed: bool
 
     def __init__(self, name="GameContainerName") -> None:
         self.child = []
         self.parent = None
         self.name = name
+        self._changed = True
         super().__init__()
 
     # coded by gemini
@@ -30,18 +32,11 @@ class GameContainer(ContainerComponent):
         """
         pos = self.get_localposition()
         sca = self.get_localscale()
-        # 1. 平行移動行列
+
         mat_t = matrix.create_translation(pos.x, pos.y, pos.z)
-
-        # 2. 回転行列 (X, Y, Zの順序は実装依存ですが、rmatrix.createがオイラー角対応と仮定)
         mat_r = self.rotation.to_matrix()
-
-        # 3. 拡大縮小行列
         mat_s = matrix.create_scale(sca.x, sca.y, sca.z)
 
-        # 行列の掛け算 T * R * S
-        # ※ライブラリの仕様によりますが、通常は 左側にある変換が「後」に適用されます。
-        #   「拡大してから、回転して、移動する」のが一般的なので T * R * S の順です。
         return mat_s * mat_r * mat_t
 
     def get_world_matrix(self) -> Matrix4:
@@ -69,6 +64,7 @@ class GameContainer(ContainerComponent):
         self.child.append(object)
 
     def set_parent(self, parent: ContainerComponent) -> None:
+        self._changed = True
         self.parent = parent
 
     def add_children(self, children: list[ContainerComponent]) -> None:
@@ -99,6 +95,7 @@ class GameContainer(ContainerComponent):
     def draw_update(self) -> None:
         for c in self.child:
             c.draw_update()
+        self._changed = False
         return
 
     def shallow_copy(self) -> GameContainer:
@@ -108,12 +105,21 @@ class GameContainer(ContainerComponent):
         return copy.deepcopy(self)
 
     # Position
+    def set_localposition(self, local_position: Vector3) -> None:
+        self._changed = True
+        return super().set_localposition(local_position)
+
+    def add_position(self, delta_position: Vector3) -> None:
+        self._changed = True
+        return super().add_position(delta_position)
+
     def get_position(self) -> Vector3:
         if self.parent == None:
             return self.position
         return self.parent.get_position() + self.position
 
     def set_position(self, absolute_position: Vector3) -> None:
+        self._changed = True
         if self.parent == None:
             self.position = absolute_position
         else:
@@ -122,6 +128,7 @@ class GameContainer(ContainerComponent):
 
     # Rotation
     def add_rotation(self, delta_rotation: Quaternion) -> None:
+        self._changed = True
         self.rotation *= delta_rotation
 
     def get_rotation(self) -> Quaternion:
@@ -129,7 +136,12 @@ class GameContainer(ContainerComponent):
             return self.rotation
         return self.parent.get_rotation() * self.rotation
 
+    def set_localrotation(self, local_rotation: Quaternion) -> None:
+        self._changed = True
+        return super().set_localrotation(local_rotation)
+
     def set_rotation(self, absolute_rotation: Quaternion) -> None:
+        self._changed = True
         if self.parent == None:
             self.rotation = absolute_rotation
         else:
@@ -137,6 +149,7 @@ class GameContainer(ContainerComponent):
         return
 
     def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
+        self._changed = True
         forward = Vector3(
             target.x - self.position.x,
             target.y - self.position.y,
@@ -151,6 +164,7 @@ class GameContainer(ContainerComponent):
         return self.parent.get_scale() * self.scale
 
     def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
+        self._changed = True
         if isinstance(absolute_scale, Vector3):
             if self.parent == None:
                 self.scale = absolute_scale
@@ -159,6 +173,14 @@ class GameContainer(ContainerComponent):
         else:
             self.scale *= absolute_scale
         return
+
+    def set_localscale(self, local_position: Vector3) -> None:
+        self._changed = True
+        return super().set_localscale(local_position)
+
+    def add_scale(self, delta_position: Vector3) -> None:
+        self._changed = True
+        return super().add_scale(delta_position)
 
     def __repr__(self) -> str:
         result = (
@@ -198,12 +220,12 @@ class GameContainer(ContainerComponent):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> GameContainer:
         g = GameContainer()
-        g.set_position(position)
-        g.set_rotation(rotation)
-        g.set_scale(scale)
+        g.set_position(position if position is not None else Vector3(0, 0, 0))
+        g.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        g.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return g

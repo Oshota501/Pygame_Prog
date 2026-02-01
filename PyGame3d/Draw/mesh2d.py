@@ -231,7 +231,7 @@ class Mesh2d(MeshRender, MeshLike):
         font_size: int = 24,
         color: tuple[int, int, int] = (255, 255, 255),
         font_path: str | None = None,
-        text_pivod: bool = False,
+        text_pivod: bool = True,
     ) -> "Mesh2d":
         """
         文字列からMesh2dを生成する (Pillow使用)

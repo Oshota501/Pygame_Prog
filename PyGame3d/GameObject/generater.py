@@ -1,5 +1,6 @@
 from PyGame3d.vector import Quaternion, Vector2, Vector3
-from PyGame3d.GameObject.Sample import Cube, Floor
+from PyGame3d.GameObject.Sample import Floor
+from PyGame3d.GameObject.Sample.Cube import Cube
 from PyGame3d.Scene import Scene
 
 from PyGame3d.GameObject.ui_2d import UI_2d

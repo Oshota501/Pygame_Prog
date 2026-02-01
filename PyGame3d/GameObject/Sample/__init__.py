@@ -1,55 +1,12 @@
 from PyGame3d.Draw import MeshLike
+from PyGame3d.GameObject.StaticGameObject import StaticGameObject
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
-from PyGame3d.Draw.uvmesh import UV3dMeshSub, UVTexture
-import PyGame3d.static as static
+from PyGame3d.Draw.uvmesh import UV3dMeshSub
 from PyGame3d.vector import Quaternion, Vector3
-
+from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, StaticBoundingObject
 
 # signature : oshota
-class Cube(Sprite3D):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.mesh = UV3dMeshSub.get_cube_data(UVTexture.color((0.3, 0.3, 0.3)))
-
-        self.set_bounding_obj(Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5))
-
-    @staticmethod
-    def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
-    ) -> Cube:
-        f = Cube()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
-        return f
-
-
-class VColorCube(Sprite3D):
-    def __init__(self) -> None:
-        super().__init__()
-        if static.context is not None:
-            self.mesh = VertColorMesh.get_cube_data(
-                static.context, VColorShaderContainer()
-            )
-        else:
-            raise ValueError("まだinitされていないようです")
-        self.set_bounding_obj(Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5))
-
-    @staticmethod
-    def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
-    ) -> VColorCube:
-        f = VColorCube()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
-        return f
 
 
 class VColorFloor(Sprite3D):
@@ -72,44 +29,56 @@ class VColorFloor(Sprite3D):
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> VColorFloor:
         f = VColorFloor()
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f
 
 
-class Floor(Sprite3D):
+class Floor(StaticGameObject):
     mesh: MeshLike | None
 
-    def __init__(self) -> None:
-        super().__init__()
-        import PyGame3d.static as static
-
-        if static.context is not None:
-            self.mesh = UV3dMeshSub.floor_mesh(color=(0.3, 0.3, 0.1))
-        else:
-            raise ValueError(
-                "Not yet excuse Application.init() . \n First line in your source code is \n```py\nimport PyGame3d as pg\ngame=pg.Application(fps=60)\ngame = pg.init()\n```"
-            )
-        self.set_bounding_obj(Vector3(-10, -5, -10), Vector3(10, 0, 10))
+    def __init__(
+        self,
+        position: Vector3,
+        rotation: Quaternion,
+        scale: Vector3,
+        color: tuple[float, float, float],
+    ) -> None:
+        super().__init__(
+            position=position,
+            rotation=rotation,
+            scale=scale,
+            mesh=UV3dMeshSub.floor_mesh(color=color),
+            bounding_object=[
+                StaticBoundingObject(
+                    AxisAlignedBoundingBox(
+                        min_point=Vector3(-10, -5, -10) * scale + position,
+                        max_point=Vector3(10, 0, 10) * scale + position,
+                    )
+                )
+            ],
+        )
 
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
+        color: tuple[float, float, float] = (1, 1, 1),
     ) -> Floor:
-        f = Floor()
-        f.set_collide_enabled(True)
+        f = Floor(
+            position=position if position is not None else Vector3(0, 0, 0),
+            rotation=rotation if rotation is not None else Quaternion.identity(),
+            scale=scale if scale is not None else Vector3(1, 1, 1),
+            color=color,
+        )
 
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
         return f
 
 
@@ -122,12 +91,12 @@ class CuttingBoad(Sprite3D):
     @staticmethod
     def transform(
         tex_filepath: str,
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> CuttingBoad:
         f = CuttingBoad(tex_filepath)
-        f.set_position(position)
-        f.set_rotation(rotation)
-        f.set_scale(scale)
+        f.set_position(position if position is not None else Vector3(0, 0, 0))
+        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return f

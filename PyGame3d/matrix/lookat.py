@@ -6,8 +6,8 @@ from PyGame3d.matrix import Matrix4
 def create_lookAt (eye:Vector3,target:Vector3,up=Vector3(0,1,0)) -> Matrix4 :
 
     z_axis = (eye-target).normalized()
-    x_axis = up.cross(z_axis).normalized()
-    y_axis = z_axis.cross(x_axis)
+    x_axis = z_axis.cross(up).normalized()
+    y_axis = x_axis.cross(z_axis)
 
     rm = Matrix4([
         x_axis.x, x_axis.y, x_axis.z, -x_axis.dot(eye),

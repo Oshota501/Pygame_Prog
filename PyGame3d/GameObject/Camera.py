@@ -1,8 +1,7 @@
+from PyGame3d.vector import Quaternion, Vector3
+from PyGame3d import matrix
 from PyGame3d.GameObject import ContainerComponent
 from PyGame3d.matrix.mat4 import Matrix4
-from PyGame3d.vector import Quaternion, Vector3
-
-from PyGame3d import matrix
 
 
 # signature : Oshota
@@ -63,6 +62,7 @@ class Camera(ContainerComponent):
 
         mat_r = self.rotation.to_matrix()
 
+        # 列ベクトル前提: T * R
         return mat_r * mat_t
 
     def get_world_matrix(self) -> Matrix4:
@@ -107,12 +107,14 @@ class Camera(ContainerComponent):
             self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
-        forward = Vector3(
-            target.x - self.position.x,
-            target.y - self.position.y,
-            target.z - self.position.z,
-        )
+    def look_at(
+        self, target: Vector3 | ContainerComponent, up: Vector3 = Vector3(0, 1, 0)
+    ) -> None:
+        pos = self.get_position()
+        if isinstance(target, Vector3):
+            forward = target - pos
+        else:
+            forward = target.get_position() - pos
         self.rotation = Quaternion.look_rotation(forward, up)
 
     # Scale

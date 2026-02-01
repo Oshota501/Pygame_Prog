@@ -170,7 +170,7 @@ class Sprite3D(
     physics: Sprite3DPhysicsComponent
     is_collide: bool
     _double_collide: int
-    _changed: bool
+    _start_frag: bool
 
     def __init__(
         self,
@@ -180,7 +180,6 @@ class Sprite3D(
         bounding: list[Sprite3DBoundingObject] = [],
         physics: Sprite3DPhysicsComponent | None = None,
     ) -> None:
-        self._changed = True
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
         # CollisionDetectionContainerの__init__を明示的に呼ぶ（CollisionManagerへの登録）
@@ -190,23 +189,30 @@ class Sprite3D(
         self._bounding_obj = bounding
         self.is_collide = False
         self._double_collide = 0
+        self._start_frag = True
         # デフォルト引数の問題を回避：Noneの場合は新しいインスタンスを作成
         if physics is None:
             self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
         else:
             self.physics = physics
+        super().__init__()
 
     # @override
     def update(self, delta_time: float):
         super().update(delta_time)
         # 物理演算で位置を更新
-        if self.is_collide:
+        if self._start_frag:
+            self._start_frag = False
+            return
+        if self._changed and self.is_collide:
             self._double_collide += 1
-            self._changed = True
         else:
             self._double_collide = 0
-            self._changed = True
-        if self.physics is not None and self._double_collide <= 3:
+        if (
+            self.physics is not None
+            and self._double_collide <= 1
+            and not self.is_collide
+        ):
             self.add_position(self.physics.cal_position(delta_time, self.position))
             self._changed = True
         self.is_collide = False
@@ -214,7 +220,7 @@ class Sprite3D(
         #     print("not set mesh")
 
     def draw_update(self) -> None:
-        if self.mesh is not None and self._changed:
+        if self.mesh is not None:
             self._changed = False
             world_matrix = self.get_world_matrix()
             self.mesh.render(world_matrix)
@@ -291,46 +297,7 @@ class Sprite3D(
     # position
     def set_position(self, absolute_position: Vector3) -> None:
         super().set_position(absolute_position)
-        self._changed = True
         self.set_velocity(Vector3(0, 0, 0))
-
-    def add_position(self, delta_position: Vector3) -> None:
-        self._changed = True
-        return super().add_position(delta_position)
-
-    def set_localposition(self, local_position: Vector3) -> None:
-        self._changed = True
-        return super().set_localposition(local_position)
-
-    # rotation
-    def set_rotation(self, absolute_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().set_rotation(absolute_rotation)
-
-    def set_localrotation(self, local_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().set_localrotation(local_rotation)
-
-    def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
-        self._changed = True
-        return super().look_at(target, up)
-
-    def add_rotation(self, delta_rotation: Quaternion) -> None:
-        self._changed = True
-        return super().add_rotation(delta_rotation)
-
-    # scale
-    def add_scale(self, delta_position: Vector3) -> None:
-        self._changed = True
-        return super().add_scale(delta_position)
-
-    def set_scale(self, absolute_scale: Vector3 | int | float) -> None:
-        self._changed = True
-        return super().set_scale(absolute_scale)
-
-    def set_localscale(self, local_position: Vector3) -> None:
-        self._changed = True
-        return super().set_localscale(local_position)
 
     def __repr__(self) -> str:
         result = super().__repr__()
@@ -344,14 +311,14 @@ class Sprite3D(
     # static method
     @staticmethod
     def transform(
-        position=Vector3(0, 0, 0),
-        rotation=Quaternion.identity(),
-        scale=Vector3(1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
     ) -> Sprite3D:
         g = Sprite3D()
-        g.set_position(position)
-        g.set_rotation(rotation)
-        g.set_scale(scale)
+        g.set_position(position if position is not None else Vector3(0, 0, 0))
+        g.set_rotation(rotation if rotation is not None else Quaternion.identity())
+        g.set_scale(scale if scale is not None else Vector3(1, 1, 1))
         return g
 
     @staticmethod

@@ -40,6 +40,23 @@ python3.14 main.py
 
 ## 使い方
 
+### 概要
+
+1.[class Application](./PyGame3d/game.py) を呼び出してWindowを表示
+2.[implements ContainerComponent](./PyGame3d/GameObject/__init__.py)をインスタンス化
+- あなたの作る部分
+  - [GameContainer](./PyGame3d/GameObject/Container.py)
+  - [Sprite3d](./PyGame3d/GameObject/sprite.py)
+  - Sample
+    - [Cube](./PyGame3d/GameObject/Sample/__init__.py)
+    - [Floor](./PyGame3d/GameObject/Sample/__init__.py)
+    - [CuttingBoad](./PyGame3d/GameObject/Sample/__init__.py)
+    - [FPSPlayer](./PyGame3d/GameObject/Sample/player.py)
+- 自動でインスタンスされる
+  - [Camera](./PyGame3d/GameObject/Camera.py)
+  - [Light](./PyGame3d/GameObject/Light.py)
+3.start_rendering()
+
 ### 簡単な使い方
 
 main.py
@@ -47,6 +64,7 @@ main.py
 ```py
 import PyGame3d
 import math
+
 # おまじない
 game = PyGame3d.Application(fps=64)
 game.init() 
@@ -57,12 +75,12 @@ PyGame3d.PerformanceInspectator (game)
 angle = 0.0
 # ゲーム内オブジェクトを定義
 cube = PyGame3d.Cube()
-cube.name = "move_obj"
-cube.position = PyGame3d.Vector3(0,10,0)
+cube.set_position(PyGame3d.Vector3(0,10,0))
 floor = PyGame3d.Floor()
-floor.set_position(PyGame3d.Vector3(0,-10,0))
-useTextureObj = PyGame3d.Sprite3D.obj("./Assets/test.obj")
-game.stage.get_camera().position = PyGame3d.Vector3(0,0,10)
+floor.set_position(PyGame3d.Vector3(0,-5,0))
+floor.set_scale(PyGame3d.Vector3(4,4,4))
+useTextureObj = PyGame3d.Sprite3D("./Assets/test.obj")
+camera.set_position(PyGame3d.Vector3(0,0,10))
 cutting = PyGame3d.CuttingBoad("./Assets/py.png")
 cutting.position = PyGame3d.Vector3(0,5,-5)
 cutting.scale = PyGame3d.Vector3(10,5,5)
@@ -81,12 +99,13 @@ def update (delta_time:float) -> None :
     global angle
     
     angle += delta_time
-    camera.position = PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10
-    camera.look_at(PyGame3d.Vector3(0,0,0))
+    camera.set_position(PyGame3d.Vector3(math.sin(angle),0,math.cos(angle))*10)
+    camera.look_at(PyGame3d.Vector3(0,-4,0))
 # tickerに追加
 func_id = game.stage.ticker_add(update)
 # おまじない（while文スタート ）
 game.start_rendering()
+
 
 ```
 
@@ -94,55 +113,64 @@ game.start_rendering()
 
 ### ゲームの画面を使い分けたい場合
 
-**注意：仕様を変更したため、サポートされていません**
-
 ```py
-import math
-from PyGame3d import (
-    Application,
-    Sprite3D,
-    Floor,
-    Cube,
-    CuttingBoad,
-    Scene,
-    Vector3,
-    GameContainer,
-)
+from PyGame3d import Application, Sprite3D, Floor, Scene, Vector3, CuttingBoad, Cube
+from PyGame3d.GameObject.Sample.player import FPSPlayer
+from PyGame3d.GameObject.ui_2d import UI_2d
+from PyGame3d.performance import PerformanceInspectator
 
 # おまじない
 game = Application()
-game.init() 
+game.init()
+
 
 # ゲームのシーン設定
-class StartScene (Scene) :
-    sprite : Sprite3D
-    floor : Floor
-    cube : Cube
-    sign : CuttingBoad
-    angle : float
+class StartScene(Scene):
+    floor: Floor
+    ui: UI_2d
 
     def __init__(self) -> None:
         super().__init__()
-        self.sprite = Sprite3D.obj("./Assets/u.obj")
-        self.sprite.position = Vector3(0,0,0)
-        self.floor = Floor.transform(position=Vector3(0,-3,0))
-        self.cube = Cube()
-        self.sign = CuttingBoad("./Assets/py.png")
-        container = GameContainer()
-        container.add_children([self.sprite,self.floor,self.cube,self.sign])
-        self.add_child(container)
-        self.camera.set_position(Vector3(0,0,10))
-        self.sign.position = Vector3(0,5,-10)
-        self.sign.scale.x = 2.6
-        self.sign.scale *= 5
         self.angle = 0
+        self.player = FPSPlayer(self.camera)
+        self.gun = Sprite3D.obj(
+            "./Assets/ハンドガーん/tripo_convert_1290b53c-d12a-46fb-be73-51c7fe235250.obj"
+        )
+        self.cube = Cube()
+        self.cube.set_collide_enabled(True)
+        self.cube.set_velocity_enabled(True)
+        self.cube.set_position(Vector3(0, 20, 0))
+
+        self.pygamedenanishitendayo = CuttingBoad("./Assets/py.png")
+        self.pygamedenanishitendayo.set_scale(Vector3(20, 4, 1))
+        self.pygamedenanishitendayo.set_position(Vector3(0, 0, -10))
+
+        self.gun.look_at(Vector3(0, 0, -1))
+        self.gun.set_localposition(Vector3(0.4, -0.3, -0.9))
+
+        self.camera.add_child(self.gun)
+
+        self.add_children(
+            Floor.transform(position=Vector3(0, -3, 0)),
+            self.cube,
+            self.player,
+            self.pygamedenanishitendayo,
+        )
+
+        print(self.container)
+        print(self.cube)
+
+        self.player.set_position(Vector3(0, 10, 3))
+
+    def start(self):
+        super().start()
+
     def update(self, delta_time: float):
         super().update(delta_time)
-        self.angle += delta_time
-        self.camera.position = Vector3(math.sin(self.angle),0.5,math.cos(self.angle))*10
-        self.camera.look_at (Vector3(0,0,0))
-        
+
+
 game.set_scene(StartScene())
+PerformanceInspectator(game)
 # おまじない（while文スタート ）
 game.start_rendering()
 
@@ -182,76 +210,79 @@ from .pg3_math.matrix import Matrix4
 
 ## よく使うclass一覧
 
-### class Application
+### [class Vector3](./PyGame3d/vector/Vector3.py)
 
-- scene
-- shader_program
-- context (ctx)
+### [class Quaternion](./PyGame3d/vector/Quaternion.py)
 
-pygameのセットアップとツリー構造の大元の生成を担うクラスです。
+### [class Application](./PyGame3d/game.py)
 
-最も最初に呼び出して下さい。
+- __init__ () -> None
+  - 変数の初期化
 
-- def init
+- init () -> None
+  - setupをします。
 
-最後にメインループを開始するときに呼び出して下さい。
+- start_rendering () -> None
+  - renderingをstartします。これ以降のコードは読み取られないことに気をつけて下さい。
 
-この関数の実行後は以降の処理が読み込まれないことに注意して下さい。
+- def
 
-- def start_rendering
+### [class Scene](./PyGame3d/Scene/__init__.py)
 
-### class Scene
-
-- execute_objects (exe)
 - container
-- event
 - camera
+- get_camera () -> Camera
+- light
+- get_light () -> list[Light]
+- start () -> None
+- update () -> None
 
 containerの大元となるオブジェクトです。
 
 このオブジェクトをインスタンス化することで、全く別のゲーム画面を実装可能です。
 
-### class GameContainer
+### [class GameContainer](./PyGame3d/GameObject/Container.py)
 
 - position
 - rotation
 - scale
-  
-子要素の追加・削除
 
-- def remove_child (ContainerComponent)
+- remove_child (ContainerComponent) -> None
   - 計算量O(n)で実装されているので覚悟して下さい。
-- def add_child (Game)
+- def add_child (ContainerComponent)
+- update (float delta_time) -> None
+- start () -> None
+- look_at () -> None
 
 localな値を使用する場合に対応するため、全てのTransform系のComponentはGameContainerで実装されています。
 
-### class Sprite3D extends GameContainer
+### [class Sprite3D extends GameContainer](./PyGame3d/GameObject/sprite.py)
 
 - mesh
 
-描画するためのポリゴンデータを持っています。
 
-### class Cube extends Sprite3D
+## より低レイヤー Class
 
-コンストラクタにてmeshに立方体のポリゴンを渡しています。
+### [Mesh](./PyGame3d/Draw/__init__.py)
 
-### class Sprite3D_obj_format extends Sprite3D
+- [UVMesh](./PyGame3d/Draw/uvmesh.py)
+- [VColorMesh](./PyGame3d/Draw/vcolormesh.py)
+- [Mesh2d](./PyGame3d/Draw/mesh2d.py)
 
-コンストラクタにて.obj形式で渡した値を読み込んで描画できるように実装されています。
+### [ShaderContainer](./PyGame3d/Draw/shader_container.py)
 
-## 内部的な処理として使いたい Class
+- Mesh型の上に記載
+- [UVMesh](./PyGame3d/Draw/uvmesh.py)
+- [VColorMesh](./PyGame3d/Draw/vcolormesh.py)
+- [Mesh2d](./PyGame3d/Draw/mesh2d.py)
 
-- class VertColorMesh
-  - 保持する行列が [x,y,z,r,g,b] の行列
-  - .objファイルの形のデータにだけ対応
-- class ShaderContainer
-  - moderngl の Context と Program を保持
-  - 使用するメッシュによって使い分けるための class
+### [Texture](./PyGame3d/Draw/texture.py)
 
-class UV3dMesh
+- UVTexture
 
-- 保持する行列が [x,y,z,u,v] の行列
-- .objのTextureに対応
+### [Material](./PyGame3d/Draw/texture.py)
+
+-UVMaterial
 
 ## 開発中
 
