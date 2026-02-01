@@ -12,20 +12,17 @@ from PyGame3d import (
     Sprite3D,
     GameContainer,
     StaticCube,
-    PerformanceInspectator,
     CuttingBoad,
     StaticGameObject,
 )
 import pygame
 
-from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject.Collide import (
-    BoundingObject,
     CollisionDetectionContainer,
-    CollisionManager,
 )
 from PyGame3d.Singleton import SingletonABCMeta
-from PyGame3d.vector import Quaternion, Vector3
+
+AVAILABLE_FONT_PATH = "/System/Library/Fonts/ヒラギノ角ゴシック W1.ttc"
 
 game = Application()
 
@@ -51,7 +48,7 @@ def normal_font(
         resolution_pointer=game.screen_size,
         font_size=font_size,
         color=font_color,
-        font_path="/System/Library/Fonts/ヒラギノ角ゴシック W1.ttc",
+        font_path=AVAILABLE_FONT_PATH,
     )
     if position is None:
         result.place_screen_center()
@@ -101,6 +98,9 @@ class StartScene(Scene):
         self.add_children(
             UI_2d.color_rect((0.2, 0.2, 0.2, 1.0), Vector2(*resolution), resolution),
             self.title,
+            normal_font(
+                "操作方法：WASDで移動、Spaceでジャンプ", (resolution[0] * 0.5, resolution[1] * 0.8)
+            ),
             normal_font(
                 "Start to Press Enter key", (resolution[0] * 0.5, resolution[1] * 0.5)
             ),
