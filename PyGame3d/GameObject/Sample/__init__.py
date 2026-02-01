@@ -4,10 +4,10 @@ from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
 from PyGame3d.Draw.uvmesh import UV3dMeshSub
 from PyGame3d.vector import Quaternion, Vector3
-from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox,StaticBoundingObject
-
+from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, StaticBoundingObject
 
 # signature : oshota
+
 
 class VColorFloor(Sprite3D):
     mesh: MeshLike | None
@@ -43,21 +43,26 @@ class VColorFloor(Sprite3D):
 class Floor(StaticGameObject):
     mesh: MeshLike | None
 
-    def __init__(self,
-                position:Vector3,
-                rotation:Quaternion,
-                scale:Vector3,
-                color:tuple[float,float,float]
-                ) -> None:
+    def __init__(
+        self,
+        position: Vector3,
+        rotation: Quaternion,
+        scale: Vector3,
+        color: tuple[float, float, float],
+    ) -> None:
         super().__init__(
-                position=position,
-                rotation=rotation,
-                scale=scale,
-                mesh = UV3dMeshSub.floor_mesh(color=color) ,
-                bounding_object=[StaticBoundingObject(AxisAlignedBoundingBox(
-                    min_point=Vector3(-10, -5, -10)*scale+position,
-                    max_point=Vector3(10, 0, 10)*scale+position
-                ))]
+            position=position,
+            rotation=rotation,
+            scale=scale,
+            mesh=UV3dMeshSub.floor_mesh(color=color),
+            bounding_object=[
+                StaticBoundingObject(
+                    AxisAlignedBoundingBox(
+                        min_point=Vector3(-10, -5, -10) * scale + position,
+                        max_point=Vector3(10, 0, 10) * scale + position,
+                    )
+                )
+            ],
         )
 
     @staticmethod
@@ -65,13 +70,13 @@ class Floor(StaticGameObject):
         position: Vector3 | None = None,
         rotation: Quaternion | None = None,
         scale: Vector3 | None = None,
-        color: tuple[float,float,float] = (1,1,1)
+        color: tuple[float, float, float] = (1, 1, 1),
     ) -> Floor:
         f = Floor(
-            position= position if position is not None else Vector3(0, 0, 0),
-            rotation= rotation if rotation is not None else Quaternion.identity(),
-            scale= scale if scale is not None else Vector3(1, 1, 1),
-            color=color
+            position=position if position is not None else Vector3(0, 0, 0),
+            rotation=rotation if rotation is not None else Quaternion.identity(),
+            scale=scale if scale is not None else Vector3(1, 1, 1),
+            color=color,
         )
 
         return f

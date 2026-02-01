@@ -95,9 +95,9 @@ class Quaternion:
         # new_up = u.cross(right).normalized()
 
         # 3. 回転行列の要素 (m00 ~ m22)（列優先: 列に基底を配置）
-        m00, m10, m20 = right.x, new_up.x, f.x    # 第1列（right）
-        m01, m11, m21 = right.y, new_up.y, f.y    # 第2列（new_up）
-        m02, m12, m22 = right.z, new_up.z, f.z    # 第3列（forward）
+        m00, m10, m20 = right.x, new_up.x, f.x  # 第1列（right）
+        m01, m11, m21 = right.y, new_up.y, f.y  # 第2列（new_up）
+        m02, m12, m22 = right.z, new_up.z, f.z  # 第3列（forward）
 
         # 4. 行列からクォータニオンへの変換 (一番難しいところ)
         # トレース（対角成分の和）を使って分岐計算します
@@ -113,21 +113,21 @@ class Quaternion:
         else:
             if m00 > m11 and m00 > m22:
                 s = 2.0 * math.sqrt(1.0 + m00 - m11 - m22)
-                s_inv = 1/s
+                s_inv = 1 / s
                 q.w = (m12 - m21) * s_inv
                 q.x = 0.25 * s
                 q.y = (m10 + m01) * s_inv
                 q.z = (m20 + m02) * s_inv
             elif m11 > m22:
                 s = 2.0 * math.sqrt(1.0 + m11 - m00 - m22)
-                s_inv = 1/s
+                s_inv = 1 / s
                 q.w = (m20 - m02) * s_inv
                 q.x = (m10 + m01) * s_inv
                 q.y = 0.25 * s
                 q.z = (m21 + m12) * s_inv
             else:
                 s = 2.0 * math.sqrt(1.0 + m22 - m00 - m11)
-                s_inv = 1/s
+                s_inv = 1 / s
                 q.w = (m01 - m10) * s_inv
                 q.x = (m20 + m02) * s_inv
                 q.y = (m21 + m12) * s_inv

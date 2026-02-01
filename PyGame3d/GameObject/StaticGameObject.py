@@ -10,11 +10,16 @@ from PyGame3d.Draw.uvmesh import UV3dMeshSub
 from PyGame3d.vector import Quaternion, Vector3
 from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject import DrawableContainerComponent
-from PyGame3d.GameObject.Collide import AxisAlignedBoundingBox, BoundingObject, CollisionDetectionContainer, StaticBoundingObject
+from PyGame3d.GameObject.Collide import (
+    AxisAlignedBoundingBox,
+    BoundingObject,
+    CollisionDetectionContainer,
+    StaticBoundingObject,
+)
 from PyGame3d.GameObject.Container import GameContainer
 
 
-class StaticGameObject (
+class StaticGameObject(
     GameContainer,
     DrawableContainerComponent,
     CollisionDetectionContainer,
@@ -24,27 +29,30 @@ class StaticGameObject (
     このオブジェクト以降のupdateは実行されません。
     transformの変更はできません。
     """
-    mesh : MeshLike | None
+
+    mesh: MeshLike | None
     _collide_enabled: bool
     _bounding_obj: list[BoundingObject]
     is_collide: bool
     _double_collide: int
     _start_frag: bool
 
-    def __init__(self,
-                name="Static GameObject",
-                mesh:MeshLike|None = None,
-                position:Vector3|None = None,
-                rotation:Quaternion|None = None,
-                scale:Vector3|None = None ,
-                collide_enabled:bool = True ,
-                bounding_object:list[BoundingObject]|None=None) -> None:
+    def __init__(
+        self,
+        name="Static GameObject",
+        mesh: MeshLike | None = None,
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
+        collide_enabled: bool = True,
+        bounding_object: list[BoundingObject] | None = None,
+    ) -> None:
         super().__init__(name)
-        CollisionDetectionContainer.__init__(self,is_static=True)
+        CollisionDetectionContainer.__init__(self, is_static=True)
         self.mesh = mesh
-        self.position = position if position is not None else Vector3(0,0,0)
+        self.position = position if position is not None else Vector3(0, 0, 0)
         self.rotation = rotation if rotation is not None else Quaternion.identity()
-        self.scale = scale if scale is not None else Vector3(1,1,1)
+        self.scale = scale if scale is not None else Vector3(1, 1, 1)
 
         self._start_frag = True
         self._double_collide = 0
@@ -54,7 +62,7 @@ class StaticGameObject (
 
     # override
     def draw_update(self) -> None:
-        if self.mesh is not None :
+        if self.mesh is not None:
             self.mesh.render(self.get_world_matrix())
         super().draw_update()
 
@@ -79,21 +87,26 @@ class StaticGameObject (
         return self.mesh
 
     @staticmethod
-    def cube (
-            color:tuple[float,float,float,float] = (1,1,1,1),
-            position:Vector3|None = None,
-            rotation:Quaternion|None = None,
-            scale:Vector3|None = None ) -> StaticGameObject :
-        scale_v = scale if scale is not None else Vector3(1,1,1)
-        position_v = position if position is not None else Vector3 (0,0,0)
-        result = StaticGameObject (
+    def cube(
+        color: tuple[float, float, float, float] = (1, 1, 1, 1),
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
+    ) -> StaticGameObject:
+        scale_v = scale if scale is not None else Vector3(1, 1, 1)
+        position_v = position if position is not None else Vector3(0, 0, 0)
+        result = StaticGameObject(
             mesh=UV3dMeshSub.get_cube_data(UVTexture.color(color)),
             position=position,
             rotation=rotation,
             scale=scale,
-            bounding_object=[StaticBoundingObject(AxisAlignedBoundingBox(
-                min_point=-scale_v*0.5+position_v,
-                max_point=scale_v*0.5+position_v,
-            ))]
+            bounding_object=[
+                StaticBoundingObject(
+                    AxisAlignedBoundingBox(
+                        min_point=-scale_v * 0.5 + position_v,
+                        max_point=scale_v * 0.5 + position_v,
+                    )
+                )
+            ],
         )
         return result

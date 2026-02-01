@@ -33,7 +33,7 @@ class Player(Sprite3D):
         self._mouse = Vector2(*mouse)
         self._look_at = Vector3(0, 0, 1)
         self.position += Vector3(0, 4, 0)
-        self.set_velocity(Vector3(0,0,0))
+        self.set_velocity(Vector3(0, 0, 0))
         self.set_collide_enabled(True)
         self.set_velocity_enabled(True)
         self.xz_angle = 0
@@ -76,7 +76,7 @@ class Player(Sprite3D):
         self._keypress(delta_time)
         return super().update(delta_time)
 
-    def jump (self) -> None :
+    def jump(self) -> None:
         return
 
     def _keypress(self, delta_time: float) -> None:

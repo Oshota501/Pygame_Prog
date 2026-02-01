@@ -107,12 +107,14 @@ class Camera(ContainerComponent):
             self.rotation = self.parent.get_rotation().inverse() * absolute_rotation
         return
 
-    def look_at(self, target: Vector3|ContainerComponent, up: Vector3 = Vector3(0, 1, 0)) -> None:
+    def look_at(
+        self, target: Vector3 | ContainerComponent, up: Vector3 = Vector3(0, 1, 0)
+    ) -> None:
         pos = self.get_position()
-        if isinstance(target,Vector3) :
+        if isinstance(target, Vector3):
             forward = target - pos
-        else :
-            forward = target.get_position() - pos 
+        else:
+            forward = target.get_position() - pos
         self.rotation = Quaternion.look_rotation(forward, up)
 
     # Scale

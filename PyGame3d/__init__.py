@@ -25,8 +25,8 @@ from .GameObject.ui_2d import UI_2d
 
 # サンプル
 from .GameObject.Sample import CuttingBoad, Floor
-from .GameObject.Sample.player import Player , FPSPlayer
-from .GameObject.Sample.Cube import Cube,StaticCube,VColorCube
+from .GameObject.Sample.player import Player, FPSPlayer
+from .GameObject.Sample.Cube import Cube, StaticCube, VColorCube
 
 __all__ = [
     "Application",
@@ -46,5 +46,5 @@ __all__ = [
     "UI_2d",
     "Quaternion",
     "Player",
-    "FPSPlayer"
+    "FPSPlayer",
 ]

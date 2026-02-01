@@ -201,14 +201,18 @@ class Sprite3D(
     def update(self, delta_time: float):
         super().update(delta_time)
         # 物理演算で位置を更新
-        if self._start_frag :
+        if self._start_frag:
             self._start_frag = False
             return
         if self._changed and self.is_collide:
             self._double_collide += 1
         else:
             self._double_collide = 0
-        if self.physics is not None and self._double_collide <= 1 and not self.is_collide:
+        if (
+            self.physics is not None
+            and self._double_collide <= 1
+            and not self.is_collide
+        ):
             self.add_position(self.physics.cal_position(delta_time, self.position))
             self._changed = True
         self.is_collide = False
@@ -216,7 +220,7 @@ class Sprite3D(
         #     print("not set mesh")
 
     def draw_update(self) -> None:
-        if self.mesh is not None :
+        if self.mesh is not None:
             self._changed = False
             world_matrix = self.get_world_matrix()
             self.mesh.render(world_matrix)

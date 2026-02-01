@@ -178,7 +178,7 @@ class CollisionManager:
         if obj not in self.collisions:
             self.collisions.append(obj)
 
-    def static_register (self, obj: "CollisionDetectionContainer") -> None:
+    def static_register(self, obj: "CollisionDetectionContainer") -> None:
         if obj not in self.statics:
             self.statics.append(obj)
 
@@ -227,13 +227,13 @@ class CollisionDetectionContainer(ContainerComponent, ABC):
 
     _collision_manager: CollisionManager
 
-    def __init__(self,is_static:bool = False) -> None:
+    def __init__(self, is_static: bool = False) -> None:
         """コンストラクタでCollisionManagerに登録"""
         super().__init__()
-        if is_static :
+        if is_static:
             self._collision_manager = CollisionManager()
             self._collision_manager.static_register(self)
-        else :
+        else:
             self._collision_manager = CollisionManager()
             self._collision_manager.register(self)
 

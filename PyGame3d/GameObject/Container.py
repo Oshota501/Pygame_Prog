@@ -15,7 +15,7 @@ class GameContainer(ContainerComponent):
     child: list[ContainerComponent]
     parent: ContainerComponent | None
     name: str
-    _changed : bool
+    _changed: bool
 
     def __init__(self, name="GameContainerName") -> None:
         self.child = []

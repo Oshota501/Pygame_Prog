@@ -54,22 +54,27 @@ class VColorCube(Sprite3D):
         return f
 
 
-class StaticCube (StaticGameObject) :
-    def __init__ (self,
-                position : Vector3 ,
-                rotation : Quaternion ,
-                scale : Vector3 ,
-                color : tuple[float,float,float,float] = (1,1,1,1)
-                ) -> None :
-        scale_v = scale if scale is not None else Vector3(1,1,1)
-        position_v = position if position is not None else Vector3 (0,0,0)
-        super().__init__ (
+class StaticCube(StaticGameObject):
+    def __init__(
+        self,
+        position: Vector3,
+        rotation: Quaternion,
+        scale: Vector3,
+        color: tuple[float, float, float, float] = (1, 1, 1, 1),
+    ) -> None:
+        scale_v = scale if scale is not None else Vector3(1, 1, 1)
+        position_v = position if position is not None else Vector3(0, 0, 0)
+        super().__init__(
             mesh=UV3dMeshSub.get_cube_data(UVTexture.color(color)),
             position=position,
             rotation=rotation,
             scale=scale,
-            bounding_object=[StaticBoundingObject(AxisAlignedBoundingBox(
-                min_point=-scale_v*0.5+position_v,
-                max_point=scale_v*0.5+position_v,
-            ))]
+            bounding_object=[
+                StaticBoundingObject(
+                    AxisAlignedBoundingBox(
+                        min_point=-scale_v * 0.5 + position_v,
+                        max_point=scale_v * 0.5 + position_v,
+                    )
+                )
+            ],
         )
