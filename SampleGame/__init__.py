@@ -18,8 +18,14 @@ from PyGame3d import (
 )
 import pygame
 
-from PyGame3d.GameObject.Collide import CollisionManager
+from PyGame3d.Draw import MeshLike
+from PyGame3d.GameObject.Collide import (
+    BoundingObject,
+    CollisionDetectionContainer,
+    CollisionManager,
+)
 from PyGame3d.Singleton import SingletonABCMeta
+from PyGame3d.vector import Quaternion, Vector3
 
 game = Application()
 
@@ -96,7 +102,7 @@ class StartScene(Scene):
             UI_2d.color_rect((0.2, 0.2, 0.2, 1.0), Vector2(*resolution), resolution),
             self.title,
             normal_font(
-                "Start to Press Space key", (resolution[0] * 0.5, resolution[1] * 0.5)
+                "Start to Press Enter key", (resolution[0] * 0.5, resolution[1] * 0.5)
             ),
             normal_font(
                 "製作者: oshota",
@@ -114,9 +120,32 @@ class StartScene(Scene):
         )
         self.title.set_position(Vector3(self.title_pos[0], self.title_pos[1], 0))
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_RETURN]:
             set_game_scene(LoadingScene(Stage1))
         super().update(delta_time)
+
+
+class Goal(StaticGameObject):
+    player: FPSPlayer
+
+    def __init__(self, player: FPSPlayer) -> None:
+        self.player = player
+        super().__init__(
+            name="Goal",
+            position=Vector3(61, 5, 61),
+            rotation=Quaternion.look_rotation(Vector3(-61, 5, 61)),
+            scale=Vector3(10, 10, 10),
+            bounding_object=[
+                StaticGameObject.get_bounging_Sphere(Vector3(61, 5, 61), 5)
+            ],
+            collide_enabled=True,
+        )
+        self.load_obj("./SampleGame/Assets/goal/goal.obj")
+
+    def collide(self, other: CollisionDetectionContainer) -> None:
+        self.player.set_position(Vector3(0, 0, 0))
+        set_game_scene(LoadingScene(GameClear))
+        return super().collide(other)
 
 
 # シングルトン化することで何度もクソ重いインスタンス化をしなくて済むようになります。
@@ -129,7 +158,6 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
     def __init__(self) -> None:
         super().__init__()
         # player初期化時は物理演算を無効化
-        PerformanceInspectator(self)
         self.player = FPSPlayer(self.get_camera())
         self.player.set_velocity_enabled(False)  # 物理演算OFF
         self.player.speed = 10
@@ -144,11 +172,7 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
                 position=Vector3(0, 0, -12),
                 scale=Vector3(20, 10, 1),
             ),
-            StaticGameObject.obj(
-                "./SampleGame/Assets/goal/goal.obj",
-                position=Vector3(81, 5, 81),
-                rotation=Quaternion.look_rotation(Vector3(81, 5, 81)),
-            ),
+            Goal(self.player),
         )
         # playerの物理演算を有効化
         self.player.set_velocity_enabled(True)
@@ -157,11 +181,8 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         super().start()
         self.player.set_position(Vector3(0, 0, 0))
         self.blocks.reset()
-        print(len(self.blocks))
-        m = CollisionManager()
-        print("とうろく")
-        print(len(m.collisions),len(m.statics))
-        for i in range(100):
+
+        for i in range(200):
             cube = StaticCube(
                 position=Vector3(
                     random.random() * 80,
@@ -173,7 +194,7 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
                 color=(random.random(), random.random(), random.random(), 1),
             )
             self.blocks.add_child(cube)
-        print(len(m.collisions),len(m.statics))
+
     def update(self, delta_time: float):
         super().update(delta_time)
         if self.player.position.y <= -10:
@@ -188,7 +209,7 @@ class GameOver(Scene):
             UI_2d.color_rect((0.2, 0.2, 0.2, 1.0), Vector2(*resolution), resolution),
             normal_font("GameOver", (resolution[0] * 0.5, resolution[1] * 0.5)),
             normal_font(
-                "Space To Continue",
+                "Enter To Continue",
                 (resolution[0] * 0.5, resolution[1] * 0.65),
                 font_size=24,
             ),
@@ -196,6 +217,46 @@ class GameOver(Scene):
 
     def update(self, delta_time: float):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_RETURN]:
+            set_game_scene(LoadingScene(Stage1))
+        super().update(delta_time)
+
+
+class GameClear(Scene):
+    angle: float
+    clear: UI_2d
+
+    def __init__(self) -> None:
+        resolution = game.screen_size
+        self.angle = 0
+        self.clear = normal_font(
+            "GameClear",
+            (resolution[0] * 0.5, resolution[1] * 0.4),
+            font_color=(255, 255, 0),
+            font_size=72,
+        )
+        super().__init__()
+        self.add_children(
+            UI_2d.color_rect((0.2, 0.2, 0.2, 1.0), Vector2(*resolution), resolution),
+            self.clear,
+            normal_font(
+                "Enter To Continue",
+                (resolution[0] * 0.5, resolution[1] * 0.65),
+                font_size=24,
+            ),
+        )
+
+    def update(self, delta_time: float):
+        self.angle += delta_time
+        resolution = game.screen_size
+        self.clear.set_position(
+            Vector3(
+                resolution[0] * 0.5,
+                resolution[1] * 0.3 - abs(math.sin(self.angle * 2.4) * 50),
+                0,
+            )
+        )
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RETURN]:
             set_game_scene(LoadingScene(Stage1))
         super().update(delta_time)

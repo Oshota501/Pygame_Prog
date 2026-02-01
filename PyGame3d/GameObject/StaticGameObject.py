@@ -54,7 +54,7 @@ class StaticGameObject(
         # すまぬ
         # なぜ登録されるかはよくわからん
         self._collision_manager.unregister(self)
-        
+
         self.mesh = mesh
         self.position = position if position is not None else Vector3(0, 0, 0)
         self.rotation = rotation if rotation is not None else Quaternion.identity()
@@ -100,6 +100,14 @@ class StaticGameObject(
         result = super().__repr__()
         result += f"infomation : This object is Immutable\n"
         return result
+
+    def load_obj(self, file_path: str) -> None:
+        from PyGame3d.Draw.uvmesh import UV3dMesh
+        import os
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Object file not found: {file_path}")
+        self.mesh = UV3dMesh.load_obj(file_path)
 
     @staticmethod
     def cube(

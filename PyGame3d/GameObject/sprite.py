@@ -198,7 +198,6 @@ class Sprite3D(
         else:
             self.physics = physics
 
-
     # @override
     def update(self, delta_time: float):
         super().update(delta_time)

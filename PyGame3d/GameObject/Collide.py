@@ -186,7 +186,7 @@ class CollisionManager:
         """衝突検出対象を登録解除する"""
         if obj in self.collisions:
             self.collisions.remove(obj)
-    
+
     def static_unregister(self, obj: "CollisionDetectionContainer") -> None:
         """衝突検出対象を登録解除する"""
         if obj in self.statics:
