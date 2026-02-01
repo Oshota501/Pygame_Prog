@@ -216,7 +216,7 @@ class Sprite3D(
         #     print("not set mesh")
 
     def draw_update(self) -> None:
-        if self.mesh is not None and self._changed:
+        if self.mesh is not None :
             self._changed = False
             world_matrix = self.get_world_matrix()
             self.mesh.render(world_matrix)
