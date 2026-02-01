@@ -1,56 +1,11 @@
 from PyGame3d.Draw import MeshLike
 from PyGame3d.GameObject.sprite import Sprite3D
 from PyGame3d.Draw.vcolormesh import VColorShaderContainer, VertColorMesh
-from PyGame3d.Draw.uvmesh import UV3dMeshSub, UVTexture
-import PyGame3d.static as static
+from PyGame3d.Draw.uvmesh import UV3dMeshSub
 from PyGame3d.vector import Quaternion, Vector3
 
 
 # signature : oshota
-class Cube(Sprite3D):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.mesh = UV3dMeshSub.get_cube_data(UVTexture.color((0.3, 0.3, 0.3)))
-
-        self.set_bounding_obj(Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5))
-
-    @staticmethod
-    def transform(
-        position: Vector3 | None = None,
-        rotation: Quaternion | None = None,
-        scale: Vector3 | None = None,
-    ) -> Cube:
-        f = Cube()
-        f.set_position(position if position is not None else Vector3(0, 0, 0))
-        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
-        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
-        return f
-
-
-class VColorCube(Sprite3D):
-    def __init__(self) -> None:
-        super().__init__()
-        if static.context is not None:
-            self.mesh = VertColorMesh.get_cube_data(
-                static.context, VColorShaderContainer()
-            )
-        else:
-            raise ValueError("まだinitされていないようです")
-        self.set_bounding_obj(Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5))
-
-    @staticmethod
-    def transform(
-        position: Vector3 | None = None,
-        rotation: Quaternion | None = None,
-        scale: Vector3 | None = None,
-    ) -> VColorCube:
-        f = VColorCube()
-        f.set_position(position if position is not None else Vector3(0, 0, 0))
-        f.set_rotation(rotation if rotation is not None else Quaternion.identity())
-        f.set_scale(scale if scale is not None else Vector3(1, 1, 1))
-        return f
-
 
 class VColorFloor(Sprite3D):
     mesh: MeshLike | None

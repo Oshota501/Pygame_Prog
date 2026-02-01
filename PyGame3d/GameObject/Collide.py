@@ -143,17 +143,33 @@ class SimpleBoundingObject(BoundingObject):
         return self._shape
 
 
+class StaticBoundingObject(BoundingObject):
+    """位置情報が固定のBoundingObjectの実装（床などの静的なオブジェクト用）"""
+
+    _shape: BoundingShape
+
+    def __init__(self, shape: BoundingShape) -> None:
+        """固定されたバウンディング形状を設定"""
+        self._shape = shape
+
+    def bounding(self) -> BoundingShape:
+        """常に同じ形状を返す"""
+        return self._shape
+
+
 # シングルトンクラス
 class CollisionManager:
     """衝突検出を管理するシングルトンクラス"""
 
     _instance: CollisionManager | None = None
     collisions: list["CollisionDetectionContainer"]
+    statics: list["CollisionDetectionContainer"]
 
     def __new__(cls) -> "CollisionManager":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.collisions = []
+            cls._instance.statics = []
         return cls._instance
 
     def register(self, obj: "CollisionDetectionContainer") -> None:
@@ -161,6 +177,10 @@ class CollisionManager:
         # print ( "登録")
         if obj not in self.collisions:
             self.collisions.append(obj)
+
+    def static_register (self, obj: "CollisionDetectionContainer") -> None:
+        if obj not in self.statics:
+            self.statics.append(obj)
 
     def unregister(self, obj: "CollisionDetectionContainer") -> None:
         """衝突検出対象を登録解除する"""
@@ -171,6 +191,7 @@ class CollisionManager:
         """登録されている全オブジェクト間の衝突をチェックし、衝突しているペアのリストを返す"""
         n = len(self.collisions)
 
+        # 動的オブジェクト同士の衝突判定 O(n^2)
         for i in range(n):
             obj1 = self.collisions[i]
             if not obj1.is_collide_valid():
@@ -185,6 +206,19 @@ class CollisionManager:
                     obj1.collide(obj2)
                     obj2.collide(obj1)
 
+        # 動的オブジェクトと静的オブジェクトの衝突判定 O(n*m)
+        for dynamic_obj in self.collisions:
+            if not dynamic_obj.is_collide_valid():
+                continue
+
+            for static_obj in self.statics:
+                if not static_obj.is_collide_valid():
+                    continue
+                # 衝突判定
+                if dynamic_obj.check_collision_with(static_obj):
+                    dynamic_obj.collide(static_obj)
+                    static_obj.collide(dynamic_obj)
+
         return
 
 
@@ -193,11 +227,15 @@ class CollisionDetectionContainer(ContainerComponent, ABC):
 
     _collision_manager: CollisionManager
 
-    def __init__(self) -> None:
+    def __init__(self,is_static:bool = False) -> None:
         """コンストラクタでCollisionManagerに登録"""
         super().__init__()
-        self._collision_manager = CollisionManager()
-        self._collision_manager.register(self)
+        if is_static :
+            self._collision_manager = CollisionManager()
+            self._collision_manager.static_register(self)
+        else :
+            self._collision_manager = CollisionManager()
+            self._collision_manager.register(self)
 
     def __del__(self) -> None:
         """デストラクタでCollisionManagerから登録解除"""

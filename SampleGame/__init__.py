@@ -106,7 +106,7 @@ class Stage1 (Scene) :
         self.player.set_velocity_enabled(False)  # 物理演算OFF
         self.player.speed = 10
         self.blocks = GameContainer("Blocks Container")
-        for i in range(600) :
+        for i in range(100) :
             cube = Cube.transform(Vector3(
                 random.random()*40 - 20 ,
                 random.random()*10 - 5 ,
