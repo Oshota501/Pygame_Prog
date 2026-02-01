@@ -35,7 +35,6 @@ class Scene(SceneComponent):
         self.exe = []
         self.ev = []
         self.ticker = {}
-        self.start()
         self._interval_id_top = 0
         self._manager = CollisionManager()
         self.light = Light()

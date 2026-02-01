@@ -174,6 +174,10 @@ class ContainerComponent(
     def set_parent(self, parent: ContainerComponent) -> None:
         pass
 
+    @abstractmethod
+    def reset(self) -> None:
+        pass
+
 
 class DrawableContainerComponent(ContainerComponent, ABC):
     """

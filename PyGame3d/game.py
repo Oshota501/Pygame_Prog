@@ -91,8 +91,8 @@ class Application(ApplicationComponent):
         return self.stage
 
     def set_scene(self, scene: SceneComponent) -> None:
-        scene.start()
         self.stage = scene
+        scene.start()
 
     def _setup_glversion(self):
         # OpenGLのバージョンを330に合わせます。
