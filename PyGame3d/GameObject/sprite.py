@@ -180,10 +180,12 @@ class Sprite3D(
         bounding: list[Sprite3DBoundingObject] = [],
         physics: Sprite3DPhysicsComponent | None = None,
     ) -> None:
+        # すまぬ、ここは何故動くかよくわからん
+        # CollisionDetectionContainer.__init__を呼びだしていないが
+        # 継承している時点でよびだされてしまうpythonの仕様である可能性が高い
         # GameContainerの__init__を呼ぶ（位置やスケールの初期化）
         GameContainer.__init__(self, name)
-        # CollisionDetectionContainerの__init__を明示的に呼ぶ（CollisionManagerへの登録）
-        CollisionDetectionContainer.__init__(self)
+        # CollisionDetectionContainer.__init__()
         self.mesh = mesh
         self._collide_enabled = collision
         self._bounding_obj = bounding
@@ -195,7 +197,7 @@ class Sprite3D(
             self.physics = Sprite3DGravityPhysics()  # デフォルトは物理演算なし
         else:
             self.physics = physics
-        super().__init__()
+
 
     # @override
     def update(self, delta_time: float):
@@ -293,6 +295,10 @@ class Sprite3D(
         return
 
     # override
+    def reset(self) -> None:
+        self._collision_manager.unregister(self)
+        return super().reset()
+
     # spriteオブジェクトはset命令でvelocityをリセットする仕様にします。
     # position
     def set_position(self, absolute_position: Vector3) -> None:

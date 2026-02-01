@@ -21,6 +21,7 @@ from .GameObject.Camera import Camera
 # from .GameObject.Collide import
 from .GameObject.Container import GameContainer
 from .GameObject.sprite import Sprite3D
+from .GameObject.StaticGameObject import StaticGameObject
 from .GameObject.ui_2d import UI_2d
 
 # サンプル
@@ -47,4 +48,5 @@ __all__ = [
     "Quaternion",
     "Player",
     "FPSPlayer",
+    "StaticGameObject",
 ]

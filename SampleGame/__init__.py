@@ -13,9 +13,12 @@ from PyGame3d import (
     GameContainer,
     StaticCube,
     PerformanceInspectator,
+    CuttingBoad,
+    StaticGameObject,
 )
 import pygame
 
+from PyGame3d.GameObject.Collide import CollisionManager
 from PyGame3d.Singleton import SingletonABCMeta
 
 game = Application()
@@ -132,7 +135,21 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         self.player.speed = 10
         self.player.jump_power = 0.7
         self.blocks = GameContainer("Blocks Container")
-        self.add_children(Floor.transform(Vector3(0, -5, 0)), self.player, self.blocks)
+        self.add_children(
+            Floor.transform(Vector3(0, -5, 0)),
+            self.player,
+            self.blocks,
+            CuttingBoad.transform(
+                "./SampleGame/Assets/unity_3hours.png",
+                position=Vector3(0, 0, -12),
+                scale=Vector3(20, 10, 1),
+            ),
+            StaticGameObject.obj(
+                "./SampleGame/Assets/goal/goal.obj",
+                position=Vector3(81, 5, 81),
+                rotation=Quaternion.look_rotation(Vector3(81, 5, 81)),
+            ),
+        )
         # playerの物理演算を有効化
         self.player.set_velocity_enabled(True)
 
@@ -140,6 +157,10 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
         super().start()
         self.player.set_position(Vector3(0, 0, 0))
         self.blocks.reset()
+        print(len(self.blocks))
+        m = CollisionManager()
+        print("とうろく")
+        print(len(m.collisions),len(m.statics))
         for i in range(100):
             cube = StaticCube(
                 position=Vector3(
@@ -152,7 +173,7 @@ class Stage1(Scene, metaclass=SingletonABCMeta):
                 color=(random.random(), random.random(), random.random(), 1),
             )
             self.blocks.add_child(cube)
-
+        print(len(m.collisions),len(m.statics))
     def update(self, delta_time: float):
         super().update(delta_time)
         if self.player.position.y <= -10:

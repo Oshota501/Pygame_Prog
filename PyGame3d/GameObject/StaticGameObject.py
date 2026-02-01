@@ -48,8 +48,13 @@ class StaticGameObject(
         collide_enabled: bool = True,
         bounding_object: list[BoundingObject] | None = None,
     ) -> None:
-        super().__init__(name)
+        GameContainer.__init__(self, name)
         CollisionDetectionContainer.__init__(self, is_static=True)
+        # collisionsに登録されてしまうため、ここで解除する
+        # すまぬ
+        # なぜ登録されるかはよくわからん
+        self._collision_manager.unregister(self)
+        
         self.mesh = mesh
         self.position = position if position is not None else Vector3(0, 0, 0)
         self.rotation = rotation if rotation is not None else Quaternion.identity()
@@ -62,6 +67,10 @@ class StaticGameObject(
         self._bounding_obj = bounding_object if bounding_object is not None else []
 
     # override
+    def reset(self) -> None:
+        self._collision_manager.static_unregister(self)
+        return super().reset()
+
     def draw_update(self) -> None:
         if self.mesh is not None:
             self.mesh.render(self.get_world_matrix())
@@ -133,4 +142,26 @@ class StaticGameObject(
     def get_bounding_AABB_core(center: Vector3, scale: Vector3) -> StaticBoundingObject:
         return StaticBoundingObject(
             AxisAlignedBoundingBox(center - scale * 0.5, center + scale * 0.5)
+        )
+
+    @staticmethod
+    def obj(
+        obj_filename: str,
+        position: Vector3 | None = None,
+        rotation: Quaternion | None = None,
+        scale: Vector3 | None = None,
+        bounding_obj: list[BoundingObject] = [],
+    ) -> StaticGameObject:
+        from PyGame3d.Draw.uvmesh import UV3dMesh
+        import os
+
+        if not os.path.exists(obj_filename):
+            raise FileNotFoundError(f"Object file not found: {obj_filename}")
+
+        return StaticGameObject(
+            position=position,
+            rotation=rotation,
+            scale=scale,
+            bounding_object=bounding_obj,
+            mesh=UV3dMesh.load_obj(filename=obj_filename),
         )
