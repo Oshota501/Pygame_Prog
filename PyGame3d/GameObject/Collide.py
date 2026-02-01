@@ -187,6 +187,11 @@ class CollisionManager:
         if obj in self.collisions:
             self.collisions.remove(obj)
 
+    def static_unregister(self, obj: "CollisionDetectionContainer") -> None:
+        """衝突検出対象を登録解除する"""
+        if obj in self.statics:
+            self.statics.remove(obj)
+
     def check_all_collisions(self) -> None:
         """登録されている全オブジェクト間の衝突をチェックし、衝突しているペアのリストを返す"""
         n = len(self.collisions)

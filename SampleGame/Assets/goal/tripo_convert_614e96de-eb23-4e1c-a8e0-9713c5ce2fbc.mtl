@@ -1,0 +1,16 @@
+# Blender 4.5.0 MTL File: 'None'
+# www.blender.org
+
+newmtl tripo_mat_614e96de-eb23-4e1c-a8e0-9713c5ce2fbc
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ゴール3dモデル_basecolor.JPEG
+map_Ns ゴール3dモデル_roughness.JPEG
+map_Pr ゴール3dモデル_roughness.JPEG
+map_refl ゴール3dモデル_metallic.JPEG
+map_Pm ゴール3dモデル_metallic.JPEG
+map_Bump -bm 1.000000 ゴール3dモデル_normal.JPEG

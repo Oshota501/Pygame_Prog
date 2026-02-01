@@ -33,6 +33,11 @@ class Camera(ContainerComponent):
         pr_pointer = None
         del self.child[index]
 
+    def reset(self) -> None:
+        for c in self.child:
+            c.reset()
+        self.child = []
+
     def get_parent(self) -> ContainerComponent | None:
         return self.parent
 

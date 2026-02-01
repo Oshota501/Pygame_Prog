@@ -79,6 +79,11 @@ class GameContainer(ContainerComponent):
         # pr_pointer = None
         del self.child[index]
 
+    def reset(self) -> None:
+        for c in self.child:
+            c.reset()
+        self.child = []
+
     def get_parent(self) -> ContainerComponent | None:
         return self.parent
 
@@ -150,11 +155,7 @@ class GameContainer(ContainerComponent):
 
     def look_at(self, target: Vector3, up: Vector3 = Vector3(0, 1, 0)) -> None:
         self._changed = True
-        forward = Vector3(
-            target.x - self.position.x,
-            target.y - self.position.y,
-            target.z - self.position.z,
-        )
+        forward = target - self.get_position()
         self.rotation = Quaternion.look_rotation(forward, up)
 
     # Scale

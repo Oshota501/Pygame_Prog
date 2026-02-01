@@ -4,6 +4,12 @@
 
 画面とイベント処理は完全にpygameに依存していますが、描画のプロセスにpygameは一切関与しておらず、modernglに依存しています。
 
+### SampleGame
+
+サンプルゲームを用意しておきました。
+
+[SampleGame](./SampleGame/README.md)
+
 # 環境構築
 
 手元にWindowsが都合よくなかったのでMac版のみです。

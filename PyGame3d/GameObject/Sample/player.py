@@ -26,6 +26,7 @@ class Player(Sprite3D):
     sensitibity: float
     is_mouse_rock: bool
     _esc_was_down: bool
+    jump_power: float
 
     def __init__(self, sensitibity=1 / 200, is_mouse_rock=False) -> None:
         super().__init__(name="player")
